@@ -1,0 +1,54 @@
+// Discord风格主题色系统
+// 主要颜色
+$primary-color: #5865f2;
+$primary-hover: #4752c4;
+$primary-active: #3c45a5;
+
+// 背景颜色 - Discord风格
+$bg-primary: #36393f;      // 深灰主背景
+$bg-secondary: #2f3136;    // 侧边栏背景
+$bg-tertiary: #40444b;     // 卡片背景
+$bg-quaternary: #4f545c;   // 悬停背景
+
+// 文字颜色
+$text-primary: #ffffff;
+$text-secondary: #b9bbbe;
+$text-muted: #72767d;
+$text-disabled: #4f545c;
+
+// 状态颜色
+$success-color: #3ba55c;
+$warning-color: #faa61a;
+$error-color: #ed4245;
+$info-color: #5865f2;
+
+// 边框颜色
+$border-color: #40444b;
+$border-hover: #4f545c;
+
+// 阴影
+$shadow-light: rgba(0, 0, 0, 0.1);
+$shadow-medium: rgba(0, 0, 0, 0.2);
+$shadow-heavy: rgba(0, 0, 0, 0.3);
+
+// 圆角
+$border-radius-sm: 4px;
+$border-radius: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-xxl: 24px;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
