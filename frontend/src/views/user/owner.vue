@@ -1,279 +1,384 @@
 <template>
-  <div class="owner-container">
+  <div class="owner-container responsive-container">
+    <!-- 页面头部 -->
     <div class="page-header">
-      <h1 class="page-title">业主管理</h1>
-      <p class="page-subtitle">管理业主信息、房产绑定和审核状态</p>
+      <div class="header-left">
+        <h1 class="page-title">业主管理</h1>
+        <p class="page-subtitle">管理小区业主信息和房产绑定</p>
+      </div>
+      <div class="header-right">
+        <el-button type="primary" @click="showAddDialog = true">
+          <el-icon><Plus /></el-icon>
+          添加业主
+        </el-button>
+      </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <el-card class="filter-card">
-      <el-form :model="queryParams" :inline="true" class="filter-form">
-        <el-form-item label="业主姓名">
-          <el-input
-            v-model="queryParams.name"
-            placeholder="请输入业主姓名"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input
-            v-model="queryParams.phone"
-            placeholder="请输入手机号"
-            clearable
-            style="width: 180px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="审核状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 140px">
+    <!-- 统计卡片 -->
+    <div class="stats-cards responsive-grid grid-4">
+      <div class="stat-card responsive-card total">
+        <div class="stat-icon">
+          <el-icon><User /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">总业主数</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card verified">
+        <div class="stat-icon">
+          <el-icon><Check /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.verified }}</div>
+          <div class="stat-label">已认证</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card pending">
+        <div class="stat-icon">
+          <el-icon><Clock /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.pending }}</div>
+          <div class="stat-label">待审核</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card occupied">
+        <div class="stat-icon">
+          <el-icon><House /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.occupied }}</div>
+          <div class="stat-label">已入住</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="filter-section responsive-card">
+      <el-form :model="filters" inline class="filter-form">
+        <el-form-item label="认证状态">
+          <el-select v-model="filters.status" placeholder="全部状态" clearable style="width: 120px">
+            <el-option label="已认证" value="verified" />
             <el-option label="待审核" value="pending" />
-            <el-option label="已通过" value="approved" />
-            <el-option label="已拒绝" value="rejected" />
+            <el-option label="未认证" value="unverified" />
           </el-select>
         </el-form-item>
-        <el-form-item label="房产绑定">
-          <el-select v-model="queryParams.hasProperty" placeholder="绑定状态" clearable style="width: 140px">
-            <el-option label="已绑定" value="true" />
-            <el-option label="未绑定" value="false" />
+        <el-form-item label="入住状态">
+          <el-select v-model="filters.occupancy" placeholder="全部状态" clearable style="width: 120px">
+            <el-option label="已入住" value="occupied" />
+            <el-option label="未入住" value="vacant" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="楼栋">
+          <el-select v-model="filters.building" placeholder="全部楼栋" clearable style="width: 100px">
+            <el-option label="A栋" value="A" />
+            <el-option label="B栋" value="B" />
+            <el-option label="C栋" value="C" />
+            <el-option label="D栋" value="D" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">
-            <el-icon><Search /></el-icon>
-            搜索
-          </el-button>
-          <el-button @click="resetQuery">
-            <el-icon><Refresh /></el-icon>
-            重置
-          </el-button>
+          <el-input
+            v-model="filters.keyword"
+            placeholder="搜索业主姓名、手机号"
+            prefix-icon="Search"
+            style="width: 200px"
+            @keyup.enter="loadOwners"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="loadOwners">搜索</el-button>
+          <el-button @click="resetFilters">重置</el-button>
         </el-form-item>
       </el-form>
-    </el-card>
-
-    <!-- 操作栏 -->
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增业主
-        </el-button>
-        <el-button type="success" :disabled="!multipleSelection.length" @click="handleBatchApprove">
-          <el-icon><Check /></el-icon>
-          批量通过
-        </el-button>
-        <el-button type="warning" :disabled="!multipleSelection.length" @click="handleBatchReject">
-          <el-icon><Close /></el-icon>
-          批量拒绝
-        </el-button>
-      </div>
-      <div class="toolbar-right">
-        <el-button @click="handleExport">
-          <el-icon><Download /></el-icon>
-          导出
-        </el-button>
-      </div>
     </div>
 
-    <!-- 数据表格 -->
-    <el-card class="table-card">
+    <!-- 业主列表 -->
+    <div class="owner-list responsive-card">
       <el-table
+        :data="owners"
         v-loading="loading"
-        :data="ownerList"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
+        stripe
+        @row-click="viewOwner"
+        class="owner-table"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="头像" width="80">
-          <template #default="scope">
-            <el-avatar :src="scope.row.avatar" :size="40">
-              {{ scope.row.name.charAt(0) }}
-            </el-avatar>
+        
+        <el-table-column label="业主信息" min-width="200">
+          <template #default="{ row }">
+            <div class="owner-info">
+              <el-avatar :size="40" :src="row.avatar">{{ row.name.charAt(0) }}</el-avatar>
+              <div class="info-content">
+                <div class="name">{{ row.name }}</div>
+                <div class="phone">{{ row.phone }}</div>
+              </div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="phone" label="手机号" width="140" />
-        <el-table-column prop="idCard" label="身份证号" width="180" show-overflow-tooltip />
-        <el-table-column label="房产信息" width="200">
-          <template #default="scope">
-            <div v-if="scope.row.properties.length > 0">
+        
+        <el-table-column prop="properties" label="房产信息" min-width="180">
+          <template #default="{ row }">
+            <div class="properties">
               <el-tag
-                v-for="property in scope.row.properties"
+                v-for="property in row.properties"
                 :key="property.id"
                 size="small"
-                style="margin: 2px"
+                :type="property.occupied ? 'success' : ''"
+                class="property-tag"
               >
                 {{ property.building }}栋{{ property.unit }}单元{{ property.room }}室
+                <el-icon v-if="property.occupied"><House /></el-icon>
               </el-tag>
             </div>
-            <span v-else class="text-muted">未绑定房产</span>
           </template>
         </el-table-column>
-        <el-table-column label="审核状态" width="120">
-          <template #default="scope">
-            <el-tag
-              :type="getStatusTagType(scope.row.status)"
-              size="small"
-            >
-              {{ getStatusText(scope.row.status) }}
+        
+        <el-table-column prop="status" label="认证状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getStatusTagType(row.status)" size="small">
+              {{ getStatusName(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="注册时间" width="160" />
+        
+        <el-table-column prop="registeredAt" label="注册时间" width="150">
+          <template #default="{ row }">
+            {{ formatDate(row.registeredAt) }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="lastLogin" label="最后登录" width="150">
+          <template #default="{ row }">
+            <span v-if="row.lastLogin">{{ formatDate(row.lastLogin) }}</span>
+            <span v-else class="text-muted">从未登录</span>
+          </template>
+        </el-table-column>
+        
         <el-table-column label="操作" width="200" fixed="right">
-          <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleView(scope.row)"
-            >
-              查看
+          <template #default="{ row }">
+            <el-button type="primary" size="small" @click.stop="viewOwner(row)">
+              详情
             </el-button>
-            <el-button
-              type="success"
-              size="small"
-              v-if="scope.row.status === 'pending'"
-              @click="handleApprove(scope.row)"
+            <el-button 
+              v-if="row.status === 'pending'" 
+              type="success" 
+              size="small" 
+              @click.stop="approveOwner(row)"
             >
-              通过
+              审核
             </el-button>
-            <el-button
-              type="warning"
-              size="small"
-              v-if="scope.row.status === 'pending'"
-              @click="handleReject(scope.row)"
-            >
-              拒绝
-            </el-button>
-            <el-button
-              type="info"
-              size="small"
-              @click="handleBindProperty(scope.row)"
-            >
-              绑定房产
-            </el-button>
+            <el-dropdown @command="(command) => handleCommand(command, row)" trigger="click">
+              <el-button size="small" type="text">
+                更多<el-icon><ArrowDown /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                  <el-dropdown-item command="property">房产管理</el-dropdown-item>
+                  <el-dropdown-item command="reset">重置密码</el-dropdown-item>
+                  <el-dropdown-item command="disable" v-if="row.status === 'verified'">禁用</el-dropdown-item>
+                  <el-dropdown-item command="enable" v-if="row.status === 'disabled'">启用</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
-
+      
       <!-- 分页 -->
-      <div class="pagination-wrapper">
+      <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.pageNum"
-          v-model:page-size="queryParams.pageSize"
+          v-model:current-page="pagination.current"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
           :page-sizes="[10, 20, 50, 100]"
-          :total="total"
           layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          @size-change="loadOwners"
+          @current-change="loadOwners"
         />
       </div>
-    </el-card>
+    </div>
 
-    <!-- 业主详情弹窗 -->
+    <!-- 业主详情对话框 -->
     <el-dialog
       v-model="showDetailDialog"
-      title="业主详情"
+      :title="`业主详情 - ${selectedOwner?.name}`"
       width="800px"
-      :close-on-click-modal="false"
+      class="owner-dialog"
     >
-      <div v-if="currentOwner" class="owner-detail">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="头像">
-            <el-avatar :src="currentOwner.avatar" :size="60">
-              {{ currentOwner.name.charAt(0) }}
-            </el-avatar>
-          </el-descriptions-item>
-          <el-descriptions-item label="姓名">{{ currentOwner.name }}</el-descriptions-item>
-          <el-descriptions-item label="手机号">{{ currentOwner.phone }}</el-descriptions-item>
-          <el-descriptions-item label="身份证号">{{ currentOwner.idCard }}</el-descriptions-item>
-          <el-descriptions-item label="邮箱">{{ currentOwner.email || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="紧急联系人">{{ currentOwner.emergencyContact || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="紧急联系电话">{{ currentOwner.emergencyPhone || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="审核状态">
-            <el-tag :type="getStatusTagType(currentOwner.status)">
-              {{ getStatusText(currentOwner.status) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="注册时间" :span="2">{{ currentOwner.createTime }}</el-descriptions-item>
-        </el-descriptions>
-
-        <div class="property-section">
-          <h3>绑定房产</h3>
-          <div v-if="currentOwner.properties.length > 0" class="property-list">
-            <el-card
-              v-for="property in currentOwner.properties"
-              :key="property.id"
-              class="property-card"
-            >
-              <div class="property-info">
-                <h4>{{ property.building }}栋{{ property.unit }}单元{{ property.room }}室</h4>
-                <p>面积：{{ property.area }}㎡</p>
-                <p>类型：{{ property.type }}</p>
-                <p>绑定时间：{{ property.bindTime }}</p>
+      <div v-if="selectedOwner" class="owner-detail">
+        <div class="detail-header">
+          <div class="owner-basic">
+            <el-avatar :size="80" :src="selectedOwner.avatar">{{ selectedOwner.name.charAt(0) }}</el-avatar>
+            <div class="basic-info">
+              <h3>{{ selectedOwner.name }}</h3>
+              <p>{{ selectedOwner.phone }}</p>
+              <div class="status-tags">
+                <el-tag :type="getStatusTagType(selectedOwner.status)">{{ getStatusName(selectedOwner.status) }}</el-tag>
+                <el-tag v-if="selectedOwner.vip" type="warning">VIP业主</el-tag>
               </div>
-            </el-card>
+            </div>
           </div>
-          <div v-else class="no-property">
-            <el-empty description="暂无绑定房产" />
+          <div class="detail-actions">
+            <el-button v-if="selectedOwner.status === 'pending'" type="success" @click="approveOwner(selectedOwner)">
+              审核通过
+            </el-button>
+            <el-button type="primary" @click="editOwner(selectedOwner)">编辑信息</el-button>
           </div>
         </div>
+        
+        <el-divider />
+        
+        <div class="detail-content">
+          <el-tabs v-model="activeTab">
+            <el-tab-pane label="基本信息" name="basic">
+              <el-descriptions :column="2" border>
+                <el-descriptions-item label="姓名">{{ selectedOwner.name }}</el-descriptions-item>
+                <el-descriptions-item label="手机号">{{ selectedOwner.phone }}</el-descriptions-item>
+                <el-descriptions-item label="身份证号">{{ selectedOwner.idCard || '未填写' }}</el-descriptions-item>
+                <el-descriptions-item label="邮箱">{{ selectedOwner.email || '未填写' }}</el-descriptions-item>
+                <el-descriptions-item label="认证状态">
+                  <el-tag :type="getStatusTagType(selectedOwner.status)">{{ getStatusName(selectedOwner.status) }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="注册时间">{{ formatDate(selectedOwner.registeredAt) }}</el-descriptions-item>
+                <el-descriptions-item label="最后登录">{{ selectedOwner.lastLogin ? formatDate(selectedOwner.lastLogin) : '从未登录' }}</el-descriptions-item>
+                <el-descriptions-item label="登录次数">{{ selectedOwner.loginCount || 0 }}次</el-descriptions-item>
+              </el-descriptions>
+            </el-tab-pane>
+            
+            <el-tab-pane label="房产信息" name="property">
+              <div class="property-list">
+                <div v-for="property in selectedOwner.properties" :key="property.id" class="property-item">
+                  <div class="property-info">
+                    <h4>{{ property.building }}栋{{ property.unit }}单元{{ property.room }}室</h4>
+                    <div class="property-details">
+                      <span>面积：{{ property.area }}㎡</span>
+                      <span>类型：{{ property.type }}</span>
+                      <span>状态：{{ property.occupied ? '已入住' : '空置' }}</span>
+                    </div>
+                  </div>
+                  <div class="property-actions">
+                    <el-button size="small" type="text">编辑</el-button>
+                    <el-button size="small" type="text" @click="unbindProperty(property)">解绑</el-button>
+                  </div>
+                </div>
+                <el-button type="primary" @click="bindProperty">绑定新房产</el-button>
+              </div>
+            </el-tab-pane>
+            
+            <el-tab-pane label="缴费记录" name="payment">
+              <el-table :data="selectedOwner.payments" stripe>
+                <el-table-column prop="type" label="费用类型" width="120" />
+                <el-table-column prop="amount" label="金额" width="100">
+                  <template #default="{ row }">
+                    ¥{{ row.amount }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="period" label="缴费周期" width="120" />
+                <el-table-column prop="status" label="状态" width="100">
+                  <template #default="{ row }">
+                    <el-tag :type="row.status === 'paid' ? 'success' : 'warning'" size="small">
+                      {{ row.status === 'paid' ? '已缴费' : '待缴费' }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="paidAt" label="缴费时间" width="150">
+                  <template #default="{ row }">
+                    {{ row.paidAt ? formatDate(row.paidAt) : '-' }}
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+            
+            <el-tab-pane label="工单记录" name="orders">
+              <el-table :data="selectedOwner.workOrders" stripe>
+                <el-table-column prop="id" label="工单号" width="120" />
+                <el-table-column prop="type" label="类型" width="100" />
+                <el-table-column prop="title" label="标题" min-width="200" />
+                <el-table-column prop="status" label="状态" width="100">
+                  <template #default="{ row }">
+                    <el-tag :type="getStatusTagType(row.status)" size="small">
+                      {{ getStatusName(row.status) }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="createdAt" label="创建时间" width="150">
+                  <template #default="{ row }">
+                    {{ formatDate(row.createdAt) }}
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
       </div>
-      <template #footer>
-        <el-button @click="showDetailDialog = false">关闭</el-button>
-        <el-button v-if="currentOwner && currentOwner.status === 'pending'" type="success" @click="handleApprove(currentOwner)">
-          通过审核
-        </el-button>
-        <el-button v-if="currentOwner && currentOwner.status === 'pending'" type="warning" @click="handleReject(currentOwner)">
-          拒绝审核
-        </el-button>
-      </template>
     </el-dialog>
 
-    <!-- 房产绑定弹窗 -->
-    <el-dialog
-      v-model="showBindDialog"
-      title="绑定房产"
-      width="600px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="bindForm" label-width="80px">
-        <el-form-item label="选择房产">
-          <el-select
-            v-model="bindForm.propertyId"
-            placeholder="请选择要绑定的房产"
-            style="width: 100%"
-            filterable
-          >
-            <el-option
-              v-for="property in availableProperties"
-              :key="property.id"
-              :label="`${property.building}栋${property.unit}单元${property.room}室`"
-              :value="property.id"
-            />
-          </el-select>
+    <!-- 添加业主对话框 -->
+    <el-dialog v-model="showAddDialog" title="添加业主" width="600px">
+      <el-form :model="newOwner" :rules="ownerRules" ref="ownerForm" label-width="100px">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="newOwner.name" placeholder="请输入业主姓名" />
         </el-form-item>
-        <el-form-item label="绑定类型">
-          <el-radio-group v-model="bindForm.bindType">
-            <el-radio label="owner">业主</el-radio>
-            <el-radio label="tenant">租户</el-radio>
-            <el-radio label="family">家属</el-radio>
-          </el-radio-group>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="newOwner.phone" placeholder="请输入手机号" />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            v-model="bindForm.remark"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入备注信息"
-          />
+        <el-form-item label="身份证号" prop="idCard">
+          <el-input v-model="newOwner.idCard" placeholder="请输入身份证号" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="newOwner.email" placeholder="请输入邮箱地址" />
+        </el-form-item>
+        <el-form-item label="房产信息">
+          <div class="property-selector">
+            <el-select v-model="newOwner.building" placeholder="楼栋" style="width: 80px">
+              <el-option label="A栋" value="A" />
+              <el-option label="B栋" value="B" />
+              <el-option label="C栋" value="C" />
+              <el-option label="D栋" value="D" />
+            </el-select>
+            <el-select v-model="newOwner.unit" placeholder="单元" style="width: 80px">
+              <el-option v-for="i in 6" :key="i" :label="`${i}单元`" :value="i" />
+            </el-select>
+            <el-select v-model="newOwner.room" placeholder="房间" style="width: 100px">
+              <el-option v-for="i in 20" :key="i" :label="`${i}0${i % 2 + 1}`" :value="`${i}0${i % 2 + 1}`" />
+            </el-select>
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showBindDialog = false">取消</el-button>
-        <el-button type="primary" @click="confirmBind">确定绑定</el-button>
+        <el-button @click="showAddDialog = false">取消</el-button>
+        <el-button type="primary" @click="addOwner" :loading="adding">添加</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 审核对话框 -->
+    <el-dialog v-model="showApprovalDialog" title="业主审核" width="500px">
+      <div v-if="approvalOwner" class="approval-content">
+        <div class="owner-info">
+          <el-avatar :size="60" :src="approvalOwner.avatar">{{ approvalOwner.name.charAt(0) }}</el-avatar>
+          <div class="info">
+            <h4>{{ approvalOwner.name }}</h4>
+            <p>{{ approvalOwner.phone }}</p>
+          </div>
+        </div>
+        <el-form :model="approvalForm" label-width="80px">
+          <el-form-item label="审核结果">
+            <el-radio-group v-model="approvalForm.result">
+              <el-radio label="approved">通过</el-radio>
+              <el-radio label="rejected">拒绝</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="审核意见">
+            <el-input v-model="approvalForm.comment" type="textarea" :rows="3" placeholder="请输入审核意见" />
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <el-button @click="showApprovalDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitApproval" :loading="approving">提交</el-button>
       </template>
     </el-dialog>
   </div>
@@ -282,43 +387,81 @@
 <script>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Check, Close, Download } from '@element-plus/icons-vue'
+import { Plus, User, Check, Clock, House, Search, ArrowDown } from '@element-plus/icons-vue'
 
 export default {
-  name: 'Owner',
+  name: 'OwnerManagement',
   components: {
-    Search,
-    Refresh,
-    Plus,
-    Check,
-    Close,
-    Download
+    Plus, User, Check, Clock, House, Search, ArrowDown
   },
   setup() {
     const loading = ref(false)
-    const ownerList = ref([])
-    const total = ref(0)
-    const multipleSelection = ref([])
+    const adding = ref(false)
+    const approving = ref(false)
     const showDetailDialog = ref(false)
-    const showBindDialog = ref(false)
-    const currentOwner = ref(null)
-    const availableProperties = ref([])
+    const showAddDialog = ref(false)
+    const showApprovalDialog = ref(false)
+    const selectedOwner = ref(null)
+    const approvalOwner = ref(null)
+    const activeTab = ref('basic')
     
-    const queryParams = reactive({
-      pageNum: 1,
-      pageSize: 20,
+    // 统计数据
+    const stats = reactive({
+      total: 156,
+      verified: 142,
+      pending: 8,
+      occupied: 134
+    })
+    
+    // 筛选条件
+    const filters = reactive({
+      status: '',
+      occupancy: '',
+      building: '',
+      keyword: ''
+    })
+    
+    // 分页
+    const pagination = reactive({
+      current: 1,
+      size: 20,
+      total: 0
+    })
+    
+    // 业主列表
+    const owners = ref([])
+    
+    // 新建业主表单
+    const newOwner = reactive({
       name: '',
       phone: '',
-      status: '',
-      hasProperty: ''
+      idCard: '',
+      email: '',
+      building: '',
+      unit: '',
+      room: ''
     })
     
-    const bindForm = reactive({
-      ownerId: null,
-      propertyId: null,
-      bindType: 'owner',
-      remark: ''
+    // 审核表单
+    const approvalForm = reactive({
+      result: 'approved',
+      comment: ''
     })
+    
+    // 表单验证规则
+    const ownerRules = {
+      name: [{ required: true, message: '请输入业主姓名', trigger: 'blur' }],
+      phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+      ],
+      idCard: [
+        { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+      ],
+      email: [
+        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+      ]
+    }
     
     // 模拟数据
     const mockOwners = [
@@ -328,258 +471,251 @@ export default {
         phone: '13800138001',
         idCard: '110101199001011234',
         email: 'zhangsan@example.com',
-        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-        status: 'approved',
-        emergencyContact: '李四',
-        emergencyPhone: '13800138002',
-        createTime: '2024-01-15 10:30:00',
+        avatar: '',
+        status: 'verified',
+        registeredAt: '2023-10-15 09:30:00',
+        lastLogin: '2023-12-01 15:20:00',
+        loginCount: 45,
+        vip: true,
         properties: [
-          {
-            id: 1,
-            building: 'A',
-            unit: '1',
-            room: '101',
-            area: 120,
-            type: '三室两厅',
-            bindTime: '2024-01-16 09:00:00'
-          }
+          { id: 1, building: 'A', unit: 1, room: '101', area: 85, type: '两室一厅', occupied: true }
+        ],
+        payments: [
+          { type: '物业费', amount: 280, period: '2023-12', status: 'paid', paidAt: '2023-12-01 10:30:00' },
+          { type: '停车费', amount: 200, period: '2023-12', status: 'paid', paidAt: '2023-12-01 10:30:00' }
+        ],
+        workOrders: [
+          { id: 'WO202312001', type: '设备维修', title: '水龙头漏水', status: 'completed', createdAt: '2023-11-28 14:20:00' }
         ]
       },
       {
         id: 2,
-        name: '王五',
-        phone: '13800138003',
-        idCard: '110101199002022345',
+        name: '李四',
+        phone: '13800138002',
+        idCard: '110101199002021234',
         email: '',
         avatar: '',
         status: 'pending',
-        emergencyContact: '',
-        emergencyPhone: '',
-        createTime: '2024-01-20 14:20:00',
-        properties: []
+        registeredAt: '2023-12-01 16:45:00',
+        lastLogin: null,
+        loginCount: 0,
+        vip: false,
+        properties: [
+          { id: 2, building: 'B', unit: 2, room: '205', area: 95, type: '三室一厅', occupied: false }
+        ],
+        payments: [],
+        workOrders: []
       },
       {
         id: 3,
-        name: '赵六',
-        phone: '13800138004',
-        idCard: '110101199003033456',
-        email: 'zhaoliu@example.com',
+        name: '王五',
+        phone: '13800138003',
+        idCard: '110101199003031234',
+        email: 'wangwu@example.com',
         avatar: '',
-        status: 'rejected',
-        emergencyContact: '钱七',
-        emergencyPhone: '13800138005',
-        createTime: '2024-01-18 16:45:00',
-        properties: []
+        status: 'verified',
+        registeredAt: '2023-09-20 11:15:00',
+        lastLogin: '2023-11-30 20:10:00',
+        loginCount: 23,
+        vip: false,
+        properties: [
+          { id: 3, building: 'A', unit: 1, room: '102', area: 85, type: '两室一厅', occupied: true },
+          { id: 4, building: 'C', unit: 3, room: '301', area: 120, type: '三室两厅', occupied: false }
+        ],
+        payments: [
+          { type: '物业费', amount: 280, period: '2023-12', status: 'pending', paidAt: null }
+        ],
+        workOrders: []
       }
     ]
     
-    const mockProperties = [
-      { id: 1, building: 'A', unit: '1', room: '102', area: 95, type: '两室一厅' },
-      { id: 2, building: 'A', unit: '2', room: '201', area: 110, type: '三室一厅' },
-      { id: 3, building: 'B', unit: '1', room: '101', area: 85, type: '两室一厅' },
-      { id: 4, building: 'B', unit: '2', room: '202', area: 130, type: '三室两厅' }
-    ]
-    
-    const getList = () => {
+    // 加载业主列表
+    const loadOwners = async () => {
       loading.value = true
-      // 模拟API调用
-      setTimeout(() => {
-        ownerList.value = mockOwners
-        total.value = mockOwners.length
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        owners.value = mockOwners
+        pagination.total = mockOwners.length
+      } catch (error) {
+        ElMessage.error('加载业主列表失败')
+      } finally {
         loading.value = false
-      }, 500)
+      }
     }
     
-    const handleQuery = () => {
-      queryParams.pageNum = 1
-      getList()
-    }
-    
-    const resetQuery = () => {
-      Object.assign(queryParams, {
-        pageNum: 1,
-        pageSize: 20,
-        name: '',
-        phone: '',
-        status: '',
-        hasProperty: ''
+    // 重置筛选条件
+    const resetFilters = () => {
+      Object.keys(filters).forEach(key => {
+        filters[key] = ''
       })
-      getList()
+      loadOwners()
     }
     
-    const handleAdd = () => {
-      ElMessage.info('新增业主功能开发中...')
-    }
-    
-    const handleView = (row) => {
-      currentOwner.value = row
+    // 查看业主详情
+    const viewOwner = (owner) => {
+      selectedOwner.value = owner
       showDetailDialog.value = true
+      activeTab.value = 'basic'
     }
     
-    const handleApprove = async (row) => {
+    // 添加业主
+    const addOwner = async () => {
+      adding.value = true
       try {
-        await ElMessageBox.confirm('确定要通过该业主的审核吗？', '确认操作')
-        // 模拟API调用
-        row.status = 'approved'
-        ElMessage.success('审核通过成功')
-        showDetailDialog.value = false
-      } catch {
-        // 用户取消
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        ElMessage.success('业主添加成功')
+        showAddDialog.value = false
+        loadOwners()
+      } catch (error) {
+        ElMessage.error('添加业主失败')
+      } finally {
+        adding.value = false
       }
     }
     
-    const handleReject = async (row) => {
+    // 审核业主
+    const approveOwner = (owner) => {
+      approvalOwner.value = owner
+      showApprovalDialog.value = true
+    }
+    
+    // 提交审核
+    const submitApproval = async () => {
+      approving.value = true
       try {
-        await ElMessageBox.confirm('确定要拒绝该业主的审核吗？', '确认操作')
-        // 模拟API调用
-        row.status = 'rejected'
-        ElMessage.success('审核拒绝成功')
-        showDetailDialog.value = false
-      } catch {
-        // 用户取消
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        ElMessage.success('审核提交成功')
+        showApprovalDialog.value = false
+        loadOwners()
+      } catch (error) {
+        ElMessage.error('审核提交失败')
+      } finally {
+        approving.value = false
       }
     }
     
-    const handleBindProperty = (row) => {
-      currentOwner.value = row
-      bindForm.ownerId = row.id
-      availableProperties.value = mockProperties
-      showBindDialog.value = true
+    // 编辑业主
+    const editOwner = (owner) => {
+      ElMessage.info('编辑功能开发中')
     }
     
-    const confirmBind = () => {
-      if (!bindForm.propertyId) {
-        ElMessage.error('请选择要绑定的房产')
-        return
-      }
-      
-      // 模拟绑定操作
-      const property = availableProperties.value.find(p => p.id === bindForm.propertyId)
-      if (property) {
-        currentOwner.value.properties.push({
-          ...property,
-          bindTime: new Date().toLocaleString()
-        })
-        ElMessage.success('房产绑定成功')
-        showBindDialog.value = false
-        // 重置表单
-        Object.assign(bindForm, {
-          ownerId: null,
-          propertyId: null,
-          bindType: 'owner',
-          remark: ''
-        })
-      }
+    // 绑定房产
+    const bindProperty = () => {
+      ElMessage.info('绑定房产功能开发中')
     }
     
-    const handleBatchApprove = async () => {
-      if (multipleSelection.value.length === 0) {
-        ElMessage.error('请先选择要操作的业主')
-        return
-      }
-      
-      try {
-        await ElMessageBox.confirm(`确定要批量通过 ${multipleSelection.value.length} 个业主的审核吗？`, '确认操作')
-        // 模拟批量操作
-        multipleSelection.value.forEach(owner => {
-          if (owner.status === 'pending') {
-            owner.status = 'approved'
-          }
-        })
-        ElMessage.success('批量审核通过成功')
-      } catch {
-        // 用户取消
-      }
+    // 解绑房产
+    const unbindProperty = (property) => {
+      ElMessageBox.confirm('确定要解绑此房产吗？', '确认操作', {
+        type: 'warning'
+      }).then(() => {
+        ElMessage.success('房产解绑成功')
+      })
     }
     
-    const handleBatchReject = async () => {
-      if (multipleSelection.value.length === 0) {
-        ElMessage.error('请先选择要操作的业主')
-        return
-      }
-      
-      try {
-        await ElMessageBox.confirm(`确定要批量拒绝 ${multipleSelection.value.length} 个业主的审核吗？`, '确认操作')
-        // 模拟批量操作
-        multipleSelection.value.forEach(owner => {
-          if (owner.status === 'pending') {
-            owner.status = 'rejected'
-          }
-        })
-        ElMessage.success('批量审核拒绝成功')
-      } catch {
-        // 用户取消
+    // 处理下拉菜单命令
+    const handleCommand = (command, owner) => {
+      switch (command) {
+        case 'edit':
+          editOwner(owner)
+          break
+        case 'property':
+          viewOwner(owner)
+          activeTab.value = 'property'
+          break
+        case 'reset':
+          ElMessageBox.confirm('确定要重置此业主的密码吗？', '确认操作', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('密码重置成功，新密码已发送至业主手机')
+          })
+          break
+        case 'disable':
+          ElMessageBox.confirm('确定要禁用此业主吗？', '确认操作', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('业主已禁用')
+            loadOwners()
+          })
+          break
+        case 'enable':
+          ElMessageBox.confirm('确定要启用此业主吗？', '确认操作', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('业主已启用')
+            loadOwners()
+          })
+          break
+        case 'delete':
+          ElMessageBox.confirm('确定要删除此业主吗？', '确认删除', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('业主已删除')
+            loadOwners()
+          })
+          break
       }
     }
     
-    const handleExport = () => {
-      ElMessage.info('导出功能开发中...')
-    }
-    
-    const handleSelectionChange = (selection) => {
-      multipleSelection.value = selection
-    }
-    
-    const handleSizeChange = (val) => {
-      queryParams.pageSize = val
-      getList()
-    }
-    
-    const handleCurrentChange = (val) => {
-      queryParams.pageNum = val
-      getList()
+    // 工具函数
+    const getStatusName = (status) => {
+      const statusMap = {
+        verified: '已认证',
+        pending: '待审核',
+        unverified: '未认证',
+        disabled: '已禁用'
+      }
+      return statusMap[status] || status
     }
     
     const getStatusTagType = (status) => {
       const statusMap = {
+        verified: 'success',
         pending: 'warning',
-        approved: 'success',
-        rejected: 'danger'
+        unverified: 'info',
+        disabled: 'danger'
       }
-      return statusMap[status] || 'info'
+      return statusMap[status] || ''
     }
     
-    const getStatusText = (status) => {
-      const statusMap = {
-        pending: '待审核',
-        approved: '已通过',
-        rejected: '已拒绝'
-      }
-      return statusMap[status] || '未知'
+    const formatDate = (dateStr) => {
+      return new Date(dateStr).toLocaleString('zh-CN')
     }
     
     onMounted(() => {
-      getList()
+      loadOwners()
     })
     
     return {
       loading,
-      ownerList,
-      total,
-      multipleSelection,
+      adding,
+      approving,
       showDetailDialog,
-      showBindDialog,
-      currentOwner,
-      availableProperties,
-      queryParams,
-      bindForm,
-      getList,
-      handleQuery,
-      resetQuery,
-      handleAdd,
-      handleView,
-      handleApprove,
-      handleReject,
-      handleBindProperty,
-      confirmBind,
-      handleBatchApprove,
-      handleBatchReject,
-      handleExport,
-      handleSelectionChange,
-      handleSizeChange,
-      handleCurrentChange,
+      showAddDialog,
+      showApprovalDialog,
+      selectedOwner,
+      approvalOwner,
+      activeTab,
+      stats,
+      filters,
+      pagination,
+      owners,
+      newOwner,
+      approvalForm,
+      ownerRules,
+      loadOwners,
+      resetFilters,
+      viewOwner,
+      addOwner,
+      approveOwner,
+      submitApproval,
+      editOwner,
+      bindProperty,
+      unbindProperty,
+      handleCommand,
+      getStatusName,
       getStatusTagType,
-      getStatusText
+      formatDate
     }
   }
 }
@@ -587,123 +723,399 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+@import '@/styles/responsive.scss';
 
 .owner-container {
   padding: 20px;
+  min-height: calc(100vh - 50px);
+  background: $bg-primary;
 }
 
 .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
   
-  .page-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 8px 0;
+  .header-left {
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 8px 0;
+    }
+    
+    .page-subtitle {
+      font-size: 14px;
+      color: $text-secondary;
+      margin: 0;
+    }
   }
   
-  .page-subtitle {
-    font-size: 14px;
-    color: $text-secondary;
-    margin: 0;
+  @include mobile {
+    flex-direction: column;
+    gap: 16px;
+    
+    .header-right {
+      width: 100%;
+      
+      .el-button {
+        width: 100%;
+      }
+    }
   }
 }
 
-.filter-card {
+.stats-cards {
+  margin-bottom: 24px;
+  
+  .stat-card {
+    background: linear-gradient(135deg, $bg-tertiary 0%, lighten($bg-tertiary, 2%) 100%);
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px $shadow-medium;
+    }
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+    }
+    
+    .stat-info {
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      
+      .stat-label {
+        font-size: 14px;
+        color: $text-secondary;
+      }
+    }
+    
+    &.total .stat-icon {
+      background: linear-gradient(135deg, #5865f2, #4752c4);
+    }
+    
+    &.verified .stat-icon {
+      background: linear-gradient(135deg, #3ba55c, #27ae60);
+    }
+    
+    &.pending .stat-icon {
+      background: linear-gradient(135deg, #faa61a, #f0932b);
+    }
+    
+    &.occupied .stat-icon {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+  }
+}
+
+.filter-section {
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: 20px;
   margin-bottom: 20px;
   
   .filter-form {
-    .el-form-item {
-      margin-bottom: 0;
+    @include mobile {
+      .el-form-item {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 16px;
+        
+        :deep(.el-form-item__content) {
+          width: 100%;
+          
+          .el-select,
+          .el-input {
+            width: 100% !important;
+          }
+        }
+      }
     }
   }
 }
 
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.owner-list {
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: 20px;
   
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    gap: 12px;
-  }
-}
-
-.table-card {
-  .pagination-wrapper {
-    margin-top: 20px;
-    text-align: right;
-  }
-}
-
-.owner-detail {
-  .property-section {
-    margin-top: 24px;
-    
-    h3 {
-      color: $text-primary;
-      margin-bottom: 16px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    .property-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
+  .owner-table {
+    :deep(.el-table) {
+      background: transparent;
       
-      .property-card {
-        .property-info {
-          h4 {
-            color: $text-primary;
-            margin: 0 0 8px 0;
-            font-size: 16px;
+      .el-table__header {
+        background: $bg-secondary;
+        
+        th {
+          background: $bg-secondary;
+          color: $text-primary;
+          border-bottom: 1px solid $border-color;
+        }
+      }
+      
+      .el-table__body {
+        tr {
+          background: transparent;
+          cursor: pointer;
+          
+          &:hover td {
+            background: $bg-quaternary;
           }
           
-          p {
-            color: $text-secondary;
-            margin: 4px 0;
-            font-size: 14px;
+          td {
+            border-bottom: 1px solid $border-color;
+            color: $text-primary;
           }
         }
       }
     }
     
-    .no-property {
-      text-align: center;
-      padding: 40px;
+    .owner-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .info-content {
+        .name {
+          font-weight: 600;
+          color: $text-primary;
+          margin-bottom: 4px;
+        }
+        
+        .phone {
+          font-size: 12px;
+          color: $text-secondary;
+        }
+      }
     }
-  }
-}
-
-.text-muted {
-  color: $text-muted;
-}
-
-@media (max-width: 768px) {
-  .toolbar {
-    flex-direction: column;
-    gap: 12px;
     
-    .toolbar-left,
-    .toolbar-right {
-      width: 100%;
-      justify-content: center;
+    .properties {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      
+      .property-tag {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        
+        .el-icon {
+          font-size: 12px;
+        }
+      }
     }
   }
   
-  .filter-form {
-    .el-form-item {
-      width: 100%;
-      margin-bottom: 16px;
+  .pagination-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.owner-dialog {
+  :deep(.el-dialog) {
+    background: $bg-tertiary;
+    
+    .el-dialog__header {
+      background: $bg-secondary;
+      border-bottom: 1px solid $border-color;
+      
+      .el-dialog__title {
+        color: $text-primary;
+      }
+    }
+    
+    .el-dialog__body {
+      background: $bg-tertiary;
+      color: $text-primary;
     }
   }
   
-  .owner-detail .property-list {
-    grid-template-columns: 1fr;
+  .owner-detail {
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      
+      .owner-basic {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        
+        .basic-info {
+          h3 {
+            margin: 0 0 8px 0;
+            color: $text-primary;
+          }
+          
+          p {
+            margin: 0 0 12px 0;
+            color: $text-secondary;
+          }
+          
+          .status-tags {
+            display: flex;
+            gap: 8px;
+          }
+        }
+      }
+      
+      @include mobile {
+        flex-direction: column;
+        gap: 16px;
+        
+        .detail-actions {
+          width: 100%;
+          
+          .el-button {
+            width: 100%;
+            margin-bottom: 8px;
+          }
+        }
+      }
+    }
+    
+    .detail-content {
+      .property-list {
+        .property-item {
+          background: $bg-secondary;
+          border: 1px solid $border-color;
+          border-radius: $border-radius;
+          padding: 16px;
+          margin-bottom: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .property-info {
+            h4 {
+              margin: 0 0 8px 0;
+              color: $text-primary;
+            }
+            
+            .property-details {
+              display: flex;
+              gap: 16px;
+              font-size: 14px;
+              color: $text-secondary;
+            }
+          }
+          
+          .property-actions {
+            display: flex;
+            gap: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.approval-content {
+  .owner-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: $bg-secondary;
+    border-radius: $border-radius;
+    
+    .info {
+      h4 {
+        margin: 0 0 4px 0;
+        color: $text-primary;
+      }
+      
+      p {
+        margin: 0;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+.property-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  
+  @include mobile {
+    .el-select {
+      flex: 1;
+      min-width: 80px;
+    }
+  }
+}
+
+:deep(.el-descriptions) {
+  .el-descriptions__header {
+    .el-descriptions__title {
+      color: $text-primary;
+    }
+  }
+  
+  .el-descriptions__body {
+    .el-descriptions__table {
+      .el-descriptions__cell {
+        background: $bg-secondary;
+        border: 1px solid $border-color;
+        color: $text-primary;
+        
+        &.is-bordered-label {
+          background: lighten($bg-secondary, 3%);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+:deep(.el-tabs) {
+  .el-tabs__header {
+    .el-tabs__nav {
+      background: transparent;
+      
+      .el-tabs__item {
+        color: $text-secondary;
+        
+        &.is-active {
+          color: $primary-color;
+        }
+      }
+    }
+    
+    .el-tabs__active-bar {
+      background: $primary-color;
+    }
+  }
+  
+  .el-tabs__content {
+    color: $text-primary;
   }
 }
 </style>

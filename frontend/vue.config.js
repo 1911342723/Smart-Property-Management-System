@@ -5,6 +5,7 @@ module.exports = defineConfig({
   lintOnSave: false,
   devServer: {
     port: 8080,
+    host: '0.0.0.0', // 允许外部访问
     proxy: {
       '/api': {
         target: 'http://localhost:8081',
@@ -19,6 +20,13 @@ module.exports = defineConfig({
     loaderOptions: {
       sass: {
         additionalData: `@import "@/styles/variables.scss";`
+      }
+    }
+  },
+  configureWebpack: {
+    resolve: {
+      fallback: {
+        "path": require.resolve("path-browserify")
       }
     }
   }

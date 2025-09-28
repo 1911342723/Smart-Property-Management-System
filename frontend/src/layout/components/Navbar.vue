@@ -100,6 +100,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+@import '@/styles/responsive.scss';
 
 .navbar {
   height: 50px;
@@ -183,6 +184,70 @@ export default {
           right: -20px;
           top: 25px;
           font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+// 平板适配
+@include tablet {
+  .navbar {
+    padding: 0 12px;
+    
+    .breadcrumb-container {
+      margin-left: 12px;
+    }
+    
+    .right-menu {
+      .avatar-container {
+        margin-right: 20px;
+      }
+    }
+  }
+}
+
+// 手机适配
+@include mobile {
+  .navbar {
+    padding: 0 12px;
+    height: 50px;
+    
+    .hamburger-container {
+      padding: 0 12px;
+      line-height: 50px;
+      
+      .hamburger {
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+    
+    .breadcrumb-container {
+      display: none; // 手机端隐藏面包屑
+    }
+    
+    .right-menu {
+      .right-menu-item {
+        padding: 0 6px;
+        
+        &:not(.avatar-container) {
+          display: none; // 手机端隐藏部分功能按钮
+        }
+      }
+      
+      .avatar-container {
+        margin-right: 8px;
+        
+        .avatar-wrapper {
+          .user-avatar {
+            width: 32px;
+            height: 32px;
+          }
+          
+          .name {
+            display: none; // 手机端隐藏用户名
+          }
         }
       }
     }

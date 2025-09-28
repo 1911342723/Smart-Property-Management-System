@@ -1,400 +1,351 @@
 <template>
-  <div class="work-order-container">
+  <div class="work-order-container responsive-container">
+    <!-- 页面头部 -->
     <div class="page-header">
-      <h1 class="page-title">工单列表</h1>
-      <p class="page-subtitle">查看和管理所有服务工单</p>
+      <div class="header-left">
+        <h1 class="page-title">工单管理</h1>
+        <p class="page-subtitle">管理和处理所有服务工单</p>
+      </div>
+      <div class="header-right">
+        <el-button type="primary" @click="showCreateDialog = true">
+          <el-icon><Plus /></el-icon>
+          创建工单
+        </el-button>
+      </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <el-card class="filter-card">
-      <el-form :model="queryParams" :inline="true" class="filter-form">
-        <el-form-item label="工单号">
-          <el-input
-            v-model="queryParams.orderNo"
-            placeholder="请输入工单号"
-            clearable
-            style="width: 160px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
+    <!-- 统计卡片 -->
+    <div class="stats-cards responsive-grid grid-4">
+      <div class="stat-card responsive-card pending">
+        <div class="stat-icon">
+          <el-icon><Clock /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.pending }}</div>
+          <div class="stat-label">待处理</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card processing">
+        <div class="stat-icon">
+          <el-icon><Loading /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.processing }}</div>
+          <div class="stat-label">处理中</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card completed">
+        <div class="stat-icon">
+          <el-icon><Check /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.completed }}</div>
+          <div class="stat-label">已完成</div>
+        </div>
+      </div>
+      <div class="stat-card responsive-card urgent">
+        <div class="stat-icon">
+          <el-icon><Warning /></el-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.urgent }}</div>
+          <div class="stat-label">紧急工单</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 筛选和搜索 -->
+    <div class="filter-section responsive-card">
+      <el-form :model="filters" inline class="filter-form">
         <el-form-item label="工单类型">
-          <el-select v-model="queryParams.type" placeholder="请选择类型" clearable style="width: 140px">
-            <el-option label="维修类" value="repair" />
-            <el-option label="投诉类" value="complaint" />
-            <el-option label="咨询类" value="inquiry" />
-            <el-option label="建议类" value="suggestion" />
+          <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 150px">
+            <el-option label="设备维修" value="facility" />
+            <el-option label="安全事故" value="security" />
+            <el-option label="火灾隐患" value="fire" />
+            <el-option label="人员纠纷" value="dispute" />
+            <el-option label="环境问题" value="environment" />
+            <el-option label="投诉建议" value="complaint" />
             <el-option label="其他" value="other" />
           </el-select>
         </el-form-item>
-        <el-form-item label="紧急程度">
-          <el-select v-model="queryParams.priority" placeholder="请选择紧急程度" clearable style="width: 120px">
-            <el-option label="低" value="low" />
-            <el-option label="中" value="medium" />
-            <el-option label="高" value="high" />
-            <el-option label="紧急" value="urgent" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="处理状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 120px">
-            <el-option label="待接单" value="pending" />
+          <el-select v-model="filters.status" placeholder="全部状态" clearable style="width: 120px">
+            <el-option label="待处理" value="pending" />
             <el-option label="处理中" value="processing" />
-            <el-option label="待验收" value="reviewing" />
             <el-option label="已完成" value="completed" />
             <el-option label="已关闭" value="closed" />
           </el-select>
         </el-form-item>
-        <el-form-item label="处理人">
-          <el-select v-model="queryParams.assignee" placeholder="请选择处理人" clearable style="width: 140px">
-            <el-option
-              v-for="employee in employeeList"
-              :key="employee.id"
-              :label="employee.name"
-              :value="employee.id"
-            />
+        <el-form-item label="紧急程度">
+          <el-select v-model="filters.urgency" placeholder="全部等级" clearable style="width: 120px">
+            <el-option label="一般" value="low" />
+            <el-option label="紧急" value="medium" />
+            <el-option label="非常紧急" value="high" />
           </el-select>
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-            v-model="dateRange"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 340px"
-            @change="handleDateChange"
+        <el-form-item label="处理人员">
+          <el-select v-model="filters.assignee" placeholder="全部人员" clearable style="width: 150px">
+            <el-option v-for="staff in staffList" :key="staff.id" :label="staff.name" :value="staff.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            v-model="filters.keyword"
+            placeholder="搜索工单内容"
+            prefix-icon="Search"
+            style="width: 200px"
+            @keyup.enter="loadWorkOrders"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">
-            <el-icon><Search /></el-icon>
-            搜索
-          </el-button>
-          <el-button @click="resetQuery">
-            <el-icon><Refresh /></el-icon>
-            重置
-          </el-button>
+          <el-button type="primary" @click="loadWorkOrders">搜索</el-button>
+          <el-button @click="resetFilters">重置</el-button>
         </el-form-item>
       </el-form>
-    </el-card>
-
-    <!-- 统计卡片 -->
-    <div class="stats-cards">
-      <el-row :gutter="20">
-        <el-col :xl="6" :lg="12" :md="12" :sm="24">
-          <div class="stat-card pending">
-            <div class="stat-icon">
-              <el-icon><Clock /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.pending }}</div>
-              <div class="stat-label">待接单</div>
-            </div>
-          </div>
-        </el-col>
-        <el-col :xl="6" :lg="12" :md="12" :sm="24">
-          <div class="stat-card processing">
-            <div class="stat-icon">
-              <el-icon><Loading /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.processing }}</div>
-              <div class="stat-label">处理中</div>
-            </div>
-          </div>
-        </el-col>
-        <el-col :xl="6" :lg="12" :md="12" :sm="24">
-          <div class="stat-card urgent">
-            <div class="stat-icon">
-              <el-icon><Warning /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.urgent }}</div>
-              <div class="stat-label">紧急工单</div>
-            </div>
-          </div>
-        </el-col>
-        <el-col :xl="6" :lg="12" :md="12" :sm="24">
-          <div class="stat-card overdue">
-            <div class="stat-icon">
-              <el-icon><AlarmClock /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.overdue }}</div>
-              <div class="stat-label">超时工单</div>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
     </div>
 
-    <!-- 操作栏 -->
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <el-button type="success" :disabled="!multipleSelection.length" @click="handleBatchAssign">
-          <el-icon><User /></el-icon>
-          批量分配
-        </el-button>
-        <el-button type="warning" :disabled="!multipleSelection.length" @click="handleBatchClose">
-          <el-icon><CircleClose /></el-icon>
-          批量关闭
-        </el-button>
-      </div>
-      <div class="toolbar-right">
-        <el-button @click="handleExport">
-          <el-icon><Download /></el-icon>
-          导出
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 数据表格 -->
-    <el-card class="table-card">
+    <!-- 工单列表 -->
+    <div class="work-order-list responsive-card">
       <el-table
+        :data="workOrders"
         v-loading="loading"
-        :data="workOrderList"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
+        stripe
+        @row-click="viewWorkOrder"
+        class="work-order-table"
       >
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="orderNo" label="工单号" width="140" />
-        <el-table-column label="工单类型" width="100">
-          <template #default="scope">
-            <el-tag :type="getTypeTagType(scope.row.type)" size="small">
-              {{ getTypeText(scope.row.type) }}
+        <el-table-column prop="id" label="工单编号" width="120">
+          <template #default="{ row }">
+            <span class="order-id">#{{ row.id }}</span>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="type" label="类型" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getTypeTagType(row.type)" size="small">
+              {{ getTypeName(row.type) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="标题" width="200" show-overflow-tooltip />
-        <el-table-column label="紧急程度" width="100">
-          <template #default="scope">
-            <el-tag :type="getPriorityTagType(scope.row.priority)" size="small">
-              {{ getPriorityText(scope.row.priority) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="提交人" width="120">
-          <template #default="scope">
-            <div class="user-info">
-              <el-avatar :src="scope.row.submitter.avatar" :size="24">
-                {{ scope.row.submitter.name.charAt(0) }}
-              </el-avatar>
-              <span class="user-name">{{ scope.row.submitter.name }}</span>
+        
+        <el-table-column prop="title" label="标题" min-width="200">
+          <template #default="{ row }">
+            <div class="order-title">
+              <span>{{ row.title }}</span>
+              <el-tag v-if="row.urgency === 'high'" type="danger" size="small" class="urgent-tag">
+                紧急
+              </el-tag>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="处理人" width="120">
-          <template #default="scope">
-            <div v-if="scope.row.assignee" class="user-info">
-              <el-avatar :src="scope.row.assignee.avatar" :size="24">
-                {{ scope.row.assignee.name.charAt(0) }}
-              </el-avatar>
-              <span class="user-name">{{ scope.row.assignee.name }}</span>
-            </div>
-            <span v-else class="text-muted">未分配</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="100">
-          <template #default="scope">
-            <el-tag :type="getStatusTagType(scope.row.status)" size="small">
-              {{ getStatusText(scope.row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="进度" width="120">
-          <template #default="scope">
-            <el-progress
-              :percentage="scope.row.progress"
-              :color="getProgressColor(scope.row.progress)"
-              :stroke-width="8"
-              text-inside
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="160" />
-        <el-table-column label="剩余时间" width="120">
-          <template #default="scope">
-            <div :class="getTimeLeftClass(scope.row.timeLeft)">
-              {{ scope.row.timeLeft }}
+        
+        <el-table-column prop="location" label="位置" width="150" />
+        
+        <el-table-column prop="reporter" label="报告人" width="100">
+          <template #default="{ row }">
+            <div class="reporter-info">
+              <el-avatar :size="24" :src="row.reporterAvatar">{{ row.reporter.charAt(0) }}</el-avatar>
+              <span>{{ row.reporter }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleView(scope.row)"
-            >
-              查看
-            </el-button>
-            <el-button
-              v-if="!scope.row.assignee"
-              type="success"
-              size="small"
-              @click="handleAssign(scope.row)"
-            >
+        
+        <el-table-column prop="assignee" label="处理人" width="100">
+          <template #default="{ row }">
+            <div v-if="row.assignee" class="assignee-info">
+              <el-avatar :size="24" :src="row.assigneeAvatar">{{ row.assignee.charAt(0) }}</el-avatar>
+              <span>{{ row.assignee }}</span>
+            </div>
+            <el-button v-else type="text" size="small" @click.stop="assignWorkOrder(row)">
               分配
             </el-button>
-            <el-button
-              v-if="scope.row.status === 'processing'"
-              type="warning"
-              size="small"
-              @click="handleProgress(scope.row)"
-            >
-              进度
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getStatusTagType(row.status)" size="small">
+              {{ getStatusName(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="createdAt" label="创建时间" width="150">
+          <template #default="{ row }">
+            {{ formatDate(row.createdAt) }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" @click.stop="viewWorkOrder(row)">
+              查看
             </el-button>
-            <el-button
-              v-if="scope.row.status !== 'closed'"
-              type="info"
-              size="small"
-              @click="handleClose(scope.row)"
-            >
-              关闭
-            </el-button>
+            <el-dropdown @command="(command) => handleCommand(command, row)" trigger="click">
+              <el-button size="small" type="text">
+                更多<el-icon><ArrowDown /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                  <el-dropdown-item command="assign">分配</el-dropdown-item>
+                  <el-dropdown-item command="close" v-if="row.status !== 'completed'">关闭</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
-
+      
       <!-- 分页 -->
-      <div class="pagination-wrapper">
+      <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.pageNum"
-          v-model:page-size="queryParams.pageSize"
+          v-model:current-page="pagination.current"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
           :page-sizes="[10, 20, 50, 100]"
-          :total="total"
           layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          @size-change="loadWorkOrders"
+          @current-change="loadWorkOrders"
         />
       </div>
-    </el-card>
+    </div>
 
-    <!-- 工单详情弹窗 -->
+    <!-- 工单详情对话框 -->
     <el-dialog
       v-model="showDetailDialog"
-      title="工单详情"
-      width="900px"
-      :close-on-click-modal="false"
+      :title="`工单详情 - #${selectedOrder?.id}`"
+      width="800px"
+      class="work-order-dialog"
     >
-      <div v-if="currentWorkOrder" class="work-order-detail">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="工单号">{{ currentWorkOrder.orderNo }}</el-descriptions-item>
-          <el-descriptions-item label="工单类型">
-            <el-tag :type="getTypeTagType(currentWorkOrder.type)">
-              {{ getTypeText(currentWorkOrder.type) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="标题" :span="2">{{ currentWorkOrder.title }}</el-descriptions-item>
-          <el-descriptions-item label="紧急程度">
-            <el-tag :type="getPriorityTagType(currentWorkOrder.priority)">
-              {{ getPriorityText(currentWorkOrder.priority) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="当前状态">
-            <el-tag :type="getStatusTagType(currentWorkOrder.status)">
-              {{ getStatusText(currentWorkOrder.status) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="提交人">{{ currentWorkOrder.submitter.name }}</el-descriptions-item>
-          <el-descriptions-item label="处理人">
-            {{ currentWorkOrder.assignee ? currentWorkOrder.assignee.name : '未分配' }}
-          </el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ currentWorkOrder.createTime }}</el-descriptions-item>
-          <el-descriptions-item label="预计完成时间">{{ currentWorkOrder.expectedTime }}</el-descriptions-item>
-          <el-descriptions-item label="详细描述" :span="2">
-            {{ currentWorkOrder.description }}
-          </el-descriptions-item>
-        </el-descriptions>
-
-        <!-- 附件列表 -->
-        <div v-if="currentWorkOrder.attachments.length > 0" class="attachment-section">
-          <h3>附件</h3>
-          <div class="attachment-list">
-            <div
-              v-for="(attachment, index) in currentWorkOrder.attachments"
-              :key="index"
-              class="attachment-item"
-            >
+      <div v-if="selectedOrder" class="order-detail">
+        <div class="detail-header">
+          <div class="order-info">
+            <h3>{{ selectedOrder.title }}</h3>
+            <div class="order-meta">
+              <el-tag :type="getTypeTagType(selectedOrder.type)">{{ getTypeName(selectedOrder.type) }}</el-tag>
+              <el-tag :type="getStatusTagType(selectedOrder.status)">{{ getStatusName(selectedOrder.status) }}</el-tag>
+              <el-tag v-if="selectedOrder.urgency === 'high'" type="danger">紧急</el-tag>
+            </div>
+          </div>
+          <div class="order-actions">
+            <el-button v-if="selectedOrder.status === 'pending'" type="primary" @click="startProcessing">
+              开始处理
+            </el-button>
+            <el-button v-if="selectedOrder.status === 'processing'" type="success" @click="completeOrder">
+              完成工单
+            </el-button>
+          </div>
+        </div>
+        
+        <el-divider />
+        
+        <div class="detail-content">
+          <div class="content-section">
+            <h4>基本信息</h4>
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="工单编号">#{{ selectedOrder.id }}</el-descriptions-item>
+              <el-descriptions-item label="类型">{{ getTypeName(selectedOrder.type) }}</el-descriptions-item>
+              <el-descriptions-item label="位置">{{ selectedOrder.location }}</el-descriptions-item>
+              <el-descriptions-item label="紧急程度">{{ getUrgencyName(selectedOrder.urgency) }}</el-descriptions-item>
+              <el-descriptions-item label="报告人">{{ selectedOrder.reporter }}</el-descriptions-item>
+              <el-descriptions-item label="处理人">{{ selectedOrder.assignee || '未分配' }}</el-descriptions-item>
+              <el-descriptions-item label="创建时间">{{ formatDate(selectedOrder.createdAt) }}</el-descriptions-item>
+              <el-descriptions-item label="更新时间">{{ formatDate(selectedOrder.updatedAt) }}</el-descriptions-item>
+            </el-descriptions>
+          </div>
+          
+          <div class="content-section">
+            <h4>问题描述</h4>
+            <div class="description">{{ selectedOrder.description }}</div>
+          </div>
+          
+          <div v-if="selectedOrder.photos && selectedOrder.photos.length" class="content-section">
+            <h4>相关图片</h4>
+            <div class="photo-gallery">
               <el-image
-                v-if="isImage(attachment)"
-                :src="attachment"
-                :preview-src-list="currentWorkOrder.attachments.filter(isImage)"
+                v-for="(photo, index) in selectedOrder.photos"
+                :key="index"
+                :src="photo"
+                :preview-src-list="selectedOrder.photos"
+                :initial-index="index"
                 fit="cover"
-                class="attachment-image"
+                class="photo-item"
               />
-              <div v-else class="attachment-file">
-                <el-icon><Document /></el-icon>
-                <span>{{ attachment.split('/').pop() }}</span>
+            </div>
+          </div>
+          
+          <div v-if="selectedOrder.voiceRecords && selectedOrder.voiceRecords.length" class="content-section">
+            <h4>语音记录</h4>
+            <div class="voice-records">
+              <div v-for="(voice, index) in selectedOrder.voiceRecords" :key="index" class="voice-item">
+                <el-button type="text" @click="playVoice(voice)">
+                  <el-icon><VideoPlay /></el-icon>
+                  语音记录 {{ index + 1 }} ({{ voice.duration }}s)
+                </el-button>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- 处理记录 -->
-        <div class="process-section">
-          <h3>处理记录</h3>
-          <el-timeline>
-            <el-timeline-item
-              v-for="(record, index) in currentWorkOrder.processRecords"
-              :key="index"
-              :timestamp="record.time"
-              :type="getRecordType(record.action)"
-            >
-              <div class="record-content">
-                <div class="record-action">{{ record.action }}</div>
-                <div class="record-operator">操作人：{{ record.operator }}</div>
-                <div v-if="record.remark" class="record-remark">{{ record.remark }}</div>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          
+          <div class="content-section">
+            <h4>处理记录</h4>
+            <el-timeline>
+              <el-timeline-item
+                v-for="log in selectedOrder.logs"
+                :key="log.id"
+                :timestamp="formatDate(log.createdAt)"
+                :type="getLogType(log.action)"
+              >
+                <div class="log-content">
+                  <strong>{{ log.operator }}</strong> {{ log.action }}
+                  <div v-if="log.comment" class="log-comment">{{ log.comment }}</div>
+                </div>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
         </div>
       </div>
-      <template #footer>
-        <el-button @click="showDetailDialog = false">关闭</el-button>
-        <el-button v-if="currentWorkOrder && !currentWorkOrder.assignee" type="success" @click="handleAssign(currentWorkOrder)">
-          分配处理人
-        </el-button>
-      </template>
     </el-dialog>
 
-    <!-- 分配处理人弹窗 -->
-    <el-dialog
-      v-model="showAssignDialog"
-      title="分配处理人"
-      width="500px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="assignForm" label-width="100px">
-        <el-form-item label="处理人">
-          <el-select v-model="assignForm.assigneeId" placeholder="请选择处理人" style="width: 100%">
-            <el-option
-              v-for="employee in employeeList"
-              :key="employee.id"
-              :label="`${employee.name} (${employee.department})`"
-              :value="employee.id"
-            />
+    <!-- 创建工单对话框 -->
+    <el-dialog v-model="showCreateDialog" title="创建工单" width="600px">
+      <el-form :model="newOrder" :rules="orderRules" ref="orderForm" label-width="100px">
+        <el-form-item label="工单类型" prop="type">
+          <el-select v-model="newOrder.type" placeholder="请选择工单类型">
+            <el-option label="设备维修" value="facility" />
+            <el-option label="安全事故" value="security" />
+            <el-option label="火灾隐患" value="fire" />
+            <el-option label="人员纠纷" value="dispute" />
+            <el-option label="环境问题" value="environment" />
+            <el-option label="投诉建议" value="complaint" />
+            <el-option label="其他" value="other" />
           </el-select>
         </el-form-item>
-        <el-form-item label="预计完成时间">
-          <el-date-picker
-            v-model="assignForm.expectedTime"
-            type="datetime"
-            placeholder="选择预计完成时间"
-            style="width: 100%"
-          />
+        <el-form-item label="工单标题" prop="title">
+          <el-input v-model="newOrder.title" placeholder="请输入工单标题" />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            v-model="assignForm.remark"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入分配备注"
-          />
+        <el-form-item label="位置" prop="location">
+          <el-input v-model="newOrder.location" placeholder="请输入具体位置" />
+        </el-form-item>
+        <el-form-item label="紧急程度" prop="urgency">
+          <el-radio-group v-model="newOrder.urgency">
+            <el-radio label="low">一般</el-radio>
+            <el-radio label="medium">紧急</el-radio>
+            <el-radio label="high">非常紧急</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="问题描述" prop="description">
+          <el-input v-model="newOrder.description" type="textarea" :rows="4" placeholder="请详细描述问题" />
+        </el-form-item>
+        <el-form-item label="分配给">
+          <el-select v-model="newOrder.assignee" placeholder="请选择处理人员" clearable>
+            <el-option v-for="staff in staffList" :key="staff.id" :label="staff.name" :value="staff.id" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showAssignDialog = false">取消</el-button>
-        <el-button type="primary" @click="confirmAssign">确定分配</el-button>
+        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button type="primary" @click="createWorkOrder" :loading="creating">创建</el-button>
       </template>
     </el-dialog>
   </div>
@@ -403,434 +354,340 @@
 <script>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  User,
-  CircleClose,
-  Download,
-  Clock,
-  Loading,
-  Warning,
-  AlarmClock,
-  Document
-} from '@element-plus/icons-vue'
+import { Plus, Clock, Loading, Check, Warning, Search, ArrowDown, VideoPlay } from '@element-plus/icons-vue'
 
 export default {
   name: 'WorkOrderList',
   components: {
-    Search,
-    Refresh,
-    User,
-    CircleClose,
-    Download,
-    Clock,
-    Loading,
-    Warning,
-    AlarmClock,
-    Document
+    Plus, Clock, Loading, Check, Warning, Search, ArrowDown, VideoPlay
   },
   setup() {
     const loading = ref(false)
-    const workOrderList = ref([])
-    const employeeList = ref([])
-    const total = ref(0)
-    const multipleSelection = ref([])
+    const creating = ref(false)
     const showDetailDialog = ref(false)
-    const showAssignDialog = ref(false)
-    const currentWorkOrder = ref(null)
-    const dateRange = ref([])
+    const showCreateDialog = ref(false)
+    const selectedOrder = ref(null)
     
-    const queryParams = reactive({
-      pageNum: 1,
-      pageSize: 20,
-      orderNo: '',
-      type: '',
-      priority: '',
-      status: '',
-      assignee: '',
-      startTime: '',
-      endTime: ''
-    })
-    
-    const assignForm = reactive({
-      workOrderId: null,
-      assigneeId: null,
-      expectedTime: null,
-      remark: ''
-    })
-    
+    // 统计数据
     const stats = reactive({
       pending: 12,
       processing: 8,
-      urgent: 3,
-      overdue: 2
+      completed: 45,
+      urgent: 3
     })
+    
+    // 筛选条件
+    const filters = reactive({
+      type: '',
+      status: '',
+      urgency: '',
+      assignee: '',
+      keyword: ''
+    })
+    
+    // 分页
+    const pagination = reactive({
+      current: 1,
+      size: 20,
+      total: 0
+    })
+    
+    // 工单列表
+    const workOrders = ref([])
+    
+    // 员工列表
+    const staffList = ref([
+      { id: 1, name: '张维修', role: '维修工' },
+      { id: 2, name: '李保安', role: '保安' },
+      { id: 3, name: '王清洁', role: '清洁工' },
+      { id: 4, name: '赵管理', role: '物业经理' }
+    ])
+    
+    // 新建工单表单
+    const newOrder = reactive({
+      type: '',
+      title: '',
+      location: '',
+      urgency: 'medium',
+      description: '',
+      assignee: ''
+    })
+    
+    // 表单验证规则
+    const orderRules = {
+      type: [{ required: true, message: '请选择工单类型', trigger: 'change' }],
+      title: [{ required: true, message: '请输入工单标题', trigger: 'blur' }],
+      location: [{ required: true, message: '请输入位置', trigger: 'blur' }],
+      description: [{ required: true, message: '请输入问题描述', trigger: 'blur' }]
+    }
     
     // 模拟数据
     const mockWorkOrders = [
       {
-        id: 1,
-        orderNo: 'WO202401250001',
-        type: 'repair',
-        title: '电梯故障维修',
-        description: 'A栋2号电梯无法正常运行，需要紧急维修',
-        priority: 'urgent',
+        id: 'WO202312001',
+        type: 'facility',
+        title: '电梯故障无法正常运行',
+        location: 'A栋3号电梯',
+        description: '电梯在2楼和3楼之间停止运行，显示屏显示故障代码E03',
+        reporter: '李住户',
+        reporterAvatar: '',
+        assignee: '张维修',
+        assigneeAvatar: '',
         status: 'processing',
-        progress: 60,
-        submitter: {
-          id: 1,
-          name: '张三',
-          avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
-        },
-        assignee: {
-          id: 2,
-          name: '李维修',
-          avatar: ''
-        },
-        createTime: '2024-01-25 08:30:00',
-        expectedTime: '2024-01-25 18:00:00',
-        timeLeft: '2小时',
-        attachments: [
-          '/static/images/elevator1.jpg',
-          '/static/images/elevator2.jpg'
+        urgency: 'high',
+        createdAt: '2023-12-01 09:30:00',
+        updatedAt: '2023-12-01 10:15:00',
+        photos: ['/api/photos/elevator1.jpg', '/api/photos/elevator2.jpg'],
+        voiceRecords: [
+          { url: '/api/voice/record1.mp3', duration: 15 }
         ],
-        processRecords: [
-          {
-            action: '工单创建',
-            operator: '张三',
-            time: '2024-01-25 08:30:00',
-            remark: '电梯突然停止运行'
-          },
-          {
-            action: '分配处理人',
-            operator: '管理员',
-            time: '2024-01-25 08:45:00',
-            remark: '分配给李维修处理'
-          },
-          {
-            action: '开始处理',
-            operator: '李维修',
-            time: '2024-01-25 09:00:00',
-            remark: '已到现场检查'
-          }
+        logs: [
+          { id: 1, operator: '系统', action: '工单创建', createdAt: '2023-12-01 09:30:00' },
+          { id: 2, operator: '赵管理', action: '分配给张维修', createdAt: '2023-12-01 09:45:00' },
+          { id: 3, operator: '张维修', action: '开始处理', comment: '已到现场检查，正在排查故障原因', createdAt: '2023-12-01 10:15:00' }
         ]
       },
       {
-        id: 2,
-        orderNo: 'WO202401250002',
-        type: 'complaint',
-        title: '楼下噪音投诉',
-        description: '楼下住户夜间噪音过大，影响正常休息',
-        priority: 'medium',
+        id: 'WO202312002',
+        type: 'security',
+        title: '停车场发现可疑人员',
+        location: '地下停车场B区',
+        description: '发现陌生人在停车场徘徊，行为可疑，已拍照记录',
+        reporter: '李保安',
+        reporterAvatar: '',
+        assignee: '',
+        assigneeAvatar: '',
         status: 'pending',
-        progress: 0,
-        submitter: {
-          id: 3,
-          name: '王五',
-          avatar: ''
-        },
-        assignee: null,
-        createTime: '2024-01-25 10:15:00',
-        expectedTime: '',
-        timeLeft: '6小时',
-        attachments: [],
-        processRecords: [
-          {
-            action: '工单创建',
-            operator: '王五',
-            time: '2024-01-25 10:15:00',
-            remark: '噪音问题需要协调解决'
-          }
+        urgency: 'medium',
+        createdAt: '2023-12-01 14:20:00',
+        updatedAt: '2023-12-01 14:20:00',
+        photos: ['/api/photos/security1.jpg'],
+        voiceRecords: [],
+        logs: [
+          { id: 1, operator: '系统', action: '工单创建', createdAt: '2023-12-01 14:20:00' }
+        ]
+      },
+      {
+        id: 'WO202312003',
+        type: 'environment',
+        title: '绿化带垃圾清理',
+        location: '小区中央花园',
+        description: '绿化带内有大量落叶和垃圾需要清理',
+        reporter: '王住户',
+        reporterAvatar: '',
+        assignee: '王清洁',
+        assigneeAvatar: '',
+        status: 'completed',
+        urgency: 'low',
+        createdAt: '2023-11-30 16:00:00',
+        updatedAt: '2023-12-01 08:30:00',
+        photos: [],
+        voiceRecords: [],
+        logs: [
+          { id: 1, operator: '系统', action: '工单创建', createdAt: '2023-11-30 16:00:00' },
+          { id: 2, operator: '赵管理', action: '分配给王清洁', createdAt: '2023-11-30 16:30:00' },
+          { id: 3, operator: '王清洁', action: '开始处理', createdAt: '2023-12-01 08:00:00' },
+          { id: 4, operator: '王清洁', action: '完成工单', comment: '已清理完成，现场整洁', createdAt: '2023-12-01 08:30:00' }
         ]
       }
     ]
     
-    const mockEmployees = [
-      { id: 1, name: '李维修', department: '维修部' },
-      { id: 2, name: '张保安', department: '保安部' },
-      { id: 3, name: '王客服', department: '客服部' },
-      { id: 4, name: '赵保洁', department: '保洁部' }
-    ]
-    
-    const getList = () => {
+    // 加载工单列表
+    const loadWorkOrders = async () => {
       loading.value = true
-      setTimeout(() => {
-        workOrderList.value = mockWorkOrders
-        total.value = mockWorkOrders.length
+      try {
+        // 模拟API调用
+        await new Promise(resolve => setTimeout(resolve, 500))
+        workOrders.value = mockWorkOrders
+        pagination.total = mockWorkOrders.length
+      } catch (error) {
+        ElMessage.error('加载工单列表失败')
+      } finally {
         loading.value = false
-      }, 500)
-    }
-    
-    const handleQuery = () => {
-      queryParams.pageNum = 1
-      getList()
-    }
-    
-    const resetQuery = () => {
-      Object.assign(queryParams, {
-        pageNum: 1,
-        pageSize: 20,
-        orderNo: '',
-        type: '',
-        priority: '',
-        status: '',
-        assignee: '',
-        startTime: '',
-        endTime: ''
-      })
-      dateRange.value = []
-      getList()
-    }
-    
-    const handleDateChange = (dates) => {
-      if (dates && dates.length === 2) {
-        queryParams.startTime = dates[0]
-        queryParams.endTime = dates[1]
-      } else {
-        queryParams.startTime = ''
-        queryParams.endTime = ''
       }
     }
     
-    const handleView = (row) => {
-      currentWorkOrder.value = row
+    // 重置筛选条件
+    const resetFilters = () => {
+      Object.keys(filters).forEach(key => {
+        filters[key] = ''
+      })
+      loadWorkOrders()
+    }
+    
+    // 查看工单详情
+    const viewWorkOrder = (order) => {
+      selectedOrder.value = order
       showDetailDialog.value = true
     }
     
-    const handleAssign = (row) => {
-      currentWorkOrder.value = row
-      assignForm.workOrderId = row.id
-      showAssignDialog.value = true
-    }
-    
-    const handleProgress = (row) => {
-      ElMessage.info('进度更新功能开发中...')
-    }
-    
-    const handleClose = async (row) => {
+    // 创建工单
+    const createWorkOrder = async () => {
+      // 这里应该添加表单验证
+      creating.value = true
       try {
-        await ElMessageBox.confirm('确定要关闭该工单吗？', '确认操作')
-        row.status = 'closed'
-        row.progress = 100
-        ElMessage.success('工单已关闭')
-      } catch {
-        // 用户取消
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        ElMessage.success('工单创建成功')
+        showCreateDialog.value = false
+        loadWorkOrders()
+      } catch (error) {
+        ElMessage.error('创建工单失败')
+      } finally {
+        creating.value = false
       }
     }
     
-    const handleBatchAssign = () => {
-      if (multipleSelection.value.length === 0) {
-        ElMessage.error('请先选择要分配的工单')
-        return
-      }
-      ElMessage.info('批量分配功能开发中...')
+    // 分配工单
+    const assignWorkOrder = (order) => {
+      // 打开分配对话框
+      ElMessage.info('分配功能开发中')
     }
     
-    const handleBatchClose = async () => {
-      if (multipleSelection.value.length === 0) {
-        ElMessage.error('请先选择要关闭的工单')
-        return
-      }
-      
-      try {
-        await ElMessageBox.confirm(`确定要批量关闭 ${multipleSelection.value.length} 个工单吗？`, '确认操作')
-        multipleSelection.value.forEach(workOrder => {
-          workOrder.status = 'closed'
-          workOrder.progress = 100
-        })
-        ElMessage.success('批量关闭成功')
-      } catch {
-        // 用户取消
-      }
-    }
-    
-    const handleExport = () => {
-      ElMessage.info('导出功能开发中...')
-    }
-    
-    const handleSelectionChange = (selection) => {
-      multipleSelection.value = selection
-    }
-    
-    const handleSizeChange = (val) => {
-      queryParams.pageSize = val
-      getList()
-    }
-    
-    const handleCurrentChange = (val) => {
-      queryParams.pageNum = val
-      getList()
-    }
-    
-    const confirmAssign = () => {
-      if (!assignForm.assigneeId) {
-        ElMessage.error('请选择处理人')
-        return
-      }
-      
-      const employee = employeeList.value.find(e => e.id === assignForm.assigneeId)
-      if (employee && currentWorkOrder.value) {
-        currentWorkOrder.value.assignee = {
-          id: employee.id,
-          name: employee.name,
-          avatar: ''
-        }
-        currentWorkOrder.value.status = 'processing'
-        
-        // 添加处理记录
-        currentWorkOrder.value.processRecords.push({
-          action: '分配处理人',
-          operator: '管理员',
-          time: new Date().toLocaleString(),
-          remark: assignForm.remark || `分配给${employee.name}处理`
-        })
-        
-        ElMessage.success('分配成功')
-        showAssignDialog.value = false
-        showDetailDialog.value = false
-        
-        // 重置表单
-        Object.assign(assignForm, {
-          workOrderId: null,
-          assigneeId: null,
-          expectedTime: null,
-          remark: ''
-        })
+    // 处理下拉菜单命令
+    const handleCommand = (command, order) => {
+      switch (command) {
+        case 'edit':
+          ElMessage.info('编辑功能开发中')
+          break
+        case 'assign':
+          assignWorkOrder(order)
+          break
+        case 'close':
+          ElMessageBox.confirm('确定要关闭此工单吗？', '确认操作', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('工单已关闭')
+            loadWorkOrders()
+          })
+          break
+        case 'delete':
+          ElMessageBox.confirm('确定要删除此工单吗？', '确认删除', {
+            type: 'warning'
+          }).then(() => {
+            ElMessage.success('工单已删除')
+            loadWorkOrders()
+          })
+          break
       }
     }
     
-    const getTypeText = (type) => {
+    // 开始处理工单
+    const startProcessing = () => {
+      selectedOrder.value.status = 'processing'
+      ElMessage.success('已开始处理工单')
+    }
+    
+    // 完成工单
+    const completeOrder = () => {
+      selectedOrder.value.status = 'completed'
+      ElMessage.success('工单已完成')
+    }
+    
+    // 播放语音
+    const playVoice = (voice) => {
+      ElMessage.info('语音播放功能开发中')
+    }
+    
+    // 工具函数
+    const getTypeName = (type) => {
       const typeMap = {
-        repair: '维修类',
-        complaint: '投诉类',
-        inquiry: '咨询类',
-        suggestion: '建议类',
+        facility: '设备维修',
+        security: '安全事故',
+        fire: '火灾隐患',
+        dispute: '人员纠纷',
+        environment: '环境问题',
+        complaint: '投诉建议',
         other: '其他'
       }
-      return typeMap[type] || '未知'
+      return typeMap[type] || type
     }
     
     const getTypeTagType = (type) => {
       const typeMap = {
-        repair: 'danger',
-        complaint: 'warning',
-        inquiry: 'info',
-        suggestion: 'success',
+        facility: 'primary',
+        security: 'danger',
+        fire: 'danger',
+        dispute: 'warning',
+        environment: 'success',
+        complaint: 'info',
         other: ''
       }
       return typeMap[type] || ''
     }
     
-    const getPriorityText = (priority) => {
-      const priorityMap = {
-        low: '低',
-        medium: '中',
-        high: '高',
-        urgent: '紧急'
-      }
-      return priorityMap[priority] || '未知'
-    }
-    
-    const getPriorityTagType = (priority) => {
-      const priorityMap = {
-        low: 'info',
-        medium: 'success',
-        high: 'warning',
-        urgent: 'danger'
-      }
-      return priorityMap[priority] || 'info'
-    }
-    
-    const getStatusText = (status) => {
+    const getStatusName = (status) => {
       const statusMap = {
-        pending: '待接单',
+        pending: '待处理',
         processing: '处理中',
-        reviewing: '待验收',
         completed: '已完成',
         closed: '已关闭'
       }
-      return statusMap[status] || '未知'
+      return statusMap[status] || status
     }
     
     const getStatusTagType = (status) => {
       const statusMap = {
         pending: 'warning',
         processing: 'primary',
-        reviewing: 'info',
         completed: 'success',
-        closed: ''
+        closed: 'info'
       }
       return statusMap[status] || ''
     }
     
-    const getProgressColor = (progress) => {
-      if (progress < 30) return '#f56c6c'
-      if (progress < 70) return '#e6a23c'
-      return '#67c23a'
+    const getUrgencyName = (urgency) => {
+      const urgencyMap = {
+        low: '一般',
+        medium: '紧急',
+        high: '非常紧急'
+      }
+      return urgencyMap[urgency] || urgency
     }
     
-    const getTimeLeftClass = (timeLeft) => {
-      if (timeLeft.includes('已超时')) return 'time-overdue'
-      if (timeLeft.includes('小时') && parseInt(timeLeft) <= 2) return 'time-urgent'
-      return 'time-normal'
-    }
-    
-    const getRecordType = (action) => {
+    const getLogType = (action) => {
       if (action.includes('创建')) return 'primary'
-      if (action.includes('分配')) return 'success'
       if (action.includes('完成')) return 'success'
-      if (action.includes('关闭')) return 'info'
-      return 'primary'
+      if (action.includes('分配') || action.includes('处理')) return 'warning'
+      return ''
     }
     
-    const isImage = (url) => {
-      return /\.(jpg|jpeg|png|gif|webp)$/i.test(url)
+    const formatDate = (dateStr) => {
+      return new Date(dateStr).toLocaleString('zh-CN')
     }
     
     onMounted(() => {
-      getList()
-      employeeList.value = mockEmployees
+      loadWorkOrders()
     })
     
     return {
       loading,
-      workOrderList,
-      employeeList,
-      total,
-      multipleSelection,
+      creating,
       showDetailDialog,
-      showAssignDialog,
-      currentWorkOrder,
-      dateRange,
-      queryParams,
-      assignForm,
+      showCreateDialog,
+      selectedOrder,
       stats,
-      getList,
-      handleQuery,
-      resetQuery,
-      handleDateChange,
-      handleView,
-      handleAssign,
-      handleProgress,
-      handleClose,
-      handleBatchAssign,
-      handleBatchClose,
-      handleExport,
-      handleSelectionChange,
-      handleSizeChange,
-      handleCurrentChange,
-      confirmAssign,
-      getTypeText,
+      filters,
+      pagination,
+      workOrders,
+      staffList,
+      newOrder,
+      orderRules,
+      loadWorkOrders,
+      resetFilters,
+      viewWorkOrder,
+      createWorkOrder,
+      assignWorkOrder,
+      handleCommand,
+      startProcessing,
+      completeOrder,
+      playVoice,
+      getTypeName,
       getTypeTagType,
-      getPriorityText,
-      getPriorityTagType,
-      getStatusText,
+      getStatusName,
       getStatusTagType,
-      getProgressColor,
-      getTimeLeftClass,
-      getRecordType,
-      isImage
+      getUrgencyName,
+      getLogType,
+      formatDate
     }
   }
 }
@@ -838,261 +695,353 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+@import '@/styles/responsive.scss';
 
 .work-order-container {
   padding: 20px;
+  min-height: calc(100vh - 50px);
+  background: $bg-primary;
 }
 
 .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
   
-  .page-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 8px 0;
+  .header-left {
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 8px 0;
+    }
+    
+    .page-subtitle {
+      font-size: 14px;
+      color: $text-secondary;
+      margin: 0;
+    }
   }
   
-  .page-subtitle {
-    font-size: 14px;
-    color: $text-secondary;
-    margin: 0;
-  }
-}
-
-.filter-card {
-  margin-bottom: 20px;
-  
-  .filter-form {
-    .el-form-item {
-      margin-bottom: 0;
+  @include mobile {
+    flex-direction: column;
+    gap: 16px;
+    
+    .header-right {
+      width: 100%;
+      
+      .el-button {
+        width: 100%;
+      }
     }
   }
 }
 
 .stats-cards {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   
   .stat-card {
     background: linear-gradient(135deg, $bg-tertiary 0%, lighten($bg-tertiary, 2%) 100%);
-    border-radius: 16px;
-    padding: 24px;
     border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     transition: all 0.3s ease;
-    height: 100px;
     
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px $shadow-medium;
     }
     
     .stat-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      color: $text-primary;
+      font-size: 20px;
+      color: white;
     }
     
     .stat-info {
-      flex: 1;
-    }
-    
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: $text-primary;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    
-    .stat-label {
-      font-size: 14px;
-      color: $text-secondary;
-    }
-    
-    &.pending {
-      border-left: 4px solid #faa61a;
-      
-      .stat-icon {
-        background: rgba(250, 166, 26, 0.1);
-        color: #faa61a;
-      }
-    }
-    
-    &.processing {
-      border-left: 4px solid #5865f2;
-      
-      .stat-icon {
-        background: rgba(88, 101, 242, 0.1);
-        color: #5865f2;
-      }
-    }
-    
-    &.urgent {
-      border-left: 4px solid #ed4245;
-      
-      .stat-icon {
-        background: rgba(237, 66, 69, 0.1);
-        color: #ed4245;
-      }
-    }
-    
-    &.overdue {
-      border-left: 4px solid #c97064;
-      
-      .stat-icon {
-        background: rgba(201, 112, 100, 0.1);
-        color: #c97064;
-      }
-    }
-  }
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    gap: 12px;
-  }
-}
-
-.table-card {
-  .pagination-wrapper {
-    margin-top: 20px;
-    text-align: right;
-  }
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  .user-name {
-    font-size: 14px;
-    color: $text-primary;
-  }
-}
-
-.time-normal {
-  color: $text-primary;
-}
-
-.time-urgent {
-  color: $warning-color;
-  font-weight: 600;
-}
-
-.time-overdue {
-  color: $error-color;
-  font-weight: 600;
-}
-
-.work-order-detail {
-  .attachment-section {
-    margin-top: 24px;
-    
-    h3 {
-      color: $text-primary;
-      margin-bottom: 16px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    .attachment-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      
-      .attachment-item {
-        .attachment-image {
-          width: 100px;
-          height: 100px;
-          border-radius: 8px;
-        }
-        
-        .attachment-file {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px;
-          background: $bg-secondary;
-          border-radius: 8px;
-          color: $text-primary;
-        }
-      }
-    }
-  }
-  
-  .process-section {
-    margin-top: 24px;
-    
-    h3 {
-      color: $text-primary;
-      margin-bottom: 16px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    .record-content {
-      .record-action {
-        font-weight: 600;
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
         color: $text-primary;
+        line-height: 1;
         margin-bottom: 4px;
       }
       
-      .record-operator {
+      .stat-label {
         font-size: 14px;
         color: $text-secondary;
-        margin-bottom: 4px;
-      }
-      
-      .record-remark {
-        font-size: 14px;
-        color: $text-muted;
-        font-style: italic;
       }
     }
-  }
-}
-
-.text-muted {
-  color: $text-muted;
-}
-
-@media (max-width: 768px) {
-  .toolbar {
-    flex-direction: column;
-    gap: 12px;
     
-    .toolbar-left,
-    .toolbar-right {
-      width: 100%;
-      justify-content: center;
+    &.pending .stat-icon {
+      background: linear-gradient(135deg, #faa61a, #f0932b);
+    }
+    
+    &.processing .stat-icon {
+      background: linear-gradient(135deg, #5865f2, #4752c4);
+    }
+    
+    &.completed .stat-icon {
+      background: linear-gradient(135deg, #3ba55c, #27ae60);
+    }
+    
+    &.urgent .stat-icon {
+      background: linear-gradient(135deg, #ed4245, #e74c3c);
     }
   }
+}
+
+.filter-section {
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: 20px;
+  margin-bottom: 20px;
   
   .filter-form {
-    .el-form-item {
-      width: 100%;
-      margin-bottom: 16px;
+    @include mobile {
+      .el-form-item {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 16px;
+        
+        :deep(.el-form-item__content) {
+          width: 100%;
+          
+          .el-select,
+          .el-input {
+            width: 100% !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.work-order-list {
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: 20px;
+  
+  .work-order-table {
+    :deep(.el-table) {
+      background: transparent;
+      
+      .el-table__header {
+        background: $bg-secondary;
+        
+        th {
+          background: $bg-secondary;
+          color: $text-primary;
+          border-bottom: 1px solid $border-color;
+        }
+      }
+      
+      .el-table__body {
+        tr {
+          background: transparent;
+          
+          &:hover td {
+            background: $bg-quaternary;
+          }
+          
+          td {
+            border-bottom: 1px solid $border-color;
+            color: $text-primary;
+          }
+        }
+      }
+    }
+    
+    .order-id {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-weight: 600;
+      color: $primary-color;
+    }
+    
+    .order-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .urgent-tag {
+        flex-shrink: 0;
+      }
+    }
+    
+    .reporter-info,
+    .assignee-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      span {
+        font-size: 12px;
+      }
     }
   }
   
-  .stats-cards .stat-card {
-    margin-bottom: 16px;
+  .pagination-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.work-order-dialog {
+  :deep(.el-dialog) {
+    background: $bg-tertiary;
+    
+    .el-dialog__header {
+      background: $bg-secondary;
+      border-bottom: 1px solid $border-color;
+      
+      .el-dialog__title {
+        color: $text-primary;
+      }
+    }
+    
+    .el-dialog__body {
+      background: $bg-tertiary;
+      color: $text-primary;
+    }
+  }
+  
+  .order-detail {
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      
+      .order-info {
+        h3 {
+          margin: 0 0 12px 0;
+          color: $text-primary;
+        }
+        
+        .order-meta {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+      }
+      
+      @include mobile {
+        flex-direction: column;
+        gap: 16px;
+        
+        .order-actions {
+          width: 100%;
+          
+          .el-button {
+            width: 100%;
+          }
+        }
+      }
+    }
+    
+    .detail-content {
+      .content-section {
+        margin-bottom: 24px;
+        
+        h4 {
+          margin: 0 0 12px 0;
+          color: $text-primary;
+          font-size: 16px;
+        }
+        
+        .description {
+          background: $bg-secondary;
+          padding: 16px;
+          border-radius: $border-radius;
+          border: 1px solid $border-color;
+          color: $text-primary;
+          line-height: 1.6;
+        }
+        
+        .photo-gallery {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 12px;
+          
+          .photo-item {
+            width: 120px;
+            height: 120px;
+            border-radius: $border-radius;
+            overflow: hidden;
+          }
+        }
+        
+        .voice-records {
+          .voice-item {
+            background: $bg-secondary;
+            padding: 12px;
+            border-radius: $border-radius;
+            border: 1px solid $border-color;
+            margin-bottom: 8px;
+            
+            .el-button {
+              color: $primary-color;
+            }
+          }
+        }
+        
+        .log-content {
+          color: $text-primary;
+          
+          .log-comment {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: $bg-secondary;
+            border-radius: $border-radius;
+            font-size: 14px;
+            color: $text-secondary;
+          }
+        }
+      }
+    }
+  }
+}
+
+:deep(.el-descriptions) {
+  .el-descriptions__header {
+    .el-descriptions__title {
+      color: $text-primary;
+    }
+  }
+  
+  .el-descriptions__body {
+    .el-descriptions__table {
+      .el-descriptions__cell {
+        background: $bg-secondary;
+        border: 1px solid $border-color;
+        color: $text-primary;
+        
+        &.is-bordered-label {
+          background: lighten($bg-secondary, 3%);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+:deep(.el-timeline) {
+  .el-timeline-item__wrapper {
+    .el-timeline-item__timestamp {
+      color: $text-secondary;
+    }
   }
 }
 </style>

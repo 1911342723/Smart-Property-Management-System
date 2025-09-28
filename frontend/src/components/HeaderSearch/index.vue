@@ -1,6 +1,8 @@
 <template>
   <div :class="{'show': show}" class="header-search">
-    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
+    <el-icon class="search-icon" @click.stop="click">
+      <Search />
+    </el-icon>
     <el-select
       ref="headerSearchSelect"
       v-model="search"
@@ -25,9 +27,13 @@
 <script>
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { Search } from '@element-plus/icons-vue'
 
 export default {
   name: 'HeaderSearch',
+  components: {
+    Search
+  },
   setup() {
     const router = useRouter()
     const search = ref('')

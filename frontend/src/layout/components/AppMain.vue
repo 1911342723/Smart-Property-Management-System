@@ -26,6 +26,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+@import '@/styles/responsive.scss';
 
 .app-main {
   min-height: calc(100vh - 50px);
@@ -44,6 +45,29 @@ export default {
 
 .mobile .app-main {
   margin-left: 0;
+  padding: 16px;
+}
+
+// 平板适配
+@include tablet {
+  .app-main {
+    margin-left: 180px;
+    padding: 16px;
+  }
+  
+  .hideSidebar .app-main {
+    margin-left: 54px;
+  }
+}
+
+// 手机适配
+@include mobile {
+  .app-main {
+    margin-left: 0 !important;
+    padding: 12px !important;
+    padding-top: 62px !important; // 为固定导航栏留出空间
+    min-height: calc(100vh - 50px) !important;
+  }
 }
 
 .fade-transform-leave-active,

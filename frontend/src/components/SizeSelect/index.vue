@@ -1,7 +1,9 @@
 <template>
   <el-dropdown trigger="click" @command="handleSetSize">
     <div>
-      <svg-icon class-name="size-icon" icon-class="size" />
+      <el-icon>
+        <Setting />
+      </el-icon>
     </div>
     <template #dropdown>
       <el-dropdown-menu>
@@ -21,9 +23,13 @@
 <script>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { Setting } from '@element-plus/icons-vue'
 
 export default {
   name: 'SizeSelect',
+  components: {
+    Setting
+  },
   setup() {
     const store = useStore()
     

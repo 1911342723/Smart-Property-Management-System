@@ -1,15 +1,23 @@
 <template>
   <div @click="click">
-    <svg-icon :icon-class="isFullscreen ? 'exit-fullscreen' : 'fullscreen'" />
+    <el-icon>
+      <FullScreen v-if="!isFullscreen" />
+      <Aim v-else />
+    </el-icon>
   </div>
 </template>
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import screenfull from 'screenfull'
+import { FullScreen, Aim } from '@element-plus/icons-vue'
 
 export default {
   name: 'Screenfull',
+  components: {
+    FullScreen,
+    Aim
+  },
   setup() {
     const isFullscreen = ref(false)
     

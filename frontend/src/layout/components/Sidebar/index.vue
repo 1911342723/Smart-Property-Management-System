@@ -182,6 +182,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
+@import '@/styles/responsive.scss';
 
 .sidebar {
   height: 100vh;
@@ -246,11 +247,64 @@ export default {
 .app-wrapper.mobile .sidebar {
   transition: transform 0.28s;
   width: 210px !important;
+  position: fixed;
+  z-index: 1002;
 }
 
 .app-wrapper.mobile.hideSidebar .sidebar {
   pointer-events: none;
   transition-duration: 0.3s;
   transform: translate3d(-210px, 0, 0);
+}
+
+// 平板适配
+@include tablet {
+  .sidebar {
+    width: 180px;
+  }
+  
+  .app-wrapper.hideSidebar .sidebar {
+    width: 54px;
+  }
+}
+
+// 手机适配
+@include mobile {
+  .sidebar {
+    position: fixed !important;
+    z-index: 1002 !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 250px !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .app-wrapper.mobile.openSidebar .sidebar {
+    transform: translateX(0);
+  }
+  
+  .logo-container {
+    padding: 0 16px !important;
+    height: 60px !important;
+    
+    .logo-title {
+      font-size: 16px !important;
+    }
+  }
+  
+  .el-menu {
+    border-right: none !important;
+  }
+  
+  .el-menu-item,
+  .el-sub-menu__title {
+    height: 50px !important;
+    line-height: 50px !important;
+    padding: 0 20px !important;
+    margin: 2px 8px !important;
+    font-size: 14px !important;
+  }
 }
 </style>

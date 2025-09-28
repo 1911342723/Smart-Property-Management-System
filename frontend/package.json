@@ -9,17 +9,19 @@
     "dev": "vue-cli-service serve"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.9",
+    "echarts": "^5.4.3",
+    "element-plus": "^2.3.8",
+    "lodash": "^4.17.21",
+    "path-browserify": "^1.0.1",
+    "screenfull": "^6.0.2",
     "vue": "^3.3.4",
+    "vue-echarts": "^6.6.0",
     "vue-router": "^4.2.4",
     "vuex": "^4.0.2",
-    "axios": "^1.4.0",
-    "element-plus": "^2.3.8",
-    "echarts": "^5.4.3",
-    "vue-echarts": "^6.6.0",
-    "@element-plus/icons-vue": "^2.1.0",
-    "dayjs": "^1.11.9",
-    "xlsx": "^0.18.5",
-    "lodash": "^4.17.21"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-eslint": "^5.0.8",
