@@ -133,7 +133,14 @@ public class ComplaintServiceImpl extends ServiceImpl<ComplaintMapper, Complaint
 
     @Override
     public ComplaintStats getComplaintStats(Long complainantId) {
-        List<Map<String, Object>> statsList = baseMapper.getComplaintStatsByStatus(complainantId);
+        List<Map<String, Object>> statsList;
+        
+        // 根据是否传入complainantId决定调用哪个方法
+        if (complainantId != null) {
+            statsList = baseMapper.getComplaintStatsByComplainant(complainantId);
+        } else {
+            statsList = baseMapper.getAllComplaintStatsByStatus();
+        }
         
         ComplaintStats stats = new ComplaintStats();
         stats.setTotal(0);

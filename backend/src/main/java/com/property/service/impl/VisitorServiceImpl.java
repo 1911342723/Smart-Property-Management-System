@@ -1,5 +1,6 @@
 package com.property.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,7 +30,30 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
                                             Long ownerId, String status, 
                                             LocalDateTime startDate, LocalDateTime endDate) {
         Page<Visitor> page = new Page<>(pageNum, pageSize);
-        IPage<Visitor> result = baseMapper.selectPageWithDetails(page, ownerId, status, startDate, endDate);
+        IPage<Visitor> result;
+        
+        // 根据不同条件选择合适的查询方法
+        if (ownerId != null && status != null) {
+            // 如果有业主ID和状态，使用MyBatis-Plus的条件查询
+            QueryWrapper<Visitor> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("owner_id", ownerId)
+                       .eq("status", status)
+                       .eq("deleted", 0);
+            if (startDate != null) {
+                queryWrapper.ge("planned_arrival", startDate);
+            }
+            if (endDate != null) {
+                queryWrapper.le("planned_arrival", endDate);
+            }
+            queryWrapper.orderByDesc("planned_arrival");
+            result = baseMapper.selectPage(page, queryWrapper);
+        } else if (ownerId != null) {
+            result = baseMapper.selectPageByOwner(page, ownerId);
+        } else if (status != null) {
+            result = baseMapper.selectPageByStatus(page, status);
+        } else {
+            result = baseMapper.selectAllPageWithDetails(page);
+        }
         
         return new PageResult<>(result.getRecords(), result.getTotal(), 
                                Long.valueOf(pageNum), Long.valueOf(pageSize));
@@ -136,10 +160,19 @@ public class VisitorServiceImpl extends ServiceImpl<VisitorMapper, Visitor> impl
         Map<String, Object> statsMap = baseMapper.getVisitorStats(ownerId);
         
         VisitorStats stats = new VisitorStats();
-        stats.setTotal(((Number) statsMap.getOrDefault("total", 0)).intValue());
-        stats.setToday(((Number) statsMap.getOrDefault("today", 0)).intValue());
-        stats.setThisWeek(((Number) statsMap.getOrDefault("thisWeek", 0)).intValue());
-        stats.setThisMonth(((Number) statsMap.getOrDefault("thisMonth", 0)).intValue());
+        
+        // 安全地处理可能为null的值
+        Object totalObj = statsMap.get("total");
+        stats.setTotal(totalObj != null ? ((Number) totalObj).intValue() : 0);
+        
+        Object todayObj = statsMap.get("today");
+        stats.setToday(todayObj != null ? ((Number) todayObj).intValue() : 0);
+        
+        Object thisWeekObj = statsMap.get("thisWeek");
+        stats.setThisWeek(thisWeekObj != null ? ((Number) thisWeekObj).intValue() : 0);
+        
+        Object thisMonthObj = statsMap.get("thisMonth");
+        stats.setThisMonth(thisMonthObj != null ? ((Number) thisMonthObj).intValue() : 0);
         
         return stats;
     }

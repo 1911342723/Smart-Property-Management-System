@@ -3,10 +3,8 @@ package com.property.controller;
 import com.property.dto.LoginDTO;
 import com.property.dto.Result;
 import com.property.dto.UserInfoDTO;
-import com.property.dto.UserStatsDTO;
 import com.property.entity.SysUser;
 import com.property.service.AuthService;
-import com.property.service.UserStatsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +26,6 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private UserStatsService userStatsService;
 
     @ApiOperation("用户登录")
     @PostMapping("/login")
@@ -87,35 +82,6 @@ public class AuthController {
     public Result<String> logout() {
         // JWT是无状态的，客户端删除token即可
         return Result.success("登出成功");
-    }
-
-    @ApiOperation("获取当前用户统计数据")
-    @GetMapping("/stats")
-    public Result<UserStatsDTO> getCurrentUserStats() {
-        try {
-            UserStatsDTO stats = userStatsService.getCurrentUserStats();
-            return Result.success(stats);
-        } catch (Exception e) {
-            return Result.error("获取统计数据失败：" + e.getMessage());
-        }
-    }
-
-    @ApiOperation("更新用户信息")
-    @PutMapping("/profile")
-    public Result<String> updateProfile(@RequestBody SysUser updateData) {
-        try {
-            // 获取当前用户信息
-            UserInfoDTO currentUser = authService.getCurrentUser();
-            boolean success = authService.updateUserProfile(currentUser.getId(), updateData);
-            
-            if (success) {
-                return Result.success("更新成功");
-            } else {
-                return Result.error("更新失败");
-            }
-        } catch (Exception e) {
-            return Result.error("更新失败：" + e.getMessage());
-        }
     }
 }
 

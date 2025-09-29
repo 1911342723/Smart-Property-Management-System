@@ -74,21 +74,21 @@ public interface ComplaintMapper extends BaseMapper<Complaint> {
     String generateComplaintNo();
 
     /**
-     * 统计投诉数量按状态分组
+     * 统计所有投诉数量按状态分组
+     * 
+     * @return 统计结果
+     */
+    @Select("SELECT status, COUNT(*) as count FROM complaint WHERE deleted = 0 GROUP BY status")
+    java.util.List<java.util.Map<String, Object>> getAllComplaintStatsByStatus();
+    
+    /**
+     * 统计指定用户投诉数量按状态分组
      * 
      * @param complainantId 投诉人ID
      * @return 统计结果
      */
-    @Select({
-        "SELECT status, COUNT(*) as count ",
-        "FROM complaint ",
-        "WHERE deleted = 0 ",
-        "<if test='complainantId != null'>",
-        "AND complainant_id = #{complainantId} ",
-        "</if>",
-        "GROUP BY status"
-    })
-    java.util.List<java.util.Map<String, Object>> getComplaintStatsByStatus(@Param("complainantId") Long complainantId);
+    @Select("SELECT status, COUNT(*) as count FROM complaint WHERE deleted = 0 AND complainant_id = #{complainantId} GROUP BY status")
+    java.util.List<java.util.Map<String, Object>> getComplaintStatsByComplainant(@Param("complainantId") Long complainantId);
 }
 
 

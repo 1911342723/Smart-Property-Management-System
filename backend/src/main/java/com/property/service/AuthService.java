@@ -167,35 +167,5 @@ public class AuthService {
         }
         return jwtUtils.refreshToken(token);
     }
-
-    /**
-     * 更新用户信息
-     * 
-     * @param userId 用户ID
-     * @param updateData 更新数据
-     * @return 更新结果
-     */
-    public boolean updateUserProfile(Long userId, SysUser updateData) {
-        SysUser user = userMapper.selectById(userId);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        // 只更新允许的字段
-        if (updateData.getRealName() != null) {
-            user.setRealName(updateData.getRealName());
-        }
-        if (updateData.getPhone() != null) {
-            user.setPhone(updateData.getPhone());
-        }
-        if (updateData.getEmail() != null) {
-            user.setEmail(updateData.getEmail());
-        }
-        if (updateData.getAvatar() != null) {
-            user.setAvatar(updateData.getAvatar());
-        }
-
-        return userMapper.updateById(user) > 0;
-    }
 }
 

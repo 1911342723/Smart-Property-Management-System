@@ -22,17 +22,12 @@ import java.util.Map;
 public interface VisitorMapper extends BaseMapper<Visitor> {
 
     /**
-     * 分页查询访客信息（包含关联信息）
+     * 分页查询所有访客信息（包含关联信息）
      * 
      * @param page 分页参数
-     * @param ownerId 业主ID
-     * @param status 状态
-     * @param startDate 开始日期
-     * @param endDate 结束日期
      * @return 访客信息列表
      */
     @Select({
-        "<script>",
         "SELECT v.*, u.real_name as owner_name, ",
         "CONCAT(b.building_name, '-', un.unit_name, '-', r.room_no) as room_address, ",
         "g.real_name as guard_name ",
@@ -43,26 +38,53 @@ public interface VisitorMapper extends BaseMapper<Visitor> {
         "LEFT JOIN unit un ON r.unit_id = un.id ",
         "LEFT JOIN sys_user g ON v.guard_id = g.id ",
         "WHERE v.deleted = 0 ",
-        "<if test='ownerId != null'>",
-        "AND v.owner_id = #{ownerId} ",
-        "</if>",
-        "<if test='status != null and status != \"\"'>",
-        "AND v.status = #{status} ",
-        "</if>",
-        "<if test='startDate != null'>",
-        "AND v.planned_arrival >= #{startDate} ",
-        "</if>",
-        "<if test='endDate != null'>",
-        "AND v.planned_arrival &lt;= #{endDate} ",
-        "</if>",
-        "ORDER BY v.planned_arrival DESC",
-        "</script>"
+        "ORDER BY v.planned_arrival DESC"
     })
-    IPage<Visitor> selectPageWithDetails(Page<Visitor> page, 
-                                       @Param("ownerId") Long ownerId,
-                                       @Param("status") String status,
-                                       @Param("startDate") LocalDateTime startDate,
-                                       @Param("endDate") LocalDateTime endDate);
+    IPage<Visitor> selectAllPageWithDetails(Page<Visitor> page);
+    
+    /**
+     * 按业主ID分页查询访客信息（包含关联信息）
+     * 
+     * @param page 分页参数
+     * @param ownerId 业主ID
+     * @return 访客信息列表
+     */
+    @Select({
+        "SELECT v.*, u.real_name as owner_name, ",
+        "CONCAT(b.building_name, '-', un.unit_name, '-', r.room_no) as room_address, ",
+        "g.real_name as guard_name ",
+        "FROM visitor v ",
+        "LEFT JOIN sys_user u ON v.owner_id = u.id ",
+        "LEFT JOIN room r ON v.room_id = r.id ",
+        "LEFT JOIN building b ON r.building_id = b.id ",
+        "LEFT JOIN unit un ON r.unit_id = un.id ",
+        "LEFT JOIN sys_user g ON v.guard_id = g.id ",
+        "WHERE v.deleted = 0 AND v.owner_id = #{ownerId} ",
+        "ORDER BY v.planned_arrival DESC"
+    })
+    IPage<Visitor> selectPageByOwner(Page<Visitor> page, @Param("ownerId") Long ownerId);
+    
+    /**
+     * 按状态分页查询访客信息（包含关联信息）
+     * 
+     * @param page 分页参数
+     * @param status 状态
+     * @return 访客信息列表
+     */
+    @Select({
+        "SELECT v.*, u.real_name as owner_name, ",
+        "CONCAT(b.building_name, '-', un.unit_name, '-', r.room_no) as room_address, ",
+        "g.real_name as guard_name ",
+        "FROM visitor v ",
+        "LEFT JOIN sys_user u ON v.owner_id = u.id ",
+        "LEFT JOIN room r ON v.room_id = r.id ",
+        "LEFT JOIN building b ON r.building_id = b.id ",
+        "LEFT JOIN unit un ON r.unit_id = un.id ",
+        "LEFT JOIN sys_user g ON v.guard_id = g.id ",
+        "WHERE v.deleted = 0 AND v.status = #{status} ",
+        "ORDER BY v.planned_arrival DESC"
+    })
+    IPage<Visitor> selectPageByStatus(Page<Visitor> page, @Param("status") String status);
 
     /**
      * 根据二维码获取访客信息

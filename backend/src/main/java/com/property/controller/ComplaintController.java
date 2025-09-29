@@ -9,8 +9,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
@@ -199,10 +202,28 @@ public class ComplaintController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
     public Result<ComplaintService.ComplaintStats> getComplaintStats(
-            @ApiParam("投诉人ID") @RequestParam(required = false) Long complainantId) {
+            @ApiParam("投诉人ID") @RequestParam(required = false) Long complainantId,
+            HttpServletRequest request) {
         
-        ComplaintService.ComplaintStats stats = complaintService.getComplaintStats(complainantId);
-        return Result.success(stats);
+        try {
+            System.out.println("=== 投诉统计接口调试信息 ===");
+            System.out.println("请求参数 complainantId: " + complainantId);
+            System.out.println("Authorization Header: " + request.getHeader("Authorization"));
+            
+            // 获取当前认证信息
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("当前认证信息: " + (auth != null ? auth.getName() : "null"));
+            System.out.println("当前用户权限: " + (auth != null ? auth.getAuthorities() : "null"));
+            
+            ComplaintService.ComplaintStats stats = complaintService.getComplaintStats(complainantId);
+            System.out.println("统计结果: " + stats);
+            
+            return Result.success(stats);
+        } catch (Exception e) {
+            System.err.println("获取投诉统计失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取投诉统计失败: " + e.getMessage());
+        }
     }
 
     /**

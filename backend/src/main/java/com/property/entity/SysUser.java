@@ -52,6 +52,26 @@ public class SysUser extends BaseEntity {
     @TableField("avatar")
     private String avatar;
 
+    @ApiModelProperty(value = "性别：MALE-男，FEMALE-女，OTHER-其他")
+    @TableField("gender")
+    private String gender;
+
+    @ApiModelProperty(value = "生日")
+    @TableField("birthday")
+    private String birthday;
+
+    @ApiModelProperty(value = "个人签名")
+    @TableField("signature")
+    private String signature;
+
+    @ApiModelProperty(value = "紧急联系人")
+    @TableField("emergency_contact")
+    private String emergencyContact;
+
+    @ApiModelProperty(value = "紧急联系电话")
+    @TableField("emergency_phone")
+    private String emergencyPhone;
+
     @ApiModelProperty(value = "状态：0-禁用，1-启用")
     @TableField("status")
     private Integer status;
@@ -112,6 +132,46 @@ public class SysUser extends BaseEntity {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getEmergencyContact() {
+        return emergencyContact;
+    }
+
+    public void setEmergencyContact(String emergencyContact) {
+        this.emergencyContact = emergencyContact;
+    }
+
+    public String getEmergencyPhone() {
+        return emergencyPhone;
+    }
+
+    public void setEmergencyPhone(String emergencyPhone) {
+        this.emergencyPhone = emergencyPhone;
     }
 
     public Integer getStatus() {

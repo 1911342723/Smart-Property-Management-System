@@ -11,8 +11,11 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -154,10 +157,28 @@ public class VisitorController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
     public Result<VisitorService.VisitorStats> getVisitorStats(
-            @ApiParam("业主ID") @RequestParam Long ownerId) {
+            @ApiParam("业主ID") @RequestParam Long ownerId,
+            HttpServletRequest request) {
         
-        VisitorService.VisitorStats stats = visitorService.getVisitorStats(ownerId);
-        return Result.success(stats);
+        try {
+            System.out.println("=== 访客统计接口调试信息 ===");
+            System.out.println("请求参数 ownerId: " + ownerId);
+            System.out.println("Authorization Header: " + request.getHeader("Authorization"));
+            
+            // 获取当前认证信息
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("当前认证信息: " + (auth != null ? auth.getName() : "null"));
+            System.out.println("当前用户权限: " + (auth != null ? auth.getAuthorities() : "null"));
+            
+            VisitorService.VisitorStats stats = visitorService.getVisitorStats(ownerId);
+            System.out.println("访客统计结果: " + stats);
+            
+            return Result.success(stats);
+        } catch (Exception e) {
+            System.err.println("获取访客统计失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取访客统计失败: " + e.getMessage());
+        }
     }
 
     /**
