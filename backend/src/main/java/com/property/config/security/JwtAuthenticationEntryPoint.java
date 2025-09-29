@@ -1,0 +1,41 @@
+package com.property.config.security;
+
+import com.alibaba.fastjson.JSON;
+import com.property.dto.Result;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * JWT认证入口点
+ * 处理未认证访问
+ * 
+ * @author Property Management Team
+ * @since 1.0.0
+ */
+@Component
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
+        
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        Result<Object> result = Result.error(401, "未授权访问，请先登录");
+        response.getWriter().write(JSON.toJSONString(result));
+    }
+}
+
+
+
+
+
+

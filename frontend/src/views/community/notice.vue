@@ -59,19 +59,18 @@
       <el-form :model="filters" inline class="filter-form">
         <el-form-item label="公告类型">
           <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 120px">
-            <el-option label="重要通知" value="important" />
-            <el-option label="物业公告" value="property" />
-            <el-option label="活动通知" value="activity" />
-            <el-option label="温馨提示" value="reminder" />
-            <el-option label="停水停电" value="utility" />
-            <el-option label="其他" value="other" />
+            <el-option label="通知" value="NOTICE" />
+            <el-option label="活动" value="ACTIVITY" />
+            <el-option label="维护" value="MAINTENANCE" />
+            <el-option label="紧急" value="EMERGENCY" />
           </el-select>
         </el-form-item>
         <el-form-item label="发布状态">
           <el-select v-model="filters.status" placeholder="全部状态" clearable style="width: 120px">
-            <el-option label="已发布" value="published" />
-            <el-option label="草稿" value="draft" />
-            <el-option label="已下线" value="offline" />
+            <el-option label="已发布" value="PUBLISHED" />
+            <el-option label="草稿" value="DRAFT" />
+            <el-option label="已下线" value="OFFLINE" />
+            <el-option label="已过期" value="EXPIRED" />
           </el-select>
         </el-form-item>
         <el-form-item label="置顶状态">
@@ -354,12 +353,10 @@
           <el-col :span="8">
             <el-form-item label="公告类型" prop="type">
               <el-select v-model="noticeForm.type" placeholder="请选择类型">
-                <el-option label="重要通知" value="important" />
-                <el-option label="物业公告" value="property" />
-                <el-option label="活动通知" value="activity" />
-                <el-option label="温馨提示" value="reminder" />
-                <el-option label="停水停电" value="utility" />
-                <el-option label="其他" value="other" />
+                <el-option label="通知" value="NOTICE" />
+                <el-option label="活动" value="ACTIVITY" />
+                <el-option label="维护" value="MAINTENANCE" />
+                <el-option label="紧急" value="EMERGENCY" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -427,6 +424,17 @@ import {
   Plus, Document, Check, Star, View, Search, ArrowDown, 
   User, Clock 
 } from '@element-plus/icons-vue'
+import {
+  getAnnouncementPage,
+  getAnnouncementStats,
+  createAnnouncement,
+  updateAnnouncement,
+  publishAnnouncement,
+  offlineAnnouncement,
+  toggleTopAnnouncement,
+  deleteAnnouncement,
+  batchDeleteAnnouncements
+} from '@/api/announcement'
 
 export default {
   name: 'CommunityNotice',
@@ -447,10 +455,10 @@ export default {
     
     // 统计数据
     const stats = reactive({
-      total: 45,
-      published: 38,
-      pinned: 3,
-      totalViews: 15420
+      total: 0,
+      published: 0,
+      pinned: 0,
+      totalViews: 0
     })
     
     // 筛选条件
@@ -545,15 +553,45 @@ export default {
       }
     ]
     
+    // 加载统计数据
+    const loadStats = async () => {
+      try {
+        const response = await getAnnouncementStats()
+        if (response.code === 200) {
+          Object.assign(stats, response.data)
+        }
+      } catch (error) {
+        console.error('Load stats error:', error)
+      }
+    }
+
     // 加载公告列表
     const loadNotices = async () => {
       loading.value = true
       try {
-        await new Promise(resolve => setTimeout(resolve, 500))
+        const params = {
+          pageNum: pagination.current,
+          pageSize: pagination.size,
+          type: filters.type || undefined,
+          status: filters.status || undefined,
+          keyword: filters.keyword || undefined
+        }
+        
+        const response = await getAnnouncementPage(params)
+        if (response.code === 200) {
+          notices.value = response.data.records || []
+          pagination.total = response.data.total || 0
+          // 同时更新统计数据
+          loadStats()
+        } else {
+          throw new Error(response.message || '加载失败')
+        }
+      } catch (error) {
+        console.error('Load notices error:', error)
+        ElMessage.error('加载公告列表失败：' + error.message)
+        // 降级到模拟数据
         notices.value = mockNotices
         pagination.total = mockNotices.length
-      } catch (error) {
-        ElMessage.error('加载公告列表失败')
       } finally {
         loading.value = false
       }
@@ -597,14 +635,37 @@ export default {
         await noticeFormRef.value.validate()
         saving.value = true
         
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // 构建请求数据
+        const data = {
+          title: noticeForm.title,
+          type: noticeForm.type,
+          summary: noticeForm.summary,
+          content: noticeForm.content,
+          priority: noticeForm.options.includes('urgent') ? 'HIGH' : 'NORMAL',
+          isTop: noticeForm.options.includes('pinned') ? 1 : 0,
+          status: noticeForm.publishType === 'draft' ? 'DRAFT' : 'PUBLISHED'
+        }
         
-        ElMessage.success(editingNotice.value ? '公告修改成功' : '公告发布成功')
-        showCreateDialog.value = false
-        resetForm()
-        loadNotices()
+        let response
+        if (editingNotice.value) {
+          // 更新公告
+          response = await updateAnnouncement(editingNotice.value.id, data)
+        } else {
+          // 创建公告
+          response = await createAnnouncement(data)
+        }
+        
+        if (response.code === 200) {
+          ElMessage.success(editingNotice.value ? '公告修改成功' : '公告发布成功')
+          showCreateDialog.value = false
+          resetForm()
+          loadNotices()
+        } else {
+          throw new Error(response.message || '保存失败')
+        }
       } catch (error) {
-        console.error('表单验证失败:', error)
+        console.error('保存公告失败:', error)
+        ElMessage.error('保存公告失败：' + (error.message || '未知错误'))
       } finally {
         saving.value = false
       }
