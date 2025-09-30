@@ -58,11 +58,11 @@ export function startWorkOrder(id) {
 /**
  * 完成工单
  */
-export function completeWorkOrder(id, completionNote, actualCost) {
+export function completeWorkOrder(id, completionNote, cost) {
   return request({
     url: `/workorder/${id}/complete`,
     method: 'put',
-    params: { completionNote, actualCost }
+    params: { cost }
   })
 }
 
@@ -79,11 +79,11 @@ export function cancelWorkOrder(id) {
 /**
  * 评价工单
  */
-export function rateWorkOrder(id, rating, comment) {
+export function rateWorkOrder(id, rating, feedback) {
   return request({
     url: `/workorder/${id}/rate`,
     method: 'put',
-    params: { rating, comment }
+    params: { rating, feedback }
   })
 }
 

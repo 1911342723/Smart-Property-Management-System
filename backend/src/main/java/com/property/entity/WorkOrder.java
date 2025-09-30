@@ -100,6 +100,10 @@ public class WorkOrder extends BaseEntity {
     @ApiModelProperty(value = "提交人姓名")
     @TableField(exist = false)
     private String submitterName;
+    
+    @ApiModelProperty(value = "提交人电话")
+    @TableField(exist = false)
+    private String submitterPhone;
 
     @ApiModelProperty(value = "分配人姓名")
     @TableField(exist = false)

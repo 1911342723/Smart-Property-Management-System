@@ -156,6 +156,17 @@ public class AuthController {
         }
     }
 
+    @ApiOperation("更新当前用户资料")
+    @PutMapping("/profile")
+    public Result<UserInfoDTO> updateProfile(@RequestBody UpdateProfileRequest request) {
+        try {
+            UserInfoDTO userInfo = authService.updateCurrentUserProfile(request);
+            return Result.success("更新成功", userInfo);
+        } catch (Exception e) {
+            return Result.error("更新资料失败：" + e.getMessage());
+        }
+    }
+
     /**
      * 密码重置请求
      */
@@ -169,6 +180,53 @@ public class AuthController {
         public void setNewPassword(String newPassword) {
             this.newPassword = newPassword;
         }
+    }
+
+    /**
+     * 更新资料请求
+     */
+    public static class UpdateProfileRequest {
+        private String realName;
+        private String phone;
+        private String email;
+        private String avatar;
+        private String gender;
+        private String birthday;
+        private String signature;
+        private String emergencyContact;
+        private String emergencyPhone;
+        private String workStatus;
+
+        // Getters and Setters
+        public String getRealName() { return realName; }
+        public void setRealName(String realName) { this.realName = realName; }
+        
+        public String getPhone() { return phone; }
+        public void setPhone(String phone) { this.phone = phone; }
+        
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        
+        public String getAvatar() { return avatar; }
+        public void setAvatar(String avatar) { this.avatar = avatar; }
+        
+        public String getGender() { return gender; }
+        public void setGender(String gender) { this.gender = gender; }
+        
+        public String getBirthday() { return birthday; }
+        public void setBirthday(String birthday) { this.birthday = birthday; }
+        
+        public String getSignature() { return signature; }
+        public void setSignature(String signature) { this.signature = signature; }
+        
+        public String getEmergencyContact() { return emergencyContact; }
+        public void setEmergencyContact(String emergencyContact) { this.emergencyContact = emergencyContact; }
+        
+        public String getEmergencyPhone() { return emergencyPhone; }
+        public void setEmergencyPhone(String emergencyPhone) { this.emergencyPhone = emergencyPhone; }
+        
+        public String getWorkStatus() { return workStatus; }
+        public void setWorkStatus(String workStatus) { this.workStatus = workStatus; }
     }
 }
 

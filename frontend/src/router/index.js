@@ -48,28 +48,16 @@ const routes = [
     ]
   },
   {
-    path: '/work-order',
+    path: '/service',
     component: Layout,
-    redirect: '/work-order/list',
+    redirect: '/service/workorder',
     meta: { title: '服务工单管理', icon: 'List' },
     children: [
       {
-        path: 'list',
-        name: 'WorkOrderList',
-        component: () => import('@/views/work-order/list.vue'),
+        path: 'workorder',
+        name: 'WorkOrder',
+        component: () => import('@/views/service/workorder.vue'),
         meta: { title: '工单列表', icon: 'Document' }
-      },
-      {
-        path: 'assign',
-        name: 'WorkOrderAssign',
-        component: () => import('@/views/work-order/assign.vue'),
-        meta: { title: '工单分配', icon: 'Connection' }
-      },
-      {
-        path: 'monitor',
-        name: 'WorkOrderMonitor',
-        component: () => import('@/views/work-order/monitor.vue'),
-        meta: { title: '进度监控', icon: 'Monitor' }
       }
     ]
   },

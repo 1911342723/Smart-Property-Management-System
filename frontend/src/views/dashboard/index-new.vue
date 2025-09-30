@@ -127,7 +127,7 @@
     <div class="quick-actions responsive-card">
       <h3 class="section-title">快捷操作</h3>
       <div class="action-buttons responsive-button-group">
-        <el-button type="primary" size="large" @click="$router.push('/work-order/list')">
+        <el-button type="primary" size="large" @click="$router.push('/service/workorder')">
           <el-icon><Document /></el-icon>
           查看工单
         </el-button>

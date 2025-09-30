@@ -421,6 +421,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Upload, Delete, Download, Document } from '@element-plus/icons-vue'
+import { getPropertyList, getPropertyDetail, createProperty, updateProperty, deleteProperty, batchDeleteProperty, bindOwner, unbindOwner } from '@/api/property'
+import { getOwnerList } from '@/api/owner'
 
 export default {
   name: 'Property',
@@ -567,13 +569,72 @@ export default {
       { id: 4, name: '赵六', phone: '13800138004' }
     ]
     
-    const getList = () => {
+    const getList = async () => {
       loading.value = true
-      setTimeout(() => {
+      try {
+        const params = {
+          pageNum: queryParams.pageNum,
+          pageSize: queryParams.pageSize,
+          building: queryParams.building,
+          unit: queryParams.unit,
+          room: queryParams.room,
+          type: queryParams.type,
+          bindStatus: queryParams.bindStatus
+        }
+        
+        console.log('请求房产列表参数:', params)
+        
+        const response = await getPropertyList(params)
+        console.log('API响应:', response)
+        
+        if (response && response.data) {
+          const result = response.data
+          const list = result.list || result.records || []
+          
+          // 映射后端数据到前端格式
+          propertyList.value = list.map(room => ({
+            id: room.id,
+            building: room.buildingName || room.building || 'A',
+            unit: room.unitName || room.unit || '1',
+            room: room.roomNo || room.room || '101',
+            floor: room.floor || 1,
+            area: room.area || 0,
+            type: room.roomType || room.type || '未知',
+            orientation: room.orientation || '南',
+            decoration: room.decoration || 'simple',
+            propertyFee: room.propertyFee || 0,
+            feeStatus: room.feeStatus || 'unpaid',
+            createTime: formatDateTime(room.createTime),
+            owners: room.owners || [],
+            status: room.status || 'VACANT',
+            ownerName: room.ownerName
+          }))
+          
+          total.value = result.total || 0
+          console.log('房产列表加载完成:', propertyList.value)
+        }
+      } catch (error) {
+        console.error('获取房产列表失败:', error)
+        ElMessage.error('获取房产列表失败: ' + (error.message || '未知错误'))
+        // 使用模拟数据作为后备
         propertyList.value = mockProperties
         total.value = mockProperties.length
+      } finally {
         loading.value = false
-      }, 500)
+      }
+    }
+    
+    // 格式化日期时间
+    const formatDateTime = (dateTime) => {
+      if (!dateTime) return ''
+      if (typeof dateTime === 'string') return dateTime
+      
+      // 处理LocalDateTime对象
+      if (dateTime.year) {
+        return `${dateTime.year}-${String(dateTime.monthValue).padStart(2, '0')}-${String(dateTime.dayOfMonth).padStart(2, '0')} ${String(dateTime.hour).padStart(2, '0')}:${String(dateTime.minute).padStart(2, '0')}:${String(dateTime.second).padStart(2, '0')}`
+      }
+      
+      return String(dateTime)
     }
     
     const handleQuery = () => {
@@ -609,23 +670,46 @@ export default {
       showFormDialog.value = true
     }
     
-    const handleBind = (row) => {
+    const handleBind = async (row) => {
       currentProperty.value = row
       bindForm.propertyId = row.id
-      availableOwners.value = mockOwners
+      
+      // 从后端获取业主列表
+      try {
+        const response = await getOwnerList({ pageNum: 1, pageSize: 100 })
+        if (response && response.data) {
+          const result = response.data
+          const list = result.list || result.records || []
+          availableOwners.value = list.map(user => ({
+            id: user.id,
+            name: user.realName || user.username,
+            phone: user.phone
+          }))
+        }
+      } catch (error) {
+        console.error('获取业主列表失败:', error)
+        availableOwners.value = mockOwners
+      }
+      
       showBindDialog.value = true
     }
     
     const handleUnbind = async (owner) => {
       try {
         await ElMessageBox.confirm(`确定要解绑业主 ${owner.name} 吗？`, '确认操作')
-        const index = currentProperty.value.owners.findIndex(o => o.id === owner.id)
-        if (index > -1) {
-          currentProperty.value.owners.splice(index, 1)
-        }
+        await unbindOwner(currentProperty.value.id, owner.id)
         ElMessage.success('解绑成功')
-      } catch {
-        // 用户取消
+        // 刷新当前房产详情
+        const response = await getPropertyDetail(currentProperty.value.id)
+        if (response && response.data) {
+          currentProperty.value = response.data
+        }
+        getList()
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('解绑失败:', error)
+          ElMessage.error(error.message || '解绑失败')
+        }
       }
     }
     
@@ -634,13 +718,14 @@ export default {
         await ElMessageBox.confirm('确定要删除该房产吗？删除后不可恢复！', '确认删除', {
           type: 'warning'
         })
-        const index = propertyList.value.findIndex(item => item.id === row.id)
-        if (index > -1) {
-          propertyList.value.splice(index, 1)
-        }
+        await deleteProperty(row.id)
         ElMessage.success('删除成功')
-      } catch {
-        // 用户取消
+        getList()
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除失败:', error)
+          ElMessage.error(error.message || '删除失败')
+        }
       }
     }
     
@@ -658,15 +743,15 @@ export default {
         await ElMessageBox.confirm(`确定要删除 ${multipleSelection.value.length} 个房产吗？删除后不可恢复！`, '确认删除', {
           type: 'warning'
         })
-        multipleSelection.value.forEach(property => {
-          const index = propertyList.value.findIndex(item => item.id === property.id)
-          if (index > -1) {
-            propertyList.value.splice(index, 1)
-          }
-        })
+        const ids = multipleSelection.value.map(item => item.id)
+        await batchDeleteProperty(ids)
         ElMessage.success('批量删除成功')
-      } catch {
-        // 用户取消
+        getList()
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('批量删除失败:', error)
+          ElMessage.error(error.message || '批量删除失败')
+        }
       }
     }
     
@@ -711,56 +796,52 @@ export default {
       }
     }
     
-    const submitForm = () => {
-      formRef.value.validate((valid) => {
-        if (valid) {
-          if (form.id) {
-            // 编辑
-            const index = propertyList.value.findIndex(item => item.id === form.id)
-            if (index > -1) {
-              Object.assign(propertyList.value[index], form)
-            }
-            ElMessage.success('编辑成功')
-          } else {
-            // 新增
-            const newProperty = {
-              ...form,
-              id: Date.now(),
-              feeStatus: 'unpaid',
-              createTime: new Date().toLocaleString(),
-              owners: []
-            }
-            propertyList.value.unshift(newProperty)
-            ElMessage.success('新增成功')
-          }
-          showFormDialog.value = false
-          resetForm()
+    const submitForm = async () => {
+      if (!formRef.value) return
+      
+      const valid = await formRef.value.validate().catch(() => false)
+      if (!valid) return
+      
+      try {
+        const data = {
+          buildingName: form.building,
+          unitName: form.unit,
+          roomNo: form.room,
+          floor: form.floor,
+          area: form.area,
+          roomType: form.type,
+          orientation: form.orientation,
+          decoration: form.decoration,
+          propertyFee: form.propertyFee,
+          remark: form.remark
         }
-      })
+        
+        if (form.id) {
+          // 编辑
+          await updateProperty(form.id, data)
+          ElMessage.success('编辑成功')
+        } else {
+          // 新增
+          await createProperty(data)
+          ElMessage.success('新增成功')
+        }
+        showFormDialog.value = false
+        resetForm()
+        getList()
+      } catch (error) {
+        console.error('保存失败:', error)
+        ElMessage.error(error.message || '保存失败')
+      }
     }
     
-    const confirmBind = () => {
+    const confirmBind = async () => {
       if (!bindForm.ownerId) {
         ElMessage.error('请选择要绑定的业主')
         return
       }
       
-      const owner = availableOwners.value.find(o => o.id === bindForm.ownerId)
-      if (owner) {
-        const newOwner = {
-          ...owner,
-          type: bindForm.bindType,
-          avatar: ''
-        }
-        
-        // 检查是否已经绑定
-        const exists = currentProperty.value.owners.find(o => o.id === owner.id)
-        if (exists) {
-          ElMessage.error('该业主已经绑定过了')
-          return
-        }
-        
-        currentProperty.value.owners.push(newOwner)
+      try {
+        await bindOwner(bindForm.propertyId, bindForm.ownerId, bindForm.bindType.toUpperCase())
         ElMessage.success('绑定成功')
         showBindDialog.value = false
         
@@ -771,6 +852,20 @@ export default {
           bindType: 'owner',
           remark: ''
         })
+        
+        // 刷新房产详情
+        if (currentProperty.value) {
+          const response = await getPropertyDetail(currentProperty.value.id)
+          if (response && response.data) {
+            currentProperty.value = response.data
+          }
+        }
+        
+        // 刷新列表
+        getList()
+      } catch (error) {
+        console.error('绑定失败:', error)
+        ElMessage.error(error.message || '绑定失败')
       }
     }
     

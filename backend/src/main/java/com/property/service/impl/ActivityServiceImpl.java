@@ -5,9 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.property.entity.Activity;
 import com.property.mapper.ActivityMapper;
-import com.property.mapper.ActivityRegistrationMapper;
 import com.property.service.ActivityService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -24,9 +22,6 @@ import java.util.List;
  */
 @Service
 public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> implements ActivityService {
-
-    @Autowired
-    private ActivityRegistrationMapper activityRegistrationMapper;
 
     @Override
     public IPage<Activity> getActivityPage(Page<Activity> page, String status, String type, String keyword) {
@@ -85,10 +80,11 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteActivity(Long id) {
-        // 先物理删除该活动的所有报名记录
-        activityRegistrationMapper.physicalDeleteByActivityId(id);
-        // 再物理删除活动数据
-        return baseMapper.physicalDeleteById(id) > 0;
+        Activity activity = new Activity();
+        activity.setId(id);
+        activity.setDeleted(1);
+        activity.setUpdateTime(LocalDateTime.now());
+        return updateById(activity);
     }
 
     @Override

@@ -33,6 +33,7 @@ public interface WorkOrderMapper extends BaseMapper<WorkOrder> {
         "<script>",
         "SELECT wo.*, ",
         "su.real_name as submitter_name, ",
+        "su.phone as submitter_phone, ",
         "au.real_name as assignee_name, ",
         "CONCAT(b.building_name, '-', u.unit_name, '-', r.room_no) as room_address ",
         "FROM work_order wo ",
@@ -89,6 +90,28 @@ public interface WorkOrderMapper extends BaseMapper<WorkOrder> {
      */
     @Select("SELECT status, COUNT(*) as count FROM work_order WHERE submitter_id = #{submitterId} AND deleted = 0 GROUP BY status")
     List<Object> countBySubmitter(@Param("submitterId") Long submitterId);
+
+    /**
+     * 根据ID查询工单详情（带关联信息）
+     * 
+     * @param id 工单ID
+     * @return 工单详情
+     */
+    @Select({
+        "SELECT wo.*, ",
+        "su.real_name as submitter_name, ",
+        "su.phone as submitter_phone, ",
+        "au.real_name as assignee_name, ",
+        "CONCAT(b.building_name, '-', u.unit_name, '-', r.room_no) as room_address ",
+        "FROM work_order wo ",
+        "LEFT JOIN sys_user su ON wo.submitter_id = su.id ",
+        "LEFT JOIN sys_user au ON wo.assignee_id = au.id ",
+        "LEFT JOIN room r ON wo.room_id = r.id ",
+        "LEFT JOIN unit u ON r.unit_id = u.id ",
+        "LEFT JOIN building b ON r.building_id = b.id ",
+        "WHERE wo.id = #{id} AND wo.deleted = 0"
+    })
+    WorkOrder selectByIdWithDetails(@Param("id") Long id);
 }
 
 

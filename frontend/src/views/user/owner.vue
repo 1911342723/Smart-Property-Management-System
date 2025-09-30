@@ -388,6 +388,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, User, Check, Clock, House, Search, ArrowDown } from '@element-plus/icons-vue'
+import { getOwnerList, createOwner, updateOwner, deleteOwner, getUserRooms, resetOwnerPassword } from '@/api/owner'
 
 export default {
   name: 'OwnerManagement',
@@ -535,14 +536,80 @@ export default {
     const loadOwners = async () => {
       loading.value = true
       try {
-        await new Promise(resolve => setTimeout(resolve, 500))
-        owners.value = mockOwners
-        pagination.total = mockOwners.length
+        const params = {
+          pageNum: pagination.page,
+          pageSize: pagination.pageSize,
+          keyword: filters.keyword
+        }
+        
+        console.log('请求业主列表参数:', params)
+        
+        const response = await getOwnerList(params)
+        console.log('API响应:', response)
+        
+        if (response && response.data) {
+          const result = response.data
+          const list = result.list || result.records || []
+          
+          // 映射后端数据到前端格式
+          owners.value = list.map(user => ({
+            id: user.id,
+            name: user.realName || user.username,
+            phone: user.phone,
+            idCard: user.idCard || '',
+            email: user.email || '',
+            avatar: user.avatar || '',
+            status: getOwnerStatus(user.status),
+            registeredAt: formatDateTime(user.createTime),
+            lastLogin: formatDateTime(user.lastLoginTime) || '从未登录',
+            loginCount: user.loginCount || 0,
+            vip: false,
+            properties: [], // 需要额外加载
+            payments: [], // 需要额外加载
+            workOrders: [], // 需要额外加载
+            userType: user.userType,
+            gender: user.gender,
+            birthday: user.birthday
+          }))
+          
+          pagination.total = result.total || 0
+          
+          // 更新统计数据
+          updateStats()
+        }
       } catch (error) {
-        ElMessage.error('加载业主列表失败')
+        console.error('加载业主列表失败:', error)
+        ElMessage.error('加载业主列表失败: ' + (error.message || '未知错误'))
       } finally {
         loading.value = false
       }
+    }
+    
+    // 根据status获取业主状态
+    const getOwnerStatus = (status) => {
+      if (status === 1) return 'verified'
+      return 'unverified'
+    }
+    
+    // 格式化日期时间
+    const formatDateTime = (dateTime) => {
+      if (!dateTime) return ''
+      if (typeof dateTime === 'string') return dateTime
+      
+      // 处理LocalDateTime对象
+      if (dateTime.year) {
+        return `${dateTime.year}-${String(dateTime.monthValue).padStart(2, '0')}-${String(dateTime.dayOfMonth).padStart(2, '0')} ${String(dateTime.hour).padStart(2, '0')}:${String(dateTime.minute).padStart(2, '0')}:${String(dateTime.second).padStart(2, '0')}`
+      }
+      
+      return String(dateTime)
+    }
+    
+    // 更新统计数据
+    const updateStats = () => {
+      stats.total = owners.value.length
+      stats.verified = owners.value.filter(o => o.status === 'verified').length
+      stats.pending = owners.value.filter(o => o.status === 'pending').length
+      stats.occupied = owners.value.filter(o => o.properties && o.properties.length > 0).length
     }
     
     // 重置筛选条件
@@ -562,9 +629,23 @@ export default {
     
     // 添加业主
     const addOwner = async () => {
+      if (!ownerForm.value) return
+      
+      const valid = await ownerForm.value.validate().catch(() => false)
+      if (!valid) return
+      
       adding.value = true
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        const data = {
+          username: newOwner.phone, // 使用手机号作为用户名
+          realName: newOwner.name,
+          phone: newOwner.phone,
+          email: newOwner.email,
+          password: '123456', // 默认密码
+          userType: 'OWNER'
+        }
+        
+        await createOwner(data)
         ElMessage.success('业主添加成功')
         showAddDialog.value = false
         loadOwners()
@@ -616,8 +697,9 @@ export default {
     }
     
     // 处理下拉菜单命令
-    const handleCommand = (command, owner) => {
-      switch (command) {
+    const handleCommand = async (command, owner) => {
+      try {
+        switch (command) {
         case 'edit':
           editOwner(owner)
           break
@@ -626,38 +708,44 @@ export default {
           activeTab.value = 'property'
           break
         case 'reset':
-          ElMessageBox.confirm('确定要重置此业主的密码吗？', '确认操作', {
+          await ElMessageBox.confirm('确定要重置此业主的密码吗？', '确认操作', {
             type: 'warning'
-          }).then(() => {
-            ElMessage.success('密码重置成功，新密码已发送至业主手机')
           })
+          await resetOwnerPassword(owner.id, '123456')
+          ElMessage.success('密码重置成功，新密码为：123456')
           break
         case 'disable':
-          ElMessageBox.confirm('确定要禁用此业主吗？', '确认操作', {
+          await ElMessageBox.confirm('确定要禁用此业主吗？', '确认操作', {
             type: 'warning'
-          }).then(() => {
-            ElMessage.success('业主已禁用')
-            loadOwners()
           })
+          await updateOwner(owner.id, { status: 0 })
+          ElMessage.success('业主已禁用')
+          loadOwners()
           break
         case 'enable':
-          ElMessageBox.confirm('确定要启用此业主吗？', '确认操作', {
+          await ElMessageBox.confirm('确定要启用此业主吗？', '确认操作', {
             type: 'warning'
-          }).then(() => {
-            ElMessage.success('业主已启用')
-            loadOwners()
           })
+          await updateOwner(owner.id, { status: 1 })
+          ElMessage.success('业主已启用')
+          loadOwners()
           break
         case 'delete':
-          ElMessageBox.confirm('确定要删除此业主吗？', '确认删除', {
+          await ElMessageBox.confirm('确定要删除此业主吗？', '确认删除', {
             type: 'warning'
-          }).then(() => {
-            ElMessage.success('业主已删除')
-            loadOwners()
           })
+          await deleteOwner(owner.id)
+          ElMessage.success('业主已删除')
+          loadOwners()
           break
       }
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('操作失败:', error)
+        ElMessage.error(error.message || '操作失败')
+      }
     }
+  }
     
     // 工具函数
     const getStatusName = (status) => {
@@ -706,6 +794,9 @@ export default {
       approvalForm,
       ownerRules,
       loadOwners,
+      formatDateTime,
+      getOwnerStatus,
+      updateStats,
       resetFilters,
       viewOwner,
       addOwner,
@@ -717,7 +808,8 @@ export default {
       handleCommand,
       getStatusName,
       getStatusTagType,
-      formatDate
+      formatDate,
+      ownerForm
     }
   }
 }

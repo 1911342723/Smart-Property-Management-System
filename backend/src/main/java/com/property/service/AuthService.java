@@ -280,5 +280,71 @@ public class AuthService {
         
         return userMapper.updateById(user) > 0;
     }
+
+    /**
+     * 更新当前用户资料
+     * 
+     * @param request 更新请求
+     * @return 更新后的用户信息
+     */
+    public UserInfoDTO updateCurrentUserProfile(com.property.controller.AuthController.UpdateProfileRequest request) {
+        // 获取当前登录用户
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("用户未登录");
+        }
+        
+        String phone = authentication.getName();
+        SysUser user = userMapper.selectByPhone(phone);
+        
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 更新用户信息
+        if (request.getRealName() != null && !request.getRealName().isEmpty()) {
+            user.setRealName(request.getRealName());
+        }
+        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
+            // 检查手机号是否已被其他用户使用
+            SysUser existingUser = userMapper.selectByPhone(request.getPhone());
+            if (existingUser != null && !existingUser.getId().equals(user.getId())) {
+                throw new RuntimeException("手机号已被使用");
+            }
+            user.setPhone(request.getPhone());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getAvatar() != null) {
+            user.setAvatar(request.getAvatar());
+        }
+        if (request.getGender() != null) {
+            user.setGender(request.getGender());
+        }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+        if (request.getSignature() != null) {
+            user.setSignature(request.getSignature());
+        }
+        if (request.getEmergencyContact() != null) {
+            user.setEmergencyContact(request.getEmergencyContact());
+        }
+        if (request.getEmergencyPhone() != null) {
+            user.setEmergencyPhone(request.getEmergencyPhone());
+        }
+        
+        user.setUpdateTime(LocalDateTime.now());
+        
+        // 保存更新
+        int result = userMapper.updateById(user);
+        if (result == 0) {
+            throw new RuntimeException("更新失败");
+        }
+        
+        // 返回更新后的用户信息
+        return convertToUserInfoDTO(user);
+    }
 }
 

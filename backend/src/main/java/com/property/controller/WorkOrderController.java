@@ -48,7 +48,7 @@ public class WorkOrderController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'GUARD', 'WORKER')")
     public Result<WorkOrder> getWorkOrderById(@PathVariable Long id) {
-        WorkOrder workOrder = workOrderService.getById(id);
+        WorkOrder workOrder = workOrderService.getWorkOrderDetail(id);
         if (workOrder == null) {
             return Result.error("工单不存在");
         }
@@ -78,6 +78,20 @@ public class WorkOrderController {
             return Result.success();
         } catch (Exception e) {
             return Result.error("工单分配失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("维修工接单")
+    @PutMapping("/{id}/accept")
+    @PreAuthorize("hasRole('WORKER')")
+    public Result<String> acceptWorkOrder(
+            @PathVariable Long id,
+            @RequestParam(value = "workerId", required = false) Long workerId) {
+        try {
+            workOrderService.acceptWorkOrder(id, workerId);
+            return Result.success("接单成功");
+        } catch (Exception e) {
+            return Result.error("接单失败：" + e.getMessage());
         }
     }
 
@@ -134,6 +148,18 @@ public class WorkOrderController {
             return Result.success();
         } catch (Exception e) {
             return Result.error("删除失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("获取工单统计信息")
+    @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('ADMIN', 'WORKER')")
+    public Result<Object> getWorkOrderStats(
+            @ApiParam("维修工ID") @RequestParam(value = "workerId", required = false) Long workerId) {
+        try {
+            return Result.success(workOrderService.getWorkOrderStats(workerId));
+        } catch (Exception e) {
+            return Result.error("获取统计信息失败：" + e.getMessage());
         }
     }
 }

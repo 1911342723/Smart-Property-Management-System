@@ -26,11 +26,11 @@
             <el-option label="客服部" value="service" />
           </el-select>
         </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="queryParams.role" placeholder="请选择角色" clearable style="width: 140px">
-            <el-option label="管理员" value="admin" />
-            <el-option label="主管" value="supervisor" />
-            <el-option label="员工" value="employee" />
+        <el-form-item label="员工类型">
+          <el-select v-model="queryParams.role" placeholder="请选择员工类型" clearable style="width: 140px">
+            <el-option label="管理员" value="ADMIN" />
+            <el-option label="维修工" value="WORKER" />
+            <el-option label="保安" value="GUARD" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
@@ -291,6 +291,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Lock, Unlock, Download } from '@element-plus/icons-vue'
+import { getUserList, createUser, updateUser, deleteUser, resetPassword } from '@/api/user'
 
 export default {
   name: 'Employee',
@@ -365,69 +366,100 @@ export default {
       return form.id ? '编辑员工' : '新增员工'
     })
     
-    // 模拟数据
-    const mockEmployees = [
-      {
-        id: 1,
-        name: '管理员',
-        username: 'admin',
-        phone: '13800138001',
-        email: 'admin@example.com',
-        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-        department: 'management',
-        role: 'admin',
-        status: 'active',
-        permissions: ['user_manage', 'property_manage', 'workorder_manage', 'finance_manage', 'notice_manage', 'activity_manage', 'system_config', 'data_stats'],
-        lastLoginTime: '2024-01-25 09:30:00'
-      },
-      {
-        id: 2,
-        name: '张维修',
-        username: 'zhangwx',
-        phone: '13800138002',
-        email: 'zhangwx@example.com',
-        avatar: '',
-        department: 'maintenance',
-        role: 'employee',
-        status: 'active',
-        permissions: ['workorder_manage'],
-        lastLoginTime: '2024-01-25 08:45:00'
-      },
-      {
-        id: 3,
-        name: '李保安',
-        username: 'liba',
-        phone: '13800138003',
-        email: 'liba@example.com',
-        avatar: '',
-        department: 'security',
-        role: 'supervisor',
-        status: 'active',
-        permissions: ['workorder_manage', 'notice_manage'],
-        lastLoginTime: '2024-01-24 22:15:00'
-      },
-      {
-        id: 4,
-        name: '王客服',
-        username: 'wangkf',
-        phone: '13800138004',
-        email: 'wangkf@example.com',
-        avatar: '',
-        department: 'service',
-        role: 'employee',
-        status: 'disabled',
-        permissions: ['user_manage', 'workorder_manage'],
-        lastLoginTime: '2024-01-20 16:30:00'
-      }
-    ]
-    
-    const getList = () => {
+    // 获取员工列表
+    const getList = async () => {
       loading.value = true
-      setTimeout(() => {
-        employeeList.value = mockEmployees
-        total.value = mockEmployees.length
+      try {
+        const params = {
+          pageNum: queryParams.pageNum,
+          pageSize: queryParams.pageSize,
+          keyword: queryParams.name
+        }
+        
+        // 根据选择的角色过滤，如果没选则查所有员工类型
+        if (queryParams.role) {
+          params.role = queryParams.role
+        }
+        
+        console.log('请求参数:', params)
+        
+        const response = await getUserList(params)
+        console.log('API响应:', response)
+        
+        if (response && response.data) {
+          const result = response.data
+          
+          // 处理返回的数据列表
+          const list = result.list || result.records || []
+          
+          // 映射后端数据到前端格式
+          employeeList.value = list.map(user => ({
+            id: user.id,
+            name: user.realName || user.username,
+            username: user.username,
+            phone: user.phone,
+            email: user.email || '',
+            avatar: user.avatar || '',
+            department: getUserDepartment(user.userType),
+            role: getUserRole(user.userType),
+            userType: user.userType, // 保存原始类型
+            status: user.status === 1 ? 'active' : 'disabled',
+            permissions: [], // TODO: 从权限系统获取
+            lastLoginTime: formatDateTime(user.lastLoginTime) || '从未登录',
+            skillTags: user.skillTags || [], // 维修工的技能标签
+            gender: user.gender,
+            birthday: user.birthday,
+            signature: user.signature,
+            emergencyContact: user.emergencyContact,
+            emergencyPhone: user.emergencyPhone,
+            createTime: user.createTime,
+            updateTime: user.updateTime
+          }))
+          
+          total.value = result.total || 0
+          console.log('映射后的员工列表:', employeeList.value)
+        }
+      } catch (error) {
+        console.error('获取员工列表失败:', error)
+        ElMessage.error('获取员工列表失败: ' + (error.message || '未知错误'))
+      } finally {
         loading.value = false
-      }, 500)
+      }
+    }
+    
+    // 格式化日期时间
+    const formatDateTime = (dateTime) => {
+      if (!dateTime) return ''
+      if (typeof dateTime === 'string') return dateTime
+      
+      // 处理LocalDateTime对象
+      if (dateTime.year) {
+        return `${dateTime.year}-${String(dateTime.monthValue).padStart(2, '0')}-${String(dateTime.dayOfMonth).padStart(2, '0')} ${String(dateTime.hour).padStart(2, '0')}:${String(dateTime.minute).padStart(2, '0')}:${String(dateTime.second).padStart(2, '0')}`
+      }
+      
+      return String(dateTime)
+    }
+    
+    // 根据用户类型获取部门
+    const getUserDepartment = (userType) => {
+      const departmentMap = {
+        'ADMIN': 'management',
+        'WORKER': 'maintenance',
+        'GUARD': 'security',
+        'OWNER': 'owner'
+      }
+      return departmentMap[userType] || 'other'
+    }
+    
+    // 根据用户类型获取角色
+    const getUserRole = (userType) => {
+      const roleMap = {
+        'ADMIN': 'admin',
+        'WORKER': 'employee',
+        'GUARD': 'employee',
+        'OWNER': 'owner'
+      }
+      return roleMap[userType] || 'employee'
     }
     
     const handleQuery = () => {
@@ -468,12 +500,22 @@ export default {
     
     const handleToggleStatus = async (row) => {
       const action = row.status === 'active' ? '禁用' : '启用'
+      const newStatus = row.status === 'active' ? 0 : 1
+      
       try {
         await ElMessageBox.confirm(`确定要${action}该员工吗？`, '确认操作')
-        row.status = row.status === 'active' ? 'disabled' : 'active'
+        
+        await updateUser(row.id, {
+          status: newStatus
+        })
+        
+        row.status = newStatus === 1 ? 'active' : 'disabled'
         ElMessage.success(`${action}成功`)
-      } catch {
-        // 用户取消
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error(`${action}失败:`, error)
+          ElMessage.error(error.message || `${action}失败`)
+        }
       }
     }
     
@@ -482,13 +524,15 @@ export default {
         await ElMessageBox.confirm('确定要删除该员工吗？删除后不可恢复！', '确认删除', {
           type: 'warning'
         })
-        const index = employeeList.value.findIndex(item => item.id === row.id)
-        if (index > -1) {
-          employeeList.value.splice(index, 1)
-        }
+        
+        await deleteUser(row.id)
         ElMessage.success('删除成功')
-      } catch {
-        // 用户取消
+        getList() // 刷新列表
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除失败:', error)
+          ElMessage.error(error.message || '删除失败')
+        }
       }
     }
     
@@ -561,32 +605,56 @@ export default {
       }
     }
     
-    const submitForm = () => {
-      formRef.value.validate((valid) => {
-        if (valid) {
-          if (form.id) {
-            // 编辑
-            const index = employeeList.value.findIndex(item => item.id === form.id)
-            if (index > -1) {
-              Object.assign(employeeList.value[index], form)
-            }
-            ElMessage.success('编辑成功')
-          } else {
-            // 新增
-            const newEmployee = {
-              ...form,
-              id: Date.now(),
-              avatar: '',
-              permissions: [],
-              lastLoginTime: '从未登录'
-            }
-            employeeList.value.unshift(newEmployee)
-            ElMessage.success('新增成功')
-          }
-          showFormDialog.value = false
-          resetForm()
+    const submitForm = async () => {
+      if (!formRef.value) return
+      
+      const valid = await formRef.value.validate().catch(() => false)
+      if (!valid) return
+      
+      try {
+        loading.value = true
+        
+        // 构建提交数据
+        const submitData = {
+          username: form.username,
+          realName: form.name,
+          phone: form.phone,
+          email: form.email,
+          userType: getDepartmentUserType(form.department),
+          status: form.status === 'active' ? 1 : 0
         }
-      })
+        
+        if (form.id) {
+          // 编辑用户
+          await updateUser(form.id, submitData)
+          ElMessage.success('编辑成功')
+        } else {
+          // 新增用户
+          submitData.password = form.password || '123456' // 默认密码
+          await createUser(submitData)
+          ElMessage.success('新增成功')
+        }
+        
+        showFormDialog.value = false
+        resetForm()
+        getList() // 刷新列表
+      } catch (error) {
+        console.error('提交失败:', error)
+        ElMessage.error(error.message || '操作失败')
+      } finally {
+        loading.value = false
+      }
+    }
+    
+    // 根据部门获取用户类型
+    const getDepartmentUserType = (department) => {
+      const typeMap = {
+        'management': 'ADMIN',
+        'maintenance': 'WORKER',
+        'security': 'GUARD',
+        'owner': 'OWNER'
+      }
+      return typeMap[department] || 'WORKER'
     }
     
     const savePermissions = () => {
@@ -678,6 +746,10 @@ export default {
       allPermissions,
       formTitle,
       getList,
+      formatDateTime,
+      getUserDepartment,
+      getUserRole,
+      getDepartmentUserType,
       handleQuery,
       resetQuery,
       handleAdd,
