@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.property.entity.ActivityRegistration;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -85,4 +86,10 @@ public interface ActivityRegistrationMapper extends BaseMapper<ActivityRegistrat
     IPage<ActivityRegistration> selectUserRegistrationHistory(Page<ActivityRegistration> page,
                                                             @Param("userId") Long userId,
                                                             @Param("status") String status);
+
+    /**
+     * 物理删除指定活动的所有报名记录
+     */
+    @Delete("DELETE FROM activity_registration WHERE activity_id = #{activityId}")
+    int physicalDeleteByActivityId(@Param("activityId") Long activityId);
 }

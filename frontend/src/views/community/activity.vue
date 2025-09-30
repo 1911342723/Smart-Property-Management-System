@@ -159,8 +159,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="报名截止" prop="registrationDeadline">
-              <el-date-picker v-model="form.registrationDeadline" type="datetime" placeholder="报名截止时间" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
+            <el-form-item label="报名开始" prop="registrationStart">
+              <el-date-picker v-model="form.registrationStart" type="datetime" placeholder="报名开始时间" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="报名截止" prop="registrationEnd">
+              <el-date-picker v-model="form.registrationEnd" type="datetime" placeholder="报名截止时间" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -169,23 +174,36 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="活动描述" prop="description">
-              <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入活动描述" maxlength="500" show-word-limit />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系人" prop="contactPerson">
-              <el-input v-model="form.contactPerson" placeholder="联系人姓名" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系电话" prop="contactPhone">
-              <el-input v-model="form.contactPhone" placeholder="联系电话" />
+            <el-form-item label="活动简介" prop="description">
+              <el-input v-model="form.description" type="textarea" :rows="2" placeholder="请输入活动简介（显示在列表中）" maxlength="200" show-word-limit />
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="备注">
-              <el-input v-model="form.notes" type="textarea" :rows="2" placeholder="备注信息" />
+            <el-form-item label="活动摘要">
+              <el-input v-model="form.summary" type="textarea" :rows="2" placeholder="请输入活动摘要" maxlength="300" show-word-limit />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="活动详情">
+              <el-input v-model="form.content" type="textarea" :rows="6" placeholder="请输入活动详细内容" maxlength="5000" show-word-limit />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否免费">
+              <el-radio-group v-model="form.isFree">
+                <el-radio :label="1">免费</el-radio>
+                <el-radio :label="0">收费</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.isFree === 0">
+            <el-form-item label="活动费用">
+              <el-input-number v-model="form.fee" :min="0" :precision="2" placeholder="费用" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="活动图片">
+              <el-input v-model="form.imageUrl" placeholder="请输入活动主图URL" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -205,13 +223,19 @@
         <el-descriptions-item label="活动地点" :span="2">{{ currentActivity.location }}</el-descriptions-item>
         <el-descriptions-item label="开始时间">{{ currentActivity.startTime }}</el-descriptions-item>
         <el-descriptions-item label="结束时间">{{ currentActivity.endTime }}</el-descriptions-item>
-        <el-descriptions-item label="报名截止">{{ currentActivity.registrationDeadline }}</el-descriptions-item>
+        <el-descriptions-item label="报名开始">{{ currentActivity.registrationStart }}</el-descriptions-item>
+        <el-descriptions-item label="报名截止">{{ currentActivity.registrationEnd }}</el-descriptions-item>
         <el-descriptions-item label="参与人数">{{ currentActivity.currentParticipants || 0 }}/{{ currentActivity.maxParticipants || '不限' }}</el-descriptions-item>
-        <el-descriptions-item label="活动描述" :span="2">{{ currentActivity.description }}</el-descriptions-item>
-        <el-descriptions-item label="联系人">{{ currentActivity.contactPerson }}</el-descriptions-item>
-        <el-descriptions-item label="联系电话">{{ currentActivity.contactPhone }}</el-descriptions-item>
+        <el-descriptions-item label="活动简介" :span="2">{{ currentActivity.description }}</el-descriptions-item>
+        <el-descriptions-item label="活动摘要" :span="2" v-if="currentActivity.summary">{{ currentActivity.summary }}</el-descriptions-item>
+        <el-descriptions-item label="活动详情" :span="2" v-if="currentActivity.content">{{ currentActivity.content }}</el-descriptions-item>
+        <el-descriptions-item label="是否免费">{{ currentActivity.isFree ? '免费' : '收费' }}</el-descriptions-item>
+        <el-descriptions-item label="费用" v-if="!currentActivity.isFree">{{ currentActivity.fee || 0 }}元</el-descriptions-item>
+        <el-descriptions-item label="组织者">{{ currentActivity.organizerName }}</el-descriptions-item>
+        <el-descriptions-item label="活动图片" :span="2" v-if="currentActivity.imageUrl">
+          <el-image :src="currentActivity.imageUrl" style="width: 100px; height: 100px" fit="cover" />
+        </el-descriptions-item>
         <el-descriptions-item label="创建时间" :span="2">{{ currentActivity.createTime }}</el-descriptions-item>
-        <el-descriptions-item label="备注" :span="2" v-if="currentActivity.notes">{{ currentActivity.notes }}</el-descriptions-item>
       </el-descriptions>
     </el-dialog>
 
@@ -253,6 +277,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Calendar, Clock, Timer, User, Search, Edit, Delete, View, Document, Warning, Check, Close } from '@element-plus/icons-vue'
 import { getActivityPage, getActivityDetail, createActivity, updateActivity, deleteActivity as deleteActivityApi, publishActivity, cancelActivity, getSignUpList, confirmRegistration as confirmRegistrationApi, cancelSignUp } from '@/api/activity'
 
 const loading = ref(false)
@@ -271,8 +296,25 @@ const registrationVisible = ref(false)
 
 const formRef = ref(null)
 const form = reactive({
-  id: null, title: '', type: '', location: '', startTime: '', endTime: '', registrationDeadline: '',
-  maxParticipants: 0, description: '', contactPerson: '', contactPhone: '', notes: ''
+  id: null,
+  title: '',
+  type: '',
+  organizerId: null,
+  location: '',
+  startTime: '',
+  endTime: '',
+  registrationStart: '',
+  registrationEnd: '',
+  maxParticipants: 0,
+  currentParticipants: 0,
+  description: '',
+  content: '',
+  summary: '',
+  status: 'DRAFT',
+  isFree: 1,
+  fee: null,
+  imageUrl: '',
+  images: ''
 })
 
 const rules = {
@@ -281,13 +323,8 @@ const rules = {
   location: [{ required: true, message: '请输入活动地点', trigger: 'blur' }],
   startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
   endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
-  registrationDeadline: [{ required: true, message: '请选择报名截止时间', trigger: 'change' }],
-  description: [{ required: true, message: '请输入活动描述', trigger: 'blur' }],
-  contactPerson: [{ required: true, message: '请输入联系人', trigger: 'blur' }],
-  contactPhone: [
-    { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ]
+  registrationEnd: [{ required: true, message: '请选择报名截止时间', trigger: 'change' }],
+  description: [{ required: true, message: '请输入活动描述', trigger: 'blur' }]
 }
 
 const currentActivity = ref({})
@@ -359,7 +396,16 @@ const saveActivity = async () => {
     if (!valid) return
     saving.value = true
     try {
-      const res = isEdit.value ? await updateActivity(form.id, form) : await createActivity(form)
+      // 准备提交数据
+      const submitData = { ...form }
+      
+      // 如果是创建新活动且没有组织者ID，从本地存储获取当前用户ID
+      if (!isEdit.value && !submitData.organizerId) {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+        submitData.organizerId = userInfo.id || 1001
+      }
+      
+      const res = isEdit.value ? await updateActivity(form.id, submitData) : await createActivity(submitData)
       if (res.code === 200) {
         ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
         dialogVisible.value = false
@@ -375,7 +421,27 @@ const saveActivity = async () => {
 
 const resetForm = () => {
   if (formRef.value) formRef.value.resetFields()
-  Object.assign(form, { id: null, title: '', type: '', location: '', startTime: '', endTime: '', registrationDeadline: '', maxParticipants: 0, description: '', contactPerson: '', contactPhone: '', notes: '' })
+  Object.assign(form, {
+    id: null,
+    title: '',
+    type: '',
+    organizerId: null,
+    location: '',
+    startTime: '',
+    endTime: '',
+    registrationStart: '',
+    registrationEnd: '',
+    maxParticipants: 0,
+    currentParticipants: 0,
+    description: '',
+    content: '',
+    summary: '',
+    status: 'DRAFT',
+    isFree: 1,
+    fee: null,
+    imageUrl: '',
+    images: ''
+  })
 }
 
 const viewActivity = async (row) => {
@@ -486,7 +552,11 @@ onMounted(() => { loadActivities() })
 @import '@/styles/variables.scss';
 
 .activity-container {
+  width: 100%;
+  max-width: 100%;
   padding: 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
 .page-header {
     display: flex;
@@ -515,13 +585,13 @@ onMounted(() => { loadActivities() })
     margin-bottom: 24px;
 
     .stat-card {
-      background: $card-bg;
+      background: $bg-secondary;
       border-radius: 8px;
       padding: 20px;
       display: flex;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px $shadow-light;
 
       .stat-icon {
         width: 48px;
