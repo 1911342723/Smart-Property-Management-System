@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -48,7 +47,6 @@ public class Announcement extends BaseEntity {
     private String status;
 
     @ApiModelProperty(value = "发布人ID")
-    @NotNull(message = "发布人ID不能为空")
     @TableField("publisher_id")
     private Long publisherId;
 

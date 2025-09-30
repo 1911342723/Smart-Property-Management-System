@@ -158,6 +158,61 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
     }
 
     @Override
+    public BillStats getBillStats(Long ownerId) {
+        QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
+        if (ownerId != null) {
+            queryWrapper.eq("owner_id", ownerId);
+        }
+        queryWrapper.eq("deleted", 0);
+        
+        List<Bill> allBills = this.list(queryWrapper);
+        
+        BillStats stats = new BillStats();
+        
+        if (allBills.isEmpty()) {
+            stats.setPaymentRate(0);
+            stats.setPaymentTrend(0);
+            stats.setTotalBills(0);
+            stats.setPaidBills(0);
+            stats.setTotalAmount(BigDecimal.ZERO);
+            stats.setPaidAmount(BigDecimal.ZERO);
+            return stats;
+        }
+        
+        // 统计总账单数
+        stats.setTotalBills(allBills.size());
+        
+        // 统计已缴费账单数
+        int paidCount = (int) allBills.stream()
+                .filter(bill -> "PAID".equals(bill.getStatus()))
+                .count();
+        stats.setPaidBills(paidCount);
+        
+        // 计算缴费率
+        double paymentRate = (stats.getTotalBills() > 0) ? 
+                (paidCount * 100.0 / stats.getTotalBills()) : 0;
+        stats.setPaymentRate(Math.round(paymentRate * 10) / 10.0);
+        
+        // 模拟趋势（实际应该对比上个月数据）
+        stats.setPaymentTrend(0);
+        
+        // 计算总金额
+        BigDecimal totalAmount = allBills.stream()
+                .map(Bill::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        stats.setTotalAmount(totalAmount);
+        
+        // 计算已缴金额
+        BigDecimal paidAmount = allBills.stream()
+                .filter(bill -> "PAID".equals(bill.getStatus()))
+                .map(Bill::getPaidAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        stats.setPaidAmount(paidAmount);
+        
+        return stats;
+    }
+
+    @Override
     public BillSummary getBillSummary(Long ownerId) {
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("owner_id", ownerId)

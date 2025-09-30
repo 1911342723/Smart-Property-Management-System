@@ -121,6 +121,17 @@ public class BillController {
     }
 
     /**
+     * 获取账单统计信息
+     */
+    @ApiOperation("获取账单统计信息")
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    public Result<BillService.BillStats> getBillStats(@ApiParam("业主ID") @RequestParam(required = false) Long ownerId) {
+        BillService.BillStats stats = billService.getBillStats(ownerId);
+        return Result.success(stats);
+    }
+
+    /**
      * 获取业主费用统计
      */
     @ApiOperation("获取业主费用统计")

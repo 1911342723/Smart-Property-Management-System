@@ -22,6 +22,11 @@ public interface AnnouncementService extends IService<Announcement> {
     IPage<Announcement> getAnnouncementPage(Page<Announcement> page, String type, String status, String keyword);
 
     /**
+     * 分页查询已发布的公告列表（小程序用）
+     */
+    IPage<Announcement> getPublishedAnnouncementsPage(Page<Announcement> page, String type, String priority);
+
+    /**
      * 查询已发布的公告列表（小程序用）
      */
     List<Announcement> getPublishedAnnouncements(Integer limit);

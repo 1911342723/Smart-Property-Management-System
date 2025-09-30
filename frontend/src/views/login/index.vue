@@ -305,12 +305,12 @@ export default {
 }
 
 .login-form {
-  background: rgba(47, 49, 54, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(64, 68, 75, 0.3);
+  border: 1px solid rgba(220, 223, 230, 0.5);
   border-radius: 24px;
   padding: 48px 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 .login-header {
@@ -358,8 +358,8 @@ export default {
   
   .el-input {
     .el-input__wrapper {
-      background-color: rgba(64, 68, 75, 0.5) !important;
-      border: 1px solid rgba(64, 68, 75, 0.8) !important;
+      background-color: #f5f7fa !important;
+      border: 1px solid #EBEEF5 !important;
       border-radius: 12px !important;
       box-shadow: none !important;
       
@@ -369,21 +369,21 @@ export default {
       
       &.is-focus {
         border-color: $primary-color !important;
-        box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
+        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2) !important;
       }
     }
     
     .el-input__inner {
-      color: $text-primary !important;
+      color: #303133 !important;
       
       &::placeholder {
-        color: $text-muted !important;
+        color: #C0C4CC !important;
       }
     }
     
     .el-input__prefix,
     .el-input__suffix {
-      color: $text-secondary !important;
+      color: #909399 !important;
     }
   }
   
@@ -406,7 +406,7 @@ export default {
   
   .el-checkbox {
     .el-checkbox__label {
-      color: $text-secondary !important;
+      color: #606266 !important;
     }
   }
   
@@ -446,13 +446,13 @@ export default {
   text-align: center;
   
   .demo-tips {
-    color: $text-muted;
+    color: #606266;
     font-size: 14px;
     margin: 0;
     padding: 16px;
-    background: rgba(64, 68, 75, 0.3);
+    background: #ecf5ff;
     border-radius: 8px;
-    border: 1px solid rgba(64, 68, 75, 0.5);
+    border: 1px solid #d9ecff;
   }
 }
 

@@ -116,6 +116,18 @@ const routes = [
         name: 'Activity',
         component: () => import('@/views/community/activity.vue'),
         meta: { title: '活动管理', icon: 'Calendar' }
+      },
+      {
+        path: 'complaint',
+        name: 'Complaint',
+        component: () => import('@/views/community/complaint.vue'),
+        meta: { title: '投诉管理', icon: 'ChatLineSquare' }
+      },
+      {
+        path: 'visitor',
+        name: 'Visitor',
+        component: () => import('@/views/community/visitor.vue'),
+        meta: { title: '访客管理', icon: 'User' }
       }
     ]
   },
@@ -125,6 +137,12 @@ const routes = [
     redirect: '/system/log',
     meta: { title: '系统设置', icon: 'Setting' },
     children: [
+      {
+        path: 'message',
+        name: 'Message',
+        component: () => import('@/views/system/message.vue'),
+        meta: { title: '消息管理', icon: 'Message' }
+      },
       {
         path: 'log',
         name: 'SystemLog',

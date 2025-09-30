@@ -39,6 +39,21 @@ public interface AnnouncementMapper extends BaseMapper<Announcement> {
     );
 
     /**
+     * 分页查询已发布的公告列表（小程序用）
+     */
+    @Select("SELECT a.*, u.real_name as publisher_name " +
+            "FROM announcement a " +
+            "LEFT JOIN sys_user u ON a.publisher_id = u.id " +
+            "WHERE a.deleted = 0 " +
+            "AND a.status = 'PUBLISHED' " +
+            "ORDER BY a.is_top DESC, a.publish_time DESC")
+    IPage<Announcement> selectPublishedAnnouncementsPage(
+            Page<Announcement> page,
+            @Param("type") String type,
+            @Param("priority") String priority
+    );
+
+    /**
      * 查询已发布的公告列表（小程序用）
      */
     @Select("SELECT a.*, u.real_name as publisher_name " +
@@ -60,7 +75,6 @@ public interface AnnouncementMapper extends BaseMapper<Announcement> {
             "WHERE a.deleted = 0 " +
             "AND a.status = 'PUBLISHED' " +
             "AND a.is_top = 1 " +
-            "AND (a.expire_time IS NULL OR a.expire_time > NOW()) " +
             "ORDER BY a.publish_time DESC")
     List<Announcement> selectTopAnnouncements();
 

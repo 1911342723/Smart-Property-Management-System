@@ -1,6 +1,10 @@
 package com.property.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.property.dto.LoginDTO;
+import com.property.dto.PageResult;
 import com.property.dto.UserInfoDTO;
 import com.property.entity.SysUser;
 import com.property.mapper.SysUserMapper;
@@ -136,7 +140,15 @@ public class AuthService {
         }
 
         String username = authentication.getName();
+        
+        // 先尝试用username查询
         SysUser user = userMapper.selectByUsername(username);
+        
+        // 如果找不到，尝试用phone查询（兼容手机号登录）
+        if (user == null) {
+            user = userMapper.selectByPhone(username);
+        }
+        
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
@@ -166,6 +178,107 @@ public class AuthService {
             throw new RuntimeException("令牌已过期");
         }
         return jwtUtils.refreshToken(token);
+    }
+
+    /**
+     * 获取用户列表
+     * 
+     * @param role 角色类型
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @param keyword 关键词
+     * @return 用户列表
+     */
+    public PageResult<SysUser> getUserList(String role, int pageNum, int pageSize, String keyword) {
+        Page<SysUser> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
+        
+        // 排除已删除的用户
+        queryWrapper.eq("deleted", 0);
+        
+        // 角色筛选
+        if (role != null && !role.isEmpty()) {
+            queryWrapper.eq("user_type", role);
+        }
+        
+        // 关键词搜索
+        if (keyword != null && !keyword.isEmpty()) {
+            queryWrapper.and(wrapper -> wrapper
+                .like("username", keyword)
+                .or().like("real_name", keyword)
+                .or().like("phone", keyword)
+                .or().like("email", keyword)
+            );
+        }
+        
+        // 按创建时间倒序
+        queryWrapper.orderByDesc("create_time");
+        
+        IPage<SysUser> result = userMapper.selectPage(page, queryWrapper);
+        
+        return new PageResult<>(
+            result.getRecords(),
+            result.getTotal(),
+            Long.valueOf(pageNum),
+            Long.valueOf(pageSize)
+        );
+    }
+
+    /**
+     * 更新用户
+     * 
+     * @param user 用户信息
+     * @return 是否成功
+     */
+    public boolean updateUser(SysUser user) {
+        SysUser existingUser = userMapper.selectById(user.getId());
+        if (existingUser == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 更新时间
+        user.setUpdateTime(LocalDateTime.now());
+        
+        return userMapper.updateById(user) > 0;
+    }
+
+    /**
+     * 删除用户（逻辑删除）
+     * 
+     * @param userId 用户ID
+     * @return 是否成功
+     */
+    public boolean deleteUser(Long userId) {
+        SysUser user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 逻辑删除
+        user.setDeleted(1);
+        user.setUpdateTime(LocalDateTime.now());
+        
+        return userMapper.updateById(user) > 0;
+    }
+
+    /**
+     * 重置密码
+     * 
+     * @param userId 用户ID
+     * @param newPassword 新密码
+     * @return 是否成功
+     */
+    public boolean resetPassword(Long userId, String newPassword) {
+        SysUser user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 设置新密码（明文）
+        user.setPassword(newPassword);
+        user.setUpdateTime(LocalDateTime.now());
+        
+        return userMapper.updateById(user) > 0;
     }
 }
 

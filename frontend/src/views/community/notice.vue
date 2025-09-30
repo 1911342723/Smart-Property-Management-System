@@ -150,11 +150,11 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="author" label="发布人" width="100">
+        <el-table-column prop="publisherName" label="发布人" width="120">
           <template #default="{ row }">
             <div class="author-info">
-              <el-avatar :size="24" :src="row.authorAvatar">{{ row.author.charAt(0) }}</el-avatar>
-              <span>{{ row.author }}</span>
+              <el-avatar :size="24">{{ row.publisherName ? row.publisherName.charAt(0) : 'A' }}</el-avatar>
+              <span>{{ row.publisherName || '未知' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -167,15 +167,15 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="views" label="浏览量" width="100">
+        <el-table-column prop="readCount" label="浏览量" width="100">
           <template #default="{ row }">
-            <span class="view-count">{{ row.views }}</span>
+            <span class="view-count">{{ row.readCount || 0 }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column prop="publishedAt" label="发布时间" width="150">
+        <el-table-column prop="publishTime" label="发布时间" width="150">
           <template #default="{ row }">
-            <span v-if="row.publishedAt">{{ formatDate(row.publishedAt) }}</span>
+            <span v-if="row.publishTime">{{ formatDate(row.publishTime) }}</span>
             <span v-else class="text-muted">未发布</span>
           </template>
         </el-table-column>
@@ -241,15 +241,15 @@
             <div class="notice-stats">
               <div class="stat-item">
                 <el-icon><View /></el-icon>
-                <span>{{ notice.views }} 浏览</span>
+                <span>{{ notice.readCount || 0 }} 浏览</span>
               </div>
               <div class="stat-item">
                 <el-icon><User /></el-icon>
-                <span>{{ notice.author }}</span>
+                <span>{{ notice.publisherName || '未知' }}</span>
               </div>
               <div class="stat-item">
                 <el-icon><Clock /></el-icon>
-                <span>{{ formatDate(notice.publishedAt || notice.createdAt) }}</span>
+                <span>{{ formatDate(notice.publishTime || notice.createTime) }}</span>
               </div>
             </div>
           </div>
@@ -307,9 +307,9 @@
             <el-tag v-if="selectedNotice.urgent" type="danger">紧急</el-tag>
           </div>
           <div class="notice-stats">
-            <span><el-icon><View /></el-icon> {{ selectedNotice.views }} 浏览</span>
-            <span><el-icon><User /></el-icon> {{ selectedNotice.author }}</span>
-            <span><el-icon><Clock /></el-icon> {{ formatDate(selectedNotice.publishedAt || selectedNotice.createdAt) }}</span>
+            <span><el-icon><View /></el-icon> {{ selectedNotice.readCount || 0 }} 浏览</span>
+            <span><el-icon><User /></el-icon> {{ selectedNotice.publisherName || '未知' }}</span>
+            <span><el-icon><Clock /></el-icon> {{ formatDate(selectedNotice.publishTime || selectedNotice.createTime) }}</span>
           </div>
         </div>
         
@@ -392,27 +392,111 @@
           </el-checkbox-group>
         </el-form-item>
         
-        <el-form-item label="发布时间">
-          <el-radio-group v-model="noticeForm.publishType">
-            <el-radio label="now">立即发布</el-radio>
-            <el-radio label="scheduled">定时发布</el-radio>
-            <el-radio label="draft">保存草稿</el-radio>
-          </el-radio-group>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="发布时间">
+              <el-radio-group v-model="noticeForm.publishType">
+                <el-radio label="now">立即发布</el-radio>
+                <el-radio label="scheduled">定时发布</el-radio>
+                <el-radio label="draft">保存草稿</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="noticeForm.publishType === 'scheduled'">
+            <el-form-item label="定时时间">
+              <el-date-picker
+                v-model="noticeForm.scheduledAt"
+                type="datetime"
+                placeholder="选择发布时间"
+                format="YYYY-MM-DD HH:mm:ss"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="过期时间">
           <el-date-picker
-            v-if="noticeForm.publishType === 'scheduled'"
-            v-model="noticeForm.scheduledAt"
+            v-model="noticeForm.expireTime"
             type="datetime"
-            placeholder="选择发布时间"
-            style="margin-left: 20px;"
+            placeholder="选择过期时间（可选，不设置则永久有效）"
+            format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            clearable
+            style="width: 100%"
           />
+          <div class="form-tip">设置后，公告将在过期后自动隐藏</div>
+        </el-form-item>
+
+        <el-form-item label="公告图片">
+          <el-upload
+            action="/api/file/upload"
+            list-type="picture-card"
+            :on-success="handleImageSuccess"
+            :on-remove="handleImageRemove"
+            :file-list="noticeForm.images"
+            :limit="3"
+            accept="image/*"
+          >
+            <el-icon><Plus /></el-icon>
+          </el-upload>
+          <div class="form-tip">最多上传3张图片，支持jpg、png格式</div>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button @click="previewNotice">预览</el-button>
         <el-button type="primary" @click="saveNotice" :loading="saving">
           {{ editingNotice ? '保存修改' : '发布公告' }}
         </el-button>
       </template>
+    </el-dialog>
+
+    <!-- 公告预览对话框 -->
+    <el-dialog v-model="showPreviewDialog" title="公告预览" width="700px" class="preview-dialog">
+      <div class="notice-preview">
+        <div class="preview-header">
+          <h2 class="preview-title">{{ noticeForm.title || '公告标题' }}</h2>
+          <div class="preview-meta">
+            <el-tag :type="getTypeTagType(noticeForm.type)" size="small">
+              {{ getTypeName(noticeForm.type) || '类型' }}
+            </el-tag>
+            <el-tag v-if="noticeForm.options.includes('urgent')" type="danger" size="small">紧急</el-tag>
+            <el-tag v-if="noticeForm.options.includes('pinned')" type="warning" size="small">置顶</el-tag>
+            <span class="preview-time">{{ formatDate(new Date()) }}</span>
+          </div>
+        </div>
+        
+        <div class="preview-summary" v-if="noticeForm.summary">
+          <strong>摘要：</strong>{{ noticeForm.summary }}
+        </div>
+        
+        <div class="preview-content">
+          <div class="content-text">{{ noticeForm.content || '暂无内容' }}</div>
+        </div>
+
+        <div class="preview-images" v-if="noticeForm.images && noticeForm.images.length > 0">
+          <img 
+            v-for="(img, index) in noticeForm.images" 
+            :key="index" 
+            :src="img.url" 
+            alt="公告图片"
+            class="preview-image"
+          />
+        </div>
+
+        <div class="preview-footer">
+          <div class="expire-info" v-if="noticeForm.expireTime">
+            <el-icon><Clock /></el-icon>
+            <span>有效期至：{{ noticeForm.expireTime }}</span>
+          </div>
+          <div class="publish-info">
+            <span>发布方式：{{ noticeForm.publishType === 'now' ? '立即发布' : noticeForm.publishType === 'scheduled' ? '定时发布' : '保存草稿' }}</span>
+            <span v-if="noticeForm.publishType === 'scheduled'"> · {{ noticeForm.scheduledAt }}</span>
+          </div>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -427,6 +511,7 @@ import {
 import {
   getAnnouncementPage,
   getAnnouncementStats,
+  getAnnouncementDetail,
   createAnnouncement,
   updateAnnouncement,
   publishAnnouncement,
@@ -447,6 +532,7 @@ export default {
     const saving = ref(false)
     const showDetailDialog = ref(false)
     const showCreateDialog = ref(false)
+    const showPreviewDialog = ref(false)
     const selectedNotice = ref(null)
     const editingNotice = ref(null)
     const selectedNotices = ref([])
@@ -484,7 +570,9 @@ export default {
       content: '',
       options: [],
       publishType: 'now',
-      scheduledAt: ''
+      scheduledAt: '',
+      expireTime: '', // 过期时间
+      images: [] // 公告图片
     })
     
     // 表单验证规则
@@ -506,14 +594,13 @@ export default {
         type: 'utility',
         summary: '因设备维修需要，明日上午9:00-12:00将停水停电，请业主提前做好准备。',
         content: '<p>尊敬的业主：</p><p>因小区供水设备维修需要，定于2023年12月2日上午9:00-12:00进行停水停电维修。届时将影响全小区正常用水用电。</p><p>请各位业主提前储备生活用水，合理安排用电设备。给您带来的不便，敬请谅解。</p><p>物业服务中心<br>2023年12月1日</p>',
-        author: '物业管理处',
-        authorAvatar: '',
+        publisherName: '物业管理处',
         status: 'published',
         pinned: true,
         urgent: true,
-        views: 1250,
-        createdAt: '2023-12-01 10:00:00',
-        publishedAt: '2023-12-01 10:30:00',
+        readCount: 1250,
+        createTime: '2023-12-01 10:00:00',
+        publishTime: '2023-12-01 10:30:00',
         attachments: []
       },
       {
@@ -522,14 +609,13 @@ export default {
         type: 'activity',
         summary: '诚邀各位业主参加小区春节联欢活动，共度佳节，增进邻里感情。',
         content: '<p>亲爱的业主朋友们：</p><p>春节将至，为增进邻里感情，营造和谐社区氛围，物业服务中心特举办春节联欢活动。</p><p>活动时间：2024年2月8日晚7:00</p><p>活动地点：小区中央广场</p><p>活动内容：文艺表演、游戏互动、抽奖等</p><p>欢迎各位业主踊跃参加！</p>',
-        author: '社区委员会',
-        authorAvatar: '',
+        publisherName: '社区委员会',
         status: 'published',
         pinned: false,
         urgent: false,
-        views: 856,
-        createdAt: '2023-11-28 15:20:00',
-        publishedAt: '2023-11-28 16:00:00',
+        readCount: 856,
+        createTime: '2023-11-28 15:20:00',
+        publishTime: '2023-11-28 16:00:00',
         attachments: [
           { id: 1, name: '活动详情.pdf' },
           { id: 2, name: '报名表.xlsx' }
@@ -541,14 +627,13 @@ export default {
         type: 'property',
         summary: '12月物业费已开始收取，请各位业主及时缴费，避免产生滞纳金。',
         content: '<p>各位业主：</p><p>12月份物业管理费现已开始收取，请于本月25日前完成缴费。</p><p>缴费方式：</p><ul><li>微信小程序在线缴费</li><li>物业服务中心现场缴费</li><li>银行转账</li></ul><p>逾期未缴费将产生滞纳金，请及时缴费。</p>',
-        author: '财务部',
-        authorAvatar: '',
+        publisherName: '财务部',
         status: 'published',
         pinned: true,
         urgent: false,
-        views: 2180,
-        createdAt: '2023-12-01 09:00:00',
-        publishedAt: '2023-12-01 09:30:00',
+        readCount: 2180,
+        createTime: '2023-12-01 09:00:00',
+        publishTime: '2023-12-01 09:30:00',
         attachments: []
       }
     ]
@@ -610,21 +695,35 @@ export default {
       selectedNotice.value = notice
       showDetailDialog.value = true
       // 增加浏览量
-      notice.views++
+      if (notice.readCount !== undefined) {
+        notice.readCount++
+      }
     }
     
     // 编辑公告
-    const editNotice = (notice) => {
-      editingNotice.value = notice
-      noticeForm.title = notice.title
-      noticeForm.type = notice.type
-      noticeForm.summary = notice.summary
-      noticeForm.content = notice.content.replace(/<[^>]*>/g, '') // 简单去除HTML标签
-      noticeForm.options = []
-      if (notice.pinned) noticeForm.options.push('pinned')
-      if (notice.urgent) noticeForm.options.push('urgent')
-      noticeForm.publishType = notice.status === 'draft' ? 'draft' : 'now'
-      showCreateDialog.value = true
+    const editNotice = async (notice) => {
+      try {
+        // 获取完整的公告详情（包含完整的content字段）
+        const response = await getAnnouncementDetail(notice.id)
+        if (response.code === 200) {
+          const fullNotice = response.data
+          editingNotice.value = fullNotice
+          noticeForm.title = fullNotice.title || ''
+          noticeForm.type = fullNotice.type || ''
+          noticeForm.summary = fullNotice.summary || ''
+          noticeForm.content = fullNotice.content ? fullNotice.content.replace(/<[^>]*>/g, '') : ''
+          noticeForm.options = []
+          if (fullNotice.isTop === 1) noticeForm.options.push('pinned')
+          if (fullNotice.priority === 'HIGH') noticeForm.options.push('urgent')
+          noticeForm.publishType = fullNotice.status === 'DRAFT' ? 'draft' : 'now'
+          showCreateDialog.value = true
+        } else {
+          ElMessage.error('获取公告详情失败')
+        }
+      } catch (error) {
+        console.error('编辑公告失败:', error)
+        ElMessage.error('编辑公告失败')
+      }
     }
     
     // 保存公告
@@ -643,7 +742,22 @@ export default {
           content: noticeForm.content,
           priority: noticeForm.options.includes('urgent') ? 'HIGH' : 'NORMAL',
           isTop: noticeForm.options.includes('pinned') ? 1 : 0,
-          status: noticeForm.publishType === 'draft' ? 'DRAFT' : 'PUBLISHED'
+          status: noticeForm.publishType === 'draft' ? 'DRAFT' : 'PUBLISHED',
+          expireTime: noticeForm.expireTime || null,
+          images: noticeForm.images && noticeForm.images.length > 0 
+            ? JSON.stringify(noticeForm.images.map(img => img.url || img.response?.data)) 
+            : null
+        }
+        
+        // 如果是定时发布，设置发布时间
+        if (noticeForm.publishType === 'scheduled' && noticeForm.scheduledAt) {
+          data.publishTime = noticeForm.scheduledAt
+          data.status = 'DRAFT' // 定时发布先保存为草稿
+        }
+        
+        // 如果是编辑模式，保留原有的发布人ID
+        if (editingNotice.value && editingNotice.value.publisherId) {
+          data.publisherId = editingNotice.value.publisherId
         }
         
         let response
@@ -683,6 +797,41 @@ export default {
       })
       noticeForm.publishType = 'now'
     }
+
+    // 图片上传成功回调
+    const handleImageSuccess = (response, file) => {
+      if (response.code === 200) {
+        noticeForm.images.push({
+          url: response.data,
+          name: file.name,
+          uid: file.uid
+        })
+        ElMessage.success('图片上传成功')
+      } else {
+        ElMessage.error('图片上传失败')
+      }
+    }
+
+    // 图片移除回调
+    const handleImageRemove = (file) => {
+      const index = noticeForm.images.findIndex(img => img.uid === file.uid)
+      if (index !== -1) {
+        noticeForm.images.splice(index, 1)
+      }
+    }
+
+    // 预览公告
+    const previewNotice = () => {
+      if (!noticeForm.title) {
+        ElMessage.warning('请先输入公告标题')
+        return
+      }
+      if (!noticeForm.content) {
+        ElMessage.warning('请先输入公告内容')
+        return
+      }
+      showPreviewDialog.value = true
+    }
     
     // 切换置顶状态
     const togglePin = async (notice) => {
@@ -702,21 +851,56 @@ export default {
     
     // 批量删除
     const batchDelete = () => {
+      if (selectedNotices.value.length === 0) {
+        ElMessage.warning('请先选择要删除的公告')
+        return
+      }
+      
       ElMessageBox.confirm(`确定要删除选中的${selectedNotices.value.length}条公告吗？`, '确认删除', {
         type: 'warning'
-      }).then(() => {
-        ElMessage.success('删除成功')
-        loadNotices()
+      }).then(async () => {
+        try {
+          const ids = selectedNotices.value.map(notice => notice.id)
+          const res = await batchDeleteAnnouncements(ids)
+          if (res.code === 200) {
+            ElMessage.success('删除成功')
+            selectedNotices.value = []
+            loadNotices()
+          } else {
+            ElMessage.error(res.message || '删除失败')
+          }
+        } catch (error) {
+          console.error('批量删除失败:', error)
+          ElMessage.error('删除失败')
+        }
+      }).catch(() => {
+        // 用户取消删除
       })
     }
     
     // 批量下线
     const batchOffline = () => {
+      if (selectedNotices.value.length === 0) {
+        ElMessage.warning('请先选择要下线的公告')
+        return
+      }
+      
       ElMessageBox.confirm(`确定要下线选中的${selectedNotices.value.length}条公告吗？`, '确认下线', {
         type: 'warning'
-      }).then(() => {
-        ElMessage.success('下线成功')
-        loadNotices()
+      }).then(async () => {
+        try {
+          // 批量调用下线接口
+          const promises = selectedNotices.value.map(notice => offlineAnnouncement(notice.id))
+          await Promise.all(promises)
+          ElMessage.success('下线成功')
+          selectedNotices.value = []
+          loadNotices()
+        } catch (error) {
+          console.error('批量下线失败:', error)
+          ElMessage.error('下线失败')
+        }
+      }).catch(() => {
+        // 用户取消下线
       })
     }
     
@@ -751,9 +935,21 @@ export default {
         case 'delete':
           ElMessageBox.confirm('确定要删除此公告吗？', '确认删除', {
             type: 'warning'
-          }).then(() => {
-            ElMessage.success('删除成功')
-            loadNotices()
+          }).then(async () => {
+            try {
+              const res = await deleteAnnouncement(notice.id)
+              if (res.code === 200) {
+                ElMessage.success('删除成功')
+                loadNotices()
+              } else {
+                ElMessage.error(res.message || '删除失败')
+              }
+            } catch (error) {
+              console.error('删除公告失败:', error)
+              ElMessage.error('删除失败')
+            }
+          }).catch(() => {
+            // 用户取消删除
           })
           break
       }
@@ -803,10 +999,16 @@ export default {
     }
     
     const formatNumber = (num) => {
+      if (num === null || num === undefined) {
+        return '0'
+      }
       return num.toLocaleString('zh-CN')
     }
     
     const formatDate = (dateStr) => {
+      if (!dateStr) {
+        return ''
+      }
       return new Date(dateStr).toLocaleString('zh-CN')
     }
     
@@ -819,6 +1021,7 @@ export default {
       saving,
       showDetailDialog,
       showCreateDialog,
+      showPreviewDialog,
       selectedNotice,
       editingNotice,
       selectedNotices,
@@ -836,6 +1039,9 @@ export default {
       editNotice,
       saveNotice,
       resetForm,
+      handleImageSuccess,
+      handleImageRemove,
+      previewNotice,
       togglePin,
       handleSelectionChange,
       batchDelete,
@@ -1315,9 +1521,163 @@ export default {
   }
   
   .editor-container {
+    width: 100%;
     border: 1px solid $border-color;
     border-radius: $border-radius;
     overflow: hidden;
+    
+    :deep(.el-textarea) {
+      width: 100%;
+      
+      .el-textarea__inner {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// 表单提示样式
+.form-tip {
+  color: $text-secondary;
+  font-size: 12px;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+// 预览对话框样式
+.preview-dialog {
+  .notice-preview {
+    padding: 20px;
+    
+    .preview-header {
+      margin-bottom: 24px;
+      border-bottom: 2px solid $border-color;
+      padding-bottom: 16px;
+      
+      .preview-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0 0 12px 0;
+        line-height: 1.4;
+      }
+      
+      .preview-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        
+        .preview-time {
+          color: $text-secondary;
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .preview-summary {
+      background: $bg-secondary;
+      border-left: 4px solid $primary-color;
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: 4px;
+      
+      strong {
+        color: $text-primary;
+        margin-right: 8px;
+      }
+      
+      color: $text-secondary;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .preview-content {
+      margin-bottom: 24px;
+      
+      .content-text {
+        color: $text-primary;
+        font-size: 15px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    }
+    
+    .preview-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      
+      .preview-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid $border-color;
+        cursor: pointer;
+        transition: transform 0.2s;
+        
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+    
+    .preview-footer {
+      border-top: 1px solid $border-color;
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      
+      .expire-info,
+      .publish-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: $text-secondary;
+        font-size: 14px;
+        
+        .el-icon {
+          font-size: 16px;
+        }
+      }
+      
+      .expire-info {
+        color: $warning-color;
+      }
+    }
+  }
+}
+
+// 响应式适配
+@media screen and (max-width: 768px) {
+  .form-tip {
+    font-size: 11px;
+  }
+  
+  .preview-dialog {
+    width: 95% !important;
+    
+    .notice-preview {
+      padding: 12px;
+      
+      .preview-header {
+        .preview-title {
+          font-size: 20px;
+        }
+      }
+      
+      .preview-images {
+        grid-template-columns: 1fr;
+        
+        .preview-image {
+          height: 150px;
+        }
+      }
+    }
   }
 }
 </style>

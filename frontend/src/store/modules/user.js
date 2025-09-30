@@ -22,30 +22,57 @@ const mutations = {
 
 const actions = {
   // 登录
-  login({ commit }, userInfo) {
-    return new Promise((resolve) => {
-      // 模拟登录
-      const token = 'mock-token-' + Date.now()
-      const user = {
-        id: 1,
-        username: userInfo.username,
-        name: '系统管理员',
-        role: 'admin',
-        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
-      }
+  async login({ commit }, userInfo) {
+    try {
+      // 动态导入API模块，避免循环依赖
+      const { login: loginApi, getUserInfo } = await import('@/api/user')
       
-      commit('SET_TOKEN', token)
-      commit('SET_USER_INFO', user)
-      resolve({ token, user })
-    })
+      const res = await loginApi(userInfo)
+      if (res.code === 200 && res.data) {
+        const { token } = res.data
+        commit('SET_TOKEN', token)
+        
+        // 获取用户信息
+        const userRes = await getUserInfo()
+        if (userRes.code === 200) {
+          commit('SET_USER_INFO', userRes.data)
+        }
+        
+        return res.data
+      } else {
+        throw new Error(res.message || '登录失败')
+      }
+    } catch (error) {
+      console.error('登录失败:', error)
+      throw error
+    }
   },
   
   // 登出
-  logout({ commit }) {
-    return new Promise((resolve) => {
+  async logout({ commit }) {
+    try {
+      const { logout: logoutApi } = await import('@/api/user')
+      await logoutApi()
+    } catch (error) {
+      console.error('登出失败:', error)
+    } finally {
       commit('CLEAR_USER')
-      resolve()
-    })
+    }
+  },
+  
+  // 获取用户信息
+  async getUserInfo({ commit }) {
+    try {
+      const { getUserInfo } = await import('@/api/user')
+      const res = await getUserInfo()
+      if (res.code === 200) {
+        commit('SET_USER_INFO', res.data)
+        return res.data
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      throw error
+    }
   }
 }
 

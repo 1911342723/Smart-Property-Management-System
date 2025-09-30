@@ -151,6 +151,22 @@ public class AnnouncementController {
 
     // ==================== 小程序接口 ====================
 
+    @ApiOperation("分页查询已发布的公告列表（小程序端）")
+    @GetMapping("/published/page")
+    public Result<IPage<Announcement>> getPublishedAnnouncementsPage(
+            @ApiParam("页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @ApiParam("每页大小") @RequestParam(defaultValue = "10") Integer pageSize,
+            @ApiParam("公告类型") @RequestParam(required = false) String type,
+            @ApiParam("优先级") @RequestParam(required = false) String priority) {
+        try {
+            Page<Announcement> page = new Page<>(pageNum, pageSize);
+            IPage<Announcement> result = announcementService.getPublishedAnnouncementsPage(page, type, priority);
+            return Result.success(result);
+        } catch (Exception e) {
+            return Result.error("获取公告列表失败：" + e.getMessage());
+        }
+    }
+
     @ApiOperation("获取已发布的公告列表")
     @GetMapping("/published")
     public Result<List<Announcement>> getPublishedAnnouncements(

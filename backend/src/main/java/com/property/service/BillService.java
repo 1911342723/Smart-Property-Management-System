@@ -66,12 +66,51 @@ public interface BillService extends IService<Bill> {
     boolean payBillsBatch(List<Long> billIds, String paymentMethod);
 
     /**
+     * 获取账单统计（用于仪表盘）
+     * 
+     * @param ownerId 业主ID（可选）
+     * @return 统计信息
+     */
+    BillStats getBillStats(Long ownerId);
+
+    /**
      * 获取业主待缴费用统计
      * 
      * @param ownerId 业主ID
      * @return 统计信息
      */
     BillSummary getBillSummary(Long ownerId);
+
+    /**
+     * 账单统计信息（用于仪表盘）
+     */
+    class BillStats {
+        private double paymentRate;       // 缴费率
+        private double paymentTrend;      // 缴费率趋势
+        private int totalBills;           // 总账单数
+        private int paidBills;            // 已缴费账单数
+        private BigDecimal totalAmount;   // 总金额
+        private BigDecimal paidAmount;    // 已缴金额
+        
+        // Getters and Setters
+        public double getPaymentRate() { return paymentRate; }
+        public void setPaymentRate(double paymentRate) { this.paymentRate = paymentRate; }
+        
+        public double getPaymentTrend() { return paymentTrend; }
+        public void setPaymentTrend(double paymentTrend) { this.paymentTrend = paymentTrend; }
+        
+        public int getTotalBills() { return totalBills; }
+        public void setTotalBills(int totalBills) { this.totalBills = totalBills; }
+        
+        public int getPaidBills() { return paidBills; }
+        public void setPaidBills(int paidBills) { this.paidBills = paidBills; }
+        
+        public BigDecimal getTotalAmount() { return totalAmount; }
+        public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+        
+        public BigDecimal getPaidAmount() { return paidAmount; }
+        public void setPaidAmount(BigDecimal paidAmount) { this.paidAmount = paidAmount; }
+    }
 
     /**
      * 账单统计信息

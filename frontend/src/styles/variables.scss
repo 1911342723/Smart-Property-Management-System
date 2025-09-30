@@ -1,30 +1,35 @@
-// Discord风格主题色系统
+// 现代浅色主题色系统
 // 主要颜色
-$primary-color: #5865f2;
-$primary-hover: #4752c4;
-$primary-active: #3c45a5;
+$primary-color: #409EFF;
+$primary-hover: #66b1ff;
+$primary-active: #337ecc;
+$primary-light: #ecf5ff;
 
-// 背景颜色 - Discord风格
-$bg-primary: #36393f;      // 深灰主背景
-$bg-secondary: #2f3136;    // 侧边栏背景
-$bg-tertiary: #40444b;     // 卡片背景
-$bg-quaternary: #4f545c;   // 悬停背景
+// 背景颜色 - 清爽浅色风格
+$bg-primary: #f5f7fa;      // 主背景色（浅灰）
+$bg-secondary: #ffffff;    // 侧边栏/卡片背景（白色）
+$bg-tertiary: #ffffff;     // 次级背景（白色）
+$bg-quaternary: #f5f7fa;   // 悬停背景（浅灰）
+$bg-hover: #ecf5ff;        // 主色调悬停
 
 // 文字颜色
-$text-primary: #ffffff;
-$text-secondary: #b9bbbe;
-$text-muted: #72767d;
-$text-disabled: #4f545c;
+$text-primary: #303133;    // 主要文字（深灰黑）
+$text-regular: #606266;    // 常规文字
+$text-secondary: #909399;  // 次要文字
+$text-muted: #C0C4CC;      // 占位文字
+$text-disabled: #C0C4CC;   // 禁用文字
 
 // 状态颜色
-$success-color: #3ba55c;
-$warning-color: #faa61a;
-$error-color: #ed4245;
-$info-color: #5865f2;
+$success-color: #67C23A;
+$warning-color: #E6A23C;
+$error-color: #F56C6C;
+$info-color: #909399;
 
 // 边框颜色
-$border-color: #40444b;
-$border-hover: #4f545c;
+$border-color: #DCDFE6;
+$border-light: #E4E7ED;
+$border-lighter: #EBEEF5;
+$border-hover: #C0C4CC;
 
 // 阴影
 $shadow-light: rgba(0, 0, 0, 0.1);

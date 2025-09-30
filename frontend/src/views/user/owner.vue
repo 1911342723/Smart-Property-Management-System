@@ -407,10 +407,10 @@ export default {
     
     // 统计数据
     const stats = reactive({
-      total: 156,
-      verified: 142,
-      pending: 8,
-      occupied: 134
+      total: 0,
+      verified: 0,
+      pending: 0,
+      occupied: 0
     })
     
     // 筛选条件
@@ -433,13 +433,13 @@ export default {
     
     // 新建业主表单
     const newOwner = reactive({
-      name: '',
+      username: '',
+      realName: '',
       phone: '',
-      idCard: '',
+      password: '123456',
       email: '',
-      building: '',
-      unit: '',
-      room: ''
+      userType: 'OWNER',
+      status: 1
     })
     
     // 审核表单
@@ -450,13 +450,15 @@ export default {
     
     // 表单验证规则
     const ownerRules = {
-      name: [{ required: true, message: '请输入业主姓名', trigger: 'blur' }],
+      realName: [{ required: true, message: '请输入业主姓名', trigger: 'blur' }],
+      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
       phone: [
         { required: true, message: '请输入手机号', trigger: 'blur' },
         { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
       ],
-      idCard: [
-        { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+      password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+        { min: 6, message: '密码至少6位', trigger: 'blur' }
       ],
       email: [
         { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }

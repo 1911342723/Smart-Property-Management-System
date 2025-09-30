@@ -139,14 +139,29 @@ export default {
               path: '/community/activity',
               name: 'Activity',
               meta: { title: '活动管理', icon: 'Calendar' }
+            },
+            {
+              path: '/community/complaint',
+              name: 'Complaint',
+              meta: { title: '投诉管理', icon: 'ChatLineSquare' }
+            },
+            {
+              path: '/community/visitor',
+              name: 'Visitor',
+              meta: { title: '访客管理', icon: 'User' }
             }
           ]
         },
         {
           path: '/system',
-          redirect: '/system/log',
+          redirect: '/system/message',
           meta: { title: '系统设置', icon: 'Setting' },
           children: [
+            {
+              path: '/system/message',
+              name: 'Message',
+              meta: { title: '消息管理', icon: 'Message' }
+            },
             {
               path: '/system/log',
               name: 'SystemLog',
@@ -200,7 +215,7 @@ export default {
     display: flex;
     align-items: center;
     padding: 0 20px;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $border-lighter;
     
     .logo {
       display: flex;

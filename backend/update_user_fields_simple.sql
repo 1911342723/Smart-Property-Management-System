@@ -10,3 +10,5 @@ ALTER TABLE sys_user ADD COLUMN emergency_phone VARCHAR(20) COMMENT '紧急联�
 -- 显示表结构
 DESCRIBE sys_user;
 
+
+

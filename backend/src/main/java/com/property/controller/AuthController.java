@@ -1,13 +1,16 @@
 package com.property.controller;
 
 import com.property.dto.LoginDTO;
+import com.property.dto.PageResult;
 import com.property.dto.Result;
 import com.property.dto.UserInfoDTO;
 import com.property.entity.SysUser;
 import com.property.service.AuthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +85,90 @@ public class AuthController {
     public Result<String> logout() {
         // JWT是无状态的，客户端删除token即可
         return Result.success("登出成功");
+    }
+
+    @ApiOperation("获取用户列表")
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<PageResult<SysUser>> getUserList(
+            @ApiParam("角色类型") @RequestParam(required = false) String role,
+            @ApiParam("页码") @RequestParam(defaultValue = "1") int pageNum,
+            @ApiParam("每页大小") @RequestParam(defaultValue = "10") int pageSize,
+            @ApiParam("关键词") @RequestParam(required = false) String keyword) {
+        try {
+            PageResult<SysUser> result = authService.getUserList(role, pageNum, pageSize, keyword);
+            return Result.success(result);
+        } catch (Exception e) {
+            return Result.error("获取用户列表失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("添加用户")
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<String> createUser(@Validated @RequestBody SysUser user) {
+        try {
+            authService.register(user);
+            return Result.success("创建用户成功");
+        } catch (Exception e) {
+            return Result.error("创建用户失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("更新用户")
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<String> updateUser(
+            @ApiParam("用户ID") @PathVariable Long id,
+            @Validated @RequestBody SysUser user) {
+        try {
+            user.setId(id);
+            boolean success = authService.updateUser(user);
+            return success ? Result.success("更新成功") : Result.error("更新失败");
+        } catch (Exception e) {
+            return Result.error("更新用户失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("删除用户")
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<String> deleteUser(@ApiParam("用户ID") @PathVariable Long id) {
+        try {
+            boolean success = authService.deleteUser(id);
+            return success ? Result.success("删除成功") : Result.error("删除失败");
+        } catch (Exception e) {
+            return Result.error("删除用户失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("重置用户密码")
+    @PostMapping("/users/{id}/reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<String> resetPassword(
+            @ApiParam("用户ID") @PathVariable Long id,
+            @RequestBody ResetPasswordRequest request) {
+        try {
+            boolean success = authService.resetPassword(id, request.getNewPassword());
+            return success ? Result.success("密码重置成功") : Result.error("密码重置失败");
+        } catch (Exception e) {
+            return Result.error("密码重置失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 密码重置请求
+     */
+    public static class ResetPasswordRequest {
+        private String newPassword;
+
+        public String getNewPassword() {
+            return newPassword;
+        }
+
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
+        }
     }
 }
 

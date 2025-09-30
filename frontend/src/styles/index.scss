@@ -16,107 +16,114 @@ html, body {
   color: $text-primary;
 }
 
-// Discord风格主题覆盖Element Plus
+// 现代浅色主题覆盖Element Plus
 .el-menu {
   background-color: $bg-secondary !important;
-  border-right: none !important;
+  border-right: 1px solid $border-lighter !important;
 
   .el-menu-item {
-    color: $text-secondary !important;
+    color: $text-regular !important;
     background-color: transparent !important;
     border-radius: $border-radius !important;
     margin: 4px 8px !important;
     
     &:hover {
-      background-color: $bg-quaternary !important;
-      color: $text-primary !important;
+      background-color: $bg-hover !important;
+      color: $primary-color !important;
     }
     
     &.is-active {
-      background-color: $primary-color !important;
-      color: $text-primary !important;
+      background-color: $primary-light !important;
+      color: $primary-color !important;
+      font-weight: 600;
     }
   }
   
   .el-sub-menu__title {
-    color: $text-secondary !important;
+    color: $text-regular !important;
     background-color: transparent !important;
     border-radius: $border-radius !important;
     margin: 4px 8px !important;
     
     &:hover {
-      background-color: $bg-quaternary !important;
-      color: $text-primary !important;
+      background-color: $bg-hover !important;
+      color: $primary-color !important;
     }
   }
 }
 
 .el-card {
-  background-color: $bg-tertiary !important;
-  border: 1px solid $border-color !important;
+  background-color: $bg-secondary !important;
+  border: 1px solid $border-lighter !important;
   color: $text-primary !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05) !important;
   
   .el-card__header {
     background-color: transparent !important;
-    border-bottom: 1px solid $border-color !important;
+    border-bottom: 1px solid $border-lighter !important;
     color: $text-primary !important;
+    font-weight: 600;
   }
   
   .el-card__body {
     background-color: transparent !important;
-    color: $text-primary !important;
+    color: $text-regular !important;
   }
 }
 
 .el-table {
-  background-color: $bg-tertiary !important;
-  color: $text-primary !important;
+  background-color: $bg-secondary !important;
+  color: $text-regular !important;
   
   th {
-    background-color: $bg-secondary !important;
+    background-color: $bg-quaternary !important;
     color: $text-primary !important;
-    border-bottom: 1px solid $border-color !important;
+    border-bottom: 1px solid $border-lighter !important;
+    font-weight: 600;
   }
   
   td {
-    border-bottom: 1px solid $border-color !important;
-    color: $text-primary !important;
+    border-bottom: 1px solid $border-lighter !important;
+    color: $text-regular !important;
   }
   
   tr:hover > td {
-    background-color: $bg-quaternary !important;
+    background-color: $bg-hover !important;
   }
 }
 
 .el-pagination {
   .el-pagination__total,
   .el-pagination__jump {
-    color: $text-secondary !important;
+    color: $text-regular !important;
   }
   
   .btn-prev,
   .btn-next {
-    background-color: $bg-tertiary !important;
-    color: $text-secondary !important;
-    border: 1px solid $border-color !important;
+    background-color: $bg-secondary !important;
+    color: $text-regular !important;
+    border: 1px solid $border-lighter !important;
     
-    &:hover {
+    &:hover:not(:disabled) {
       color: $primary-color !important;
+      border-color: $primary-color !important;
     }
   }
   
   .el-pager li {
-    background-color: $bg-tertiary !important;
-    color: $text-secondary !important;
-    border: 1px solid $border-color !important;
+    background-color: $bg-secondary !important;
+    color: $text-regular !important;
+    border: 1px solid $border-lighter !important;
     
     &:hover {
       color: $primary-color !important;
+      border-color: $primary-color !important;
     }
     
     &.active {
       background-color: $primary-color !important;
-      color: $text-primary !important;
+      color: #ffffff !important;
+      border-color: $primary-color !important;
     }
   }
 }
@@ -126,39 +133,52 @@ html, body {
 }
 
 .el-input {
-  .el-input__inner {
+  .el-input__wrapper {
     background-color: $bg-secondary !important;
-    border: 1px solid $border-color !important;
+    border: 1px solid $border-lighter !important;
+    box-shadow: none !important;
+    
+    &:hover {
+      border-color: $border-hover !important;
+    }
+    
+    &.is-focus {
+      border-color: $primary-color !important;
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1) !important;
+    }
+  }
+  
+  .el-input__inner {
     color: $text-primary !important;
     
-    &:focus {
-      border-color: $primary-color !important;
+    &::placeholder {
+      color: $text-muted !important;
     }
   }
 }
 
 .el-select {
-  .el-input__inner {
+  .el-input__wrapper {
     background-color: $bg-secondary !important;
-    border: 1px solid $border-color !important;
-    color: $text-primary !important;
   }
 }
 
 .el-select-dropdown {
-  background-color: $bg-tertiary !important;
-  border: 1px solid $border-color !important;
+  background-color: $bg-secondary !important;
+  border: 1px solid $border-lighter !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
   
   .el-select-dropdown__item {
-    color: $text-primary !important;
+    color: $text-regular !important;
     
     &:hover {
-      background-color: $bg-quaternary !important;
+      background-color: $bg-hover !important;
     }
     
     &.selected {
-      background-color: $primary-color !important;
-      color: $text-primary !important;
+      background-color: $primary-light !important;
+      color: $primary-color !important;
+      font-weight: 600;
     }
   }
 }
@@ -166,43 +186,55 @@ html, body {
 .el-textarea {
   .el-textarea__inner {
     background-color: $bg-secondary !important;
-    border: 1px solid $border-color !important;
+    border: 1px solid $border-lighter !important;
     color: $text-primary !important;
+    
+    &:hover {
+      border-color: $border-hover !important;
+    }
     
     &:focus {
       border-color: $primary-color !important;
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1) !important;
+    }
+    
+    &::placeholder {
+      color: $text-muted !important;
     }
   }
 }
 
 .el-dialog {
-  background-color: $bg-tertiary !important;
+  background-color: $bg-secondary !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
   
   .el-dialog__header {
     background-color: transparent !important;
-    border-bottom: 1px solid $border-color !important;
+    border-bottom: 1px solid $border-lighter !important;
     
     .el-dialog__title {
       color: $text-primary !important;
+      font-weight: 600;
     }
   }
   
   .el-dialog__body {
     background-color: transparent !important;
-    color: $text-primary !important;
+    color: $text-regular !important;
   }
 }
 
 .el-message-box {
-  background-color: $bg-tertiary !important;
-  border: 1px solid $border-color !important;
+  background-color: $bg-secondary !important;
+  border: 1px solid $border-lighter !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
   
   .el-message-box__title {
     color: $text-primary !important;
   }
   
   .el-message-box__content {
-    color: $text-secondary !important;
+    color: $text-regular !important;
   }
 }
 
@@ -213,16 +245,16 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: $bg-secondary;
+  background-color: $bg-quaternary;
   border-radius: $border-radius-sm;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: $bg-quaternary;
+  background-color: $border-hover;
   border-radius: $border-radius-sm;
   
   &:hover {
-    background-color: #6a6f77;
+    background-color: $text-secondary;
   }
 }
 

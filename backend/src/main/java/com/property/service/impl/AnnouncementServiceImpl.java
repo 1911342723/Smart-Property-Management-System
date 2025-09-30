@@ -41,6 +41,13 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
     }
 
     @Override
+    public IPage<Announcement> getPublishedAnnouncementsPage(Page<Announcement> page, String type, String priority) {
+        IPage<Announcement> result = announcementMapper.selectPublishedAnnouncementsPage(page, type, priority);
+        processAnnouncementListData(result.getRecords());
+        return result;
+    }
+
+    @Override
     public List<Announcement> getPublishedAnnouncements(Integer limit) {
         if (limit == null || limit <= 0) {
             limit = 10;

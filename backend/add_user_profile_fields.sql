@@ -48,3 +48,5 @@ DEALLOCATE PREPARE stmt;
 SELECT 'sys_user表结构更新完成' as message;
 DESCRIBE sys_user;
 
+
+
