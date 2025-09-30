@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -139,6 +141,37 @@ public class PropertyController {
             return Result.success("解绑业主成功");
         } catch (Exception e) {
             return Result.error("解绑业主失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("导出房产列表")
+    @GetMapping("/export")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public void exportProperty(
+            @RequestParam(required = false) String building,
+            @RequestParam(required = false) String unit,
+            @RequestParam(required = false) String room,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String bindStatus,
+            @RequestParam(required = false) String keyword,
+            HttpServletResponse response) throws IOException {
+        try {
+            roomService.exportPropertyList(building, unit, room, type, bindStatus, keyword, response);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write("{\"code\":500,\"message\":\"导出失败：" + e.getMessage() + "\"}");
+        }
+    }
+
+    @ApiOperation("下载房产导入模板")
+    @GetMapping("/template")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        try {
+            roomService.downloadTemplate(response);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write("{\"code\":500,\"message\":\"下载模板失败：" + e.getMessage() + "\"}");
         }
     }
 }

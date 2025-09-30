@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 /**
  * 支付记录控制器
@@ -93,6 +95,25 @@ public class PaymentController {
     public Result<String> deletePayment(@ApiParam("支付记录ID") @PathVariable Long id) {
         boolean success = paymentService.removeById(id);
         return success ? Result.success("删除成功") : Result.error("删除失败");
+    }
+
+    /**
+     * 导出缴费记录
+     */
+    @ApiOperation("导出缴费记录")
+    @GetMapping("/export")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void exportPayments(
+            @ApiParam("业主ID") @RequestParam(required = false) Long ownerId,
+            @ApiParam("支付方式") @RequestParam(required = false) String paymentMethod,
+            @ApiParam("支付状态") @RequestParam(required = false) String status,
+            HttpServletResponse response) throws IOException {
+        try {
+            paymentService.exportPaymentList(ownerId, paymentMethod, status, response);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write("{\"code\":500,\"message\":\"导出失败：" + e.getMessage() + "\"}");
+        }
     }
 }
 

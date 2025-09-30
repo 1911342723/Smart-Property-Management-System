@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 房屋实体类
@@ -72,6 +73,10 @@ public class Room extends BaseEntity {
     @ApiModelProperty(value = "用户与房屋关系类型：OWNER-业主，TENANT-租户")
     @TableField(exist = false)
     private String relationType;
+
+    @ApiModelProperty(value = "绑定的业主列表")
+    @TableField(exist = false)
+    private List<SysUser> owners;
 
     public Long getBuildingId() {
         return buildingId;
@@ -167,6 +172,14 @@ public class Room extends BaseEntity {
 
     public void setRelationType(String relationType) {
         this.relationType = relationType;
+    }
+
+    public List<SysUser> getOwners() {
+        return owners;
+    }
+
+    public void setOwners(List<SysUser> owners) {
+        this.owners = owners;
     }
 }
 

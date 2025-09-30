@@ -11,7 +11,7 @@
  Target Server Version : 80042
  File Encoding         : 65001
 
- Date: 29/09/2025 21:58:38
+ Date: 30/09/2025 18:04:19
 */
 
 SET NAMES utf8mb4;
@@ -48,14 +48,14 @@ CREATE TABLE `activity`  (
   INDEX `fk_activity_organizer`(`organizer_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_start_time`(`start_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '活动表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '活动表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of activity
 -- ----------------------------
-INSERT INTO `activity` VALUES (1, '春节联欢晚会', '社区居民新春联欢活动，精彩节目等您参与', '一年一度的春节联欢晚会即将开始！我们为大家准备了精彩的文艺表演、有趣的互动游戏和丰富的奖品。欢迎全家老少一起参加，共度美好时光。活动现场还有免费的茶点和小食供应，让我们一起迎接新年的到来！', '社区居民新春联欢活动，精彩节目等您参与，欢迎大家踊跃参加', 'ENTERTAINMENT', 1001, '社区活动中心', '2025-02-10 19:00:00', '2025-02-10 22:00:00', 100, 23, '2025-01-15 09:00:00', '2025-12-08 18:00:00', 'UPCOMING', 1, NULL, '/static/images/activity1.jpg', NULL, '2025-09-29 20:03:58', '2025-09-29 20:37:46', 0);
-INSERT INTO `activity` VALUES (2, '羽毛球比赛', '社区羽毛球友谊赛，现在开始报名', '社区羽毛球友谊赛正在火热报名中！无论您是羽毛球新手还是高手，都可以参与其中。比赛采用友谊第一、比赛第二的原则，重在参与和交流。我们将根据报名情况分组进行比赛，确保每位参与者都能享受运动的乐趣。', '社区羽毛球友谊赛，欢迎羽毛球爱好者参与', 'SPORTS', 1001, '社区体育馆', '2025-01-18 14:00:00', '2025-01-18 18:00:00', 32, 16, '2025-01-10 09:00:00', '2025-11-17 18:00:00', 'REGISTRATION', 1, NULL, '/static/images/activity2.jpg', NULL, '2025-09-29 20:03:58', '2025-09-29 20:38:37', 0);
+INSERT INTO `activity` VALUES (1, '春节联欢晚会', '社区居民新春联欢活动，精彩节目等您参与', '一年一度的春节联欢晚会即将开始！我们为大家准备了精彩的文艺表演、有趣的互动游戏和丰富的奖品。欢迎全家老少一起参加，共度美好时光。活动现场还有免费的茶点和小食供应，让我们一起迎接新年的到来！', '社区居民新春联欢活动，精彩节目等您参与，欢迎大家踊跃参加', 'OTHER', 1001, '社区活动中心', '2025-02-10 19:00:00', '2027-03-27 22:00:00', 20, 23, '2025-01-15 09:00:00', '2027-12-09 18:00:00', 'UPCOMING', 0, 1.00, '/static/images/activity1.jpg', NULL, '2025-09-29 20:03:58', '2025-09-30 12:08:21', 0);
 INSERT INTO `activity` VALUES (3, '健康知识讲座', '邀请专业医师为社区居民讲解健康养生知识', '本次健康知识讲座将邀请三甲医院的专业医师为大家讲解冬季养生保健知识，包括饮食调理、运动保健、疾病预防等方面的内容。讲座结束后还有免费的健康咨询环节，欢迎有需要的居民朋友参加。', '邀请专业医师为社区居民讲解健康养生知识', 'EDUCATION', 1001, '社区会议室', '2025-01-20 15:00:00', '2025-01-20 17:00:00', 50, 8, '2025-01-12 09:00:00', '2025-01-19 18:00:00', 'REGISTRATION', 1, NULL, '/static/images/activity3.jpg', NULL, '2025-09-29 20:03:58', '2025-09-29 20:03:58', 0);
+INSERT INTO `activity` VALUES (4, '测试', '11', '', '', 'SPORTS', 1000, '11', '2025-09-30 12:18:50', '2025-10-02 00:00:00', 12, 1, '2025-09-30 12:18:56', '2025-11-07 00:00:00', 'REGISTRATION', 1, NULL, '', '', '2025-09-30 12:19:05', '2025-09-30 12:19:32', 0);
 
 -- ----------------------------
 -- Table structure for activity_registration
@@ -83,12 +83,12 @@ CREATE TABLE `activity_registration`  (
   INDEX `fk_registration_user`(`user_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_registration_time`(`registration_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '活动报名表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '活动报名表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of activity_registration
 -- ----------------------------
-INSERT INTO `activity_registration` VALUES (1, 2, 1002, 1, '张三', '13800000101', NULL, NULL, 'REGISTERED', '2025-09-29 20:38:38', NULL, NULL, NULL, '2025-09-29 20:38:38', '2025-09-29 20:38:38', 0);
+INSERT INTO `activity_registration` VALUES (2, 4, 1002, 1, 'Yan', '13800000101', NULL, NULL, 'REGISTERED', '2025-09-30 12:19:32', NULL, NULL, NULL, '2025-09-30 12:19:32', '2025-09-30 12:19:32', 0);
 
 -- ----------------------------
 -- Table structure for announcement
@@ -120,19 +120,21 @@ CREATE TABLE `announcement`  (
   INDEX `idx_is_top`(`is_top` ASC) USING BTREE COMMENT '置顶索引',
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE COMMENT '创建时间索引',
   CONSTRAINT `fk_announcement_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '公告表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '公告表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of announcement
 -- ----------------------------
-INSERT INTO `announcement` VALUES (1, '小区物业费缴费通知', '各位业主您好：\n\n2024年1月份物业费已开始缴费，请及时缴纳。\n\n缴费方式：\n1. 微信小程序在线缴费\n2. 支付宝扫码缴费\n3. 银行转账\n4. 物业服务中心现场缴费\n\n缴费截止日期：2024年1月25日\n逾期将产生滞纳金，请各位业主务必按时缴费。\n\n如有疑问，请联系物业服务中心。\n\n物业服务中心\n2024年1月1日', '2024年1月份物业费已开始缴费，请及时缴纳。缴费方式：微信小程序、支付宝、银行转账。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2024-01-01 09:00:00', NULL, 1, 156, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (2, '电梯维护公告', '各位业主：\n\n因设备维护需要，1号楼电梯将于12月15日晚上22:00-次日6:00进行维护。\n\n维护期间电梯停止使用，请业主提前安排出行，给您带来的不便敬请谅解。\n\n如有紧急情况，请联系物业值班室：400-888-9999\n\n物业服务中心\n2023年12月10日', '因设备维护需要，1号楼电梯将于12月15日晚上22:00-次日6:00进行维护，请业主提前安排出行。', 'MAINTENANCE', 'HIGH', 'PUBLISHED', 1001, '2023-12-10 16:00:00', NULL, 0, 89, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (3, '元旦联欢活动邀请', '亲爱的业主朋友们：\n\n小区将于12月31日晚19:00举办元旦联欢活动，欢迎各位业主参加！\n\n活动时间：2023年12月31日 19:00-21:00\n活动地点：小区中央广场\n活动内容：\n- 文艺表演\n- 游戏互动\n- 抽奖活动\n- 茶点招待\n\n请有意参加的业主到物业服务中心报名，报名截止时间：12月28日。\n\n让我们一起迎接新年的到来！\n\n社区委员会\n2023年12月15日', '小区将于12月31日晚举办元旦联欢活动，欢迎各位业主参加，具体安排详见活动页面。', 'ACTIVITY', 'NORMAL', 'PUBLISHED', 1001, '2023-12-15 10:00:00', NULL, 0, 234, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (4, '停车位管理规定', '各位车主业主：\n\n为了规范小区停车秩序，现对停车位管理进行调整：\n\n1. 固定车位：按月收费，费用200元/月\n2. 临时停车：按小时收费，费用5元/小时\n3. 访客车位：免费停车2小时，超时按临时停车收费\n4. 禁止占用消防通道、绿化带等区域停车\n5. 违规停车将被拖移，费用自理\n\n新规定将于2024年1月1日起执行，请各位车主遵守相关规定。\n\n物业管理处\n2023年12月18日', '为了规范小区停车秩序，现对停车位管理进行调整，请各位车主遵守相关规定。', 'NOTICE', 'NORMAL', 'PUBLISHED', 1001, '2023-12-18 14:30:00', NULL, 0, 78, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (5, '春节期间服务安排', '各位业主：\n\n春节期间（2月10日-2月17日）物业服务安排如下：\n\n值班时间：\n- 除夕至初三（2月10日-13日）：8:00-18:00\n- 初四至初六（2月14日-16日）：9:00-17:00\n- 初七（2月17日）起恢复正常工作时间\n\n紧急联系电话：400-888-9999（24小时）\n\n值班服务：\n- 水电维修\n- 安全巡查\n- 清洁保洁\n- 门禁管理\n\n祝大家新春快乐，阖家幸福！\n\n物业服务中心\n2023年12月20日', '春节期间（2月10日-2月17日）物业服务安排通知，紧急联系电话：400-888-9999。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2023-12-20 11:00:00', NULL, 1, 312, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (6, '垃圾分类倡议书', '亲爱的业主朋友们：\n\n为响应城市垃圾分类号召，共建美好绿色社区，我们倡议：\n\n垃圾分类标准：\n🗂️ 厨余垃圾：剩菜剩饭、瓜皮果核、茶叶渣等\n♻️ 可回收物：纸类、塑料、金属、玻璃等\n⚠️ 有害垃圾：废电池、废灯泡、过期药品等\n🗑️ 其他垃圾：除上述外的生活废弃物\n\n投放要求：\n- 分类投放到对应颜色的垃圾桶\n- 厨余垃圾需沥干水分\n- 可回收物保持清洁干燥\n- 有害垃圾单独包装\n\n垃圾分类点已设置在各栋楼下，请大家积极参与，共建绿色家园！\n\n环保委员会\n2023-12-22', '为响应城市垃圾分类号召，共建美好绿色社区，请大家积极参与垃圾分类。', 'NOTICE', 'NORMAL', 'PUBLISHED', 1001, '2023-12-22 15:00:00', NULL, 0, 145, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (7, '紧急停水通知', '紧急通知：\n\n因供水管道突发故障，需要紧急抢修，今日下午15:00-19:00将全面停水。\n\n影响范围：全小区\n停水时间：今日15:00-19:00（预计）\n\n请各位业主：\n1. 提前储备生活用水\n2. 关闭家中水龙头，避免来水时溅水\n3. 如有紧急用水需求，可到物业服务中心\n\n抢修完成后将立即恢复供水，具体恢复时间另行通知。\n\n给您带来的不便深表歉意！\n\n物业服务中心\n2024年1月5日 12:00', '因供水管道突发故障，今日下午15:00-19:00将全面停水，请提前储备用水。', 'EMERGENCY', 'HIGH', 'PUBLISHED', 1001, '2024-01-05 12:00:00', NULL, 1, 89, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
-INSERT INTO `announcement` VALUES (8, '小区安全提醒', '各位业主：\n\n近期发生几起安全事件，为保障大家的人身财产安全，特别提醒：\n\n安全提醒：\n1. 外出时请锁好门窗，贵重物品妥善保管\n2. 不要给陌生人开门或提供门禁密码\n3. 发现可疑人员请及时联系物业或报警\n4. 车辆停放后请锁好车门，贵重物品不要留在车内\n5. 夜间出行请结伴而行，注意人身安全\n\n安保措施：\n- 已加强门禁管理和巡逻力度\n- 增加监控设备和照明设施\n- 24小时安保值班\n\n如发现异常情况，请立即联系：\n物业值班室：400-888-9999\n报警电话：110\n\n让我们共同维护小区安全！\n\n物业服务中心\n2024年1月8日', '近期发生几起安全事件，为保障大家的人身财产安全，请注意防范。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2024-01-08 10:00:00', NULL, 0, 203, NULL, '2025-09-29 19:01:26', '2025-09-29 19:01:26', 0);
+INSERT INTO `announcement` VALUES (1, '小区物业费缴费通知', '各位业主您好：\n\n2024年1月份物业费已开始缴费，请及时缴纳。\n\n缴费方式：\n1. 微信小程序在线缴费\n2. 支付宝扫码缴费\n3. 银行转账\n4. 物业服务中心现场缴费\n\n缴费截止日期：2024年1月25日\n逾期将产生滞纳金，请各位业主务必按时缴费。\n\n如有疑问，请联系物业服务中心。\n\n物业服务中心\n2024年1月1日', '2024年1月份物业费已开始缴费，请及时缴纳。缴费方式：微信小程序、支付宝、银行转账。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2024-01-01 09:00:00', NULL, 1, 156, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:02', 1);
+INSERT INTO `announcement` VALUES (2, '电梯维护公告', '各位业主：\n\n因设备维护需要，1号楼电梯将于12月15日晚上22:00-次日6:00进行维护。\n\n维护期间电梯停止使用，请业主提前安排出行，给您带来的不便敬请谅解。\n\n如有紧急情况，请联系物业值班室：400-888-9999\n\n物业服务中心\n2023年12月10日', '因设备维护需要，1号楼电梯将于12月15日晚上22:00-次日6:00进行维护，请业主提前安排出行。', 'MAINTENANCE', 'HIGH', 'PUBLISHED', 1001, '2023-12-10 16:00:00', NULL, 0, 89, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (3, '元旦联欢活动邀请', '亲爱的业主朋友们：\n\n小区将于12月31日晚19:00举办元旦联欢活动，欢迎各位业主参加！\n\n活动时间：2023年12月31日 19:00-21:00\n活动地点：小区中央广场\n活动内容：\n- 文艺表演\n- 游戏互动\n- 抽奖活动\n- 茶点招待\n\n请有意参加的业主到物业服务中心报名，报名截止时间：12月28日。\n\n让我们一起迎接新年的到来！\n\n社区委员会\n2023年12月15日', '小区将于12月31日晚举办元旦联欢活动，欢迎各位业主参加，具体安排详见活动页面。', 'ACTIVITY', 'NORMAL', 'PUBLISHED', 1001, '2023-12-15 10:00:00', NULL, 0, 234, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (4, '停车位管理规定', '各位车主业主：\n\n为了规范小区停车秩序，现对停车位管理进行调整：\n\n1. 固定车位：按月收费，费用200元/月\n2. 临时停车：按小时收费，费用5元/小时\n3. 访客车位：免费停车2小时，超时按临时停车收费\n4. 禁止占用消防通道、绿化带等区域停车\n5. 违规停车将被拖移，费用自理\n\n新规定将于2024年1月1日起执行，请各位车主遵守相关规定。\n\n物业管理处\n2023年12月18日', '为了规范小区停车秩序，现对停车位管理进行调整，请各位车主遵守相关规定。', 'NOTICE', 'NORMAL', 'PUBLISHED', 1001, '2023-12-18 14:30:00', NULL, 0, 78, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (5, '春节期间服务安排', '各位业主：\n\n春节期间（2月10日-2月17日）物业服务安排如下：\n\n值班时间：\n- 除夕至初三（2月10日-13日）：8:00-18:00\n- 初四至初六（2月14日-16日）：9:00-17:00\n- 初七（2月17日）起恢复正常工作时间\n\n紧急联系电话：400-888-9999（24小时）\n\n值班服务：\n- 水电维修\n- 安全巡查\n- 清洁保洁\n- 门禁管理\n\n祝大家新春快乐，阖家幸福！\n\n物业服务中心\n2023年12月20日', '春节期间（2月10日-2月17日）物业服务安排通知，紧急联系电话：400-888-9999。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2023-12-20 11:00:00', NULL, 1, 312, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (6, '垃圾分类倡议书', '亲爱的业主朋友们：\n\n为响应城市垃圾分类号召，共建美好绿色社区，我们倡议：\n\n垃圾分类标准：\n🗂️ 厨余垃圾：剩菜剩饭、瓜皮果核、茶叶渣等\n♻️ 可回收物：纸类、塑料、金属、玻璃等\n⚠️ 有害垃圾：废电池、废灯泡、过期药品等\n🗑️ 其他垃圾：除上述外的生活废弃物\n\n投放要求：\n- 分类投放到对应颜色的垃圾桶\n- 厨余垃圾需沥干水分\n- 可回收物保持清洁干燥\n- 有害垃圾单独包装\n\n垃圾分类点已设置在各栋楼下，请大家积极参与，共建绿色家园！\n\n环保委员会\n2023-12-22', '为响应城市垃圾分类号召，共建美好绿色社区，请大家积极参与垃圾分类。', 'NOTICE', 'NORMAL', 'PUBLISHED', 1001, '2023-12-22 15:00:00', NULL, 0, 145, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (7, '紧急停水通知', '测试', '因供水管道突发故障，今日下午15:00-19:00将全面停水，请提前储备用水。', 'EMERGENCY', 'NORMAL', 'PUBLISHED', 1001, '2024-01-05 12:00:00', NULL, 0, 91, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (8, '小区安全提醒', '各位业主：\n\n近期发生几起安全事件，为保障大家的人身财产安全，特别提醒：\n\n安全提醒：\n1. 外出时请锁好门窗，贵重物品妥善保管\n2. 不要给陌生人开门或提供门禁密码\n3. 发现可疑人员请及时联系物业或报警\n4. 车辆停放后请锁好车门，贵重物品不要留在车内\n5. 夜间出行请结伴而行，注意人身安全\n\n安保措施：\n- 已加强门禁管理和巡逻力度\n- 增加监控设备和照明设施\n- 24小时安保值班\n\n如发现异常情况，请立即联系：\n物业值班室：400-888-9999\n报警电话：110\n\n让我们共同维护小区安全！\n\n物业服务中心\n2024年1月8日', '近期发生几起安全事件，为保障大家的人身财产安全，请注意防范。', 'NOTICE', 'HIGH', 'PUBLISHED', 1001, '2024-01-08 10:00:00', NULL, 0, 203, NULL, '2025-09-29 19:01:26', '2025-09-30 10:50:19', 1);
+INSERT INTO `announcement` VALUES (9, '测试', '测试', '测试', 'EMERGENCY', 'HIGH', 'PUBLISHED', 1000, '2025-09-30 11:05:50', '2025-09-30 10:57:59', 1, 11, NULL, '2025-09-30 11:05:50', '2025-09-30 11:31:16', 0);
+INSERT INTO `announcement` VALUES (10, '111', '11', '11', 'NOTICE', 'NORMAL', 'PUBLISHED', 1000, '2025-09-30 11:31:46', NULL, 1, 3, NULL, '2025-09-30 11:31:46', '2025-09-30 12:21:59', 0);
 
 -- ----------------------------
 -- Table structure for bill
@@ -231,12 +233,18 @@ CREATE TABLE `complaint`  (
   INDEX `idx_urgency_level`(`urgency_level` ASC) USING BTREE,
   INDEX `idx_handler_id`(`handler_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '投诉建议表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '投诉建议表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of complaint
 -- ----------------------------
-INSERT INTO `complaint` VALUES (1, 'CP202509290001', 1002, NULL, 'NOISE', '噪音投诉', '111', '[]', 'NORMAL', 'PENDING', NULL, NULL, NULL, NULL, NULL, NULL, '', '2025-09-29 21:46:08', '', '2025-09-29 21:46:08', 0);
+INSERT INTO `complaint` VALUES (3, 'CP202509300001', 1002, 1, '噪音扰民', '楼上住户深夜噪音严重', '楼上住户经常在晚上11点后制造噪音，包括拖拽家具、大声说话、儿童跑跳等，严重影响家人休息，已经持续一周了，希望物业能够协调处理。', '[]', 'HIGH', 'PENDING', NULL, NULL, NULL, NULL, NULL, NULL, '', '2025-09-30 11:02:58', '', '2025-09-30 11:02:58', 0);
+INSERT INTO `complaint` VALUES (4, 'CP202509290002', 1002, 1, '环境卫生', '小区垃圾清运不及时', '小区2号楼旁边的垃圾桶经常溢出，已经好几天没有清理了，产生异味且有蚊虫滋生，影响居民生活环境。', '[]', 'MEDIUM', 'PROCESSING', 1000, NULL, NULL, NULL, NULL, '已安排保洁人员增加清理频次', '', '2025-09-29 13:02:58', '', '2025-09-29 13:02:58', 0);
+INSERT INTO `complaint` VALUES (5, 'CP202509280001', 1002, 1, '设施维护', '电梯故障频繁', '1号楼的3号电梯最近经常出现故障，有时会突然停止，有时会开门不畅，存在安全隐患，请尽快检修。', '[]', 'URGENT', 'RESOLVED', 1000, '已联系电梯维保公司进行全面检修，更换了老化的控制模块，问题已解决。电梯现在运行正常，后续会加强日常巡检。', '2025-09-30 09:02:58', 5, '处理很及时，电梯现在运行很平稳，感谢物业的快速响应！', NULL, '', '2025-09-28 13:02:58', '', '2025-09-30 09:02:58', 0);
+INSERT INTO `complaint` VALUES (6, 'CP202509270001', 1002, 1, '停车问题', '私家车占用消防通道', '地下车库B区经常有车辆占用消防通道停放，存在安全隐患，建议物业加强管理。', '[]', 'HIGH', 'CLOSED', 1000, '已在地下车库增设禁停标识和警示牌，并安排安保人员定期巡查。对违规停车的业主进行了告知和教育，目前情况已明显改善。', '2025-09-28 13:02:58', 4, '现在基本没有车辆乱停了，希望继续保持。', NULL, '', '2025-09-27 13:02:58', '', '2025-09-28 13:02:58', 0);
+INSERT INTO `complaint` VALUES (7, 'CP202509290003', 1002, 1, '安全问题', '小区门禁系统失灵', '小区东门的门禁系统经常失灵，有时刷卡无反应，导致业主进出不便，也存在安全隐患。', '[]', 'HIGH', 'PENDING', NULL, NULL, NULL, NULL, NULL, NULL, '', '2025-09-30 08:02:58', '', '2025-09-30 08:02:58', 0);
+INSERT INTO `complaint` VALUES (8, 'CP202509290004', 1002, 1, '服务态度', '物业客服态度不佳', '昨天联系物业客服咨询问题时，客服人员态度冷淡，回答敷衍，希望物业能加强员工服务意识培训。', '[]', 'LOW', 'ASSIGNED', 1000, NULL, NULL, NULL, NULL, NULL, '', '2025-09-30 03:02:58', '', '2025-09-30 04:02:58', 0);
+INSERT INTO `complaint` VALUES (9, 'CP202509280002', 1002, 1, '其他', '小区快递柜数量不足', '小区快递柜经常爆满，很多快递只能放在地上，既不方便也不安全，建议增加快递柜数量。', '[]', 'MEDIUM', 'PROCESSING', 1000, NULL, NULL, NULL, NULL, '正在联系快递柜公司评估增设方案', '', '2025-09-29 21:02:58', '', '2025-09-29 21:02:58', 0);
 
 -- ----------------------------
 -- Table structure for message
@@ -299,7 +307,7 @@ CREATE TABLE `owner_room`  (
 -- ----------------------------
 -- Records of owner_room
 -- ----------------------------
-INSERT INTO `owner_room` VALUES (1, 1002, 1, 'OWNER', '2023-01-01', NULL, NULL, NULL, NULL, 1, '购买的第一套房产', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+INSERT INTO `owner_room` VALUES (1, 1002, 1, 'OWNER', '2023-01-01', NULL, NULL, NULL, NULL, 1, '购买的第一套房产', '2025-09-29 18:34:09', '2025-09-30 17:50:49', 0);
 INSERT INTO `owner_room` VALUES (2, 1002, 3, 'OWNER', '2023-06-01', NULL, NULL, NULL, NULL, 1, '投资房产', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `owner_room` VALUES (3, 1003, 4, 'OWNER', '2023-03-01', NULL, NULL, NULL, NULL, 1, '自住房产', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `owner_room` VALUES (4, 1004, 5, 'OWNER', '2023-01-01', NULL, NULL, NULL, NULL, 1, '商用房产', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
@@ -367,7 +375,7 @@ CREATE TABLE `room`  (
 -- ----------------------------
 -- Records of room
 -- ----------------------------
-INSERT INTO `room` VALUES (1, 1, 2, '301', 3, 'RESIDENTIAL', 100.00, 'OCCUPIED', 150.00, '2025-09-29 18:34:09', '2025-09-29 18:46:24', 0);
+INSERT INTO `room` VALUES (1, 1, 2, '301', 3, 'RESIDENTIAL', 100.00, 'OCCUPIED', 150.00, '2025-09-29 18:34:09', '2025-09-30 17:50:49', 0);
 INSERT INTO `room` VALUES (2, 1, 2, '302', 3, 'RESIDENTIAL', 92.30, 'VACANT', 155.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `room` VALUES (3, 2, 5, '502', 5, 'RESIDENTIAL', 120.00, 'OCCUPIED', 180.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `room` VALUES (4, 2, 6, '801', 8, 'RESIDENTIAL', 95.20, 'OCCUPIED', 160.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
@@ -375,6 +383,102 @@ INSERT INTO `room` VALUES (5, 3, 9, '101', 1, 'COMMERCIAL', 150.00, 'OCCUPIED', 
 INSERT INTO `room` VALUES (6, 1, 1, '1801', 18, 'RESIDENTIAL', 105.50, 'VACANT', 170.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `room` VALUES (7, 2, 7, '1205', 12, 'RESIDENTIAL', 88.80, 'OCCUPIED', 145.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 INSERT INTO `room` VALUES (8, 3, 10, '601', 6, 'RESIDENTIAL', 96.00, 'OCCUPIED', 165.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+
+-- ----------------------------
+-- Table structure for sys_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_config`;
+CREATE TABLE `sys_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '配置键',
+  `config_value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值',
+  `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置名称',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置描述',
+  `config_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置类型(STRING/INTEGER/DECIMAL/BOOLEAN/PASSWORD)',
+  `config_group` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置分组(BASIC/PROPERTY_FEE/EMAIL/ADVANCED)',
+  `is_system` int NULL DEFAULT 0 COMMENT '是否系统内置(0=否 1=是)',
+  `status` int NULL DEFAULT 1 COMMENT '状态(0=停用 1=启用)',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` int NULL DEFAULT 0 COMMENT '删除标记(0=未删除 1=已删除)',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_config_key`(`config_key` ASC) USING BTREE,
+  INDEX `idx_config_group`(`config_group` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_config
+-- ----------------------------
+INSERT INTO `sys_config` VALUES (1, 'property.fee.per.sqm', '2.5', '物业费单价', '物业费每平米单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 1, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (2, 'parking.fee.monthly', '200', '停车费', '停车费月租(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 2, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (3, 'water.fee.per.ton', '3.5', '水费单价', '水费每吨单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 3, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (4, 'electric.fee.per.kwh', '0.6', '电费单价', '电费每度单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 4, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (5, 'gas.fee.per.cubic', '2.8', '燃气费单价', '燃气费每立方单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 5, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (6, 'email.host', 'smtp.example.com', 'SMTP服务器', 'SMTP服务器地址', 'STRING', 'EMAIL', 1, 1, 1, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (7, 'email.port', '587', 'SMTP端口', 'SMTP服务器端口', 'INTEGER', 'EMAIL', 1, 1, 2, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (8, 'email.username', '', '发件人邮箱', '发件人邮箱账号', 'STRING', 'EMAIL', 0, 1, 3, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (9, 'email.password', '', '邮箱密码', '发件人邮箱密码', 'PASSWORD', 'EMAIL', 0, 1, 4, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (10, 'email.from', '', '发件人名称', '发件人邮箱地址', 'STRING', 'EMAIL', 0, 1, 5, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (11, 'email.ssl', 'true', '启用SSL', '是否启用SSL加密', 'BOOLEAN', 'EMAIL', 1, 1, 6, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (12, 'system.name', '智慧物业管理系统', '系统名称', '系统名称', 'STRING', 'BASIC', 1, 1, 1, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (13, 'system.version', 'v1.0.0', '系统版本', '系统版本号', 'STRING', 'BASIC', 1, 1, 2, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (14, 'customer.phone', '400-888-8888', '客服电话', '客服联系电话', 'STRING', 'BASIC', 0, 1, 3, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (15, 'customer.email', 'service@example.com', '客服邮箱', '客服邮箱地址', 'STRING', 'BASIC', 0, 1, 4, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (16, 'company.address', '', '公司地址', '公司办公地址', 'STRING', 'BASIC', 0, 1, 5, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+INSERT INTO `sys_config` VALUES (17, 'system.desc', '智慧物业管理系统，为物业管理提供全方位的信息化解决方案', '系统描述', '系统简介描述', 'STRING', 'BASIC', 0, 1, 6, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
+
+-- ----------------------------
+-- Table structure for sys_log
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_log`;
+CREATE TABLE `sys_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `module` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作模块',
+  `operation_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作类型(SELECT/INSERT/UPDATE/DELETE/LOGIN/LOGOUT)',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作描述',
+  `method` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求方法',
+  `request_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求URL',
+  `request_params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '请求参数',
+  `response_result` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '响应结果',
+  `user_id` bigint NULL DEFAULT NULL COMMENT '操作用户ID',
+  `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作用户名',
+  `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作IP',
+  `location` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作地点',
+  `browser` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
+  `os` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作系统',
+  `execution_time` bigint NULL DEFAULT NULL COMMENT '执行时长(毫秒)',
+  `status` int NULL DEFAULT 1 COMMENT '操作状态(0=失败 1=成功)',
+  `error_msg` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '错误信息',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` int NULL DEFAULT 0 COMMENT '删除标记(0=未删除 1=已删除)',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_username`(`username` ASC) USING BTREE,
+  INDEX `idx_operation_type`(`operation_type` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统操作日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_log
+-- ----------------------------
+INSERT INTO `sys_log` VALUES (1, '用户认证', 'LOGIN', '用户登录', 'POST', '/api/auth/login', '{\"password\":\"123456\",\"username\":\"13800000001\"}', '{\"code\":200,\"data\":{\"email\":\"admin@property.com\",\"id\":1000,\"lastLoginTime\":\"2025-09-30 16:01:36.748981500\",\"phone\":\"13800000001\",\"realName\":\"系统管理员\",\"roles\":[\"ROLE_ADMIN\"],\"token\":\"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyVHlwZSI6IkFETUlOIiwidXNlcklkIjoxMDAwLCJ1c2VybmFtZSI6IjEzODAwMDAwMDAxIiwic3ViIjoiMTM4MDAwMDAwMDEiLCJpYXQiOjE3NTkyMTkyOTYsImV4cCI6MTc1OTgyNDA5Nn0.yJrcBxYRkFob3Fz-4ntq2sXEQoUhpNLS7Q33XOnmzoc\",\"userType\":\"ADMIN\",\"username\":\"admin\"},\"message\":\"登录成功\",\"timestamp\":1759219296790}', NULL, NULL, '127.0.0.1', NULL, 'Chrome', 'Windows', 406, 1, NULL, '2025-09-30 16:01:36', '2025-09-30 16:01:37', 0);
+INSERT INTO `sys_log` VALUES (2, '用户管理', 'DELETE', '删除用户', 'DELETE', '/api/auth/users/1004', '1004', '{\"code\":200,\"data\":\"删除成功\",\"message\":\"操作成功\",\"timestamp\":1759219700148}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 24, 1, NULL, '2025-09-30 16:08:20', '2025-09-30 16:08:20', 0);
+INSERT INTO `sys_log` VALUES (3, '用户管理', 'DELETE', '删除用户', 'DELETE', '/api/auth/users/1009', '1009', '{\"code\":200,\"data\":\"删除成功\",\"message\":\"操作成功\",\"timestamp\":1759224852078}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 154, 1, NULL, '2025-09-30 17:34:12', '2025-09-30 17:34:12', 0);
+INSERT INTO `sys_log` VALUES (4, '用户管理', 'DELETE', '删除用户', 'DELETE', '/api/auth/users/1009', '1009', '{\"code\":200,\"data\":\"删除成功\",\"message\":\"操作成功\",\"timestamp\":1759224861082}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 26, 1, NULL, '2025-09-30 17:34:21', '2025-09-30 17:34:21', 0);
+INSERT INTO `sys_log` VALUES (5, '用户管理', 'DELETE', '删除用户', 'DELETE', '/api/auth/users/1009', '1009', '{\"code\":200,\"data\":\"删除成功\",\"message\":\"操作成功\",\"timestamp\":1759224964167}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 146, 1, NULL, '2025-09-30 17:36:04', '2025-09-30 17:36:04', 0);
+INSERT INTO `sys_log` VALUES (6, '用户管理', 'DELETE', '删除用户', 'DELETE', '/api/auth/users/1010', '1010', '{\"code\":200,\"data\":\"删除成功\",\"message\":\"操作成功\",\"timestamp\":1759225015991}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 19, 1, NULL, '2025-09-30 17:36:56', '2025-09-30 17:36:56', 0);
+INSERT INTO `sys_log` VALUES (7, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 10 \"\" \"\" \"\"', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":10,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226357193}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 262, 1, NULL, '2025-09-30 17:59:17', '2025-09-30 17:59:17', 0);
+INSERT INTO `sys_log` VALUES (8, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 500', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":500,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226624773}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 11, 1, NULL, '2025-09-30 18:03:45', '2025-09-30 18:03:45', 0);
+INSERT INTO `sys_log` VALUES (9, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 20 \"\"', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":20,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226625394}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 9, 1, NULL, '2025-09-30 18:03:45', '2025-09-30 18:03:45', 0);
+INSERT INTO `sys_log` VALUES (10, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 100', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":100,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226631006}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 6, 1, NULL, '2025-09-30 18:03:51', '2025-09-30 18:03:51', 0);
+INSERT INTO `sys_log` VALUES (11, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 10 \"\" \"\" \"\"', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":10,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226633166}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 8, 1, NULL, '2025-09-30 18:03:53', '2025-09-30 18:03:53', 0);
+INSERT INTO `sys_log` VALUES (12, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 500', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":500,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226635489}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 7, 1, NULL, '2025-09-30 18:03:55', '2025-09-30 18:03:55', 0);
+INSERT INTO `sys_log` VALUES (13, '账单管理', 'SELECT', '查询账单列表', 'GET', '/api/bill/list', '1 20 \"\"', '{\"code\":200,\"data\":{\"list\":[],\"pageNum\":1,\"pageSize\":20,\"total\":0,\"totalPages\":0},\"message\":\"操作成功\",\"timestamp\":1759226635841}', NULL, '13800000001', '127.0.0.1', NULL, 'Chrome', 'Windows', 5, 1, NULL, '2025-09-30 18:03:56', '2025-09-30 18:03:56', 0);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -429,20 +533,22 @@ CREATE TABLE `sys_user`  (
   UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE,
   INDEX `idx_phone`(`phone` ASC) USING BTREE,
   INDEX `idx_user_type`(`user_type` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1009 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统用户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1011 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统用户表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1000, 'admin', '123456', '系统管理员', '13800000001', 'admin@property.com', NULL, 1, 'ADMIN', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1000, 'admin', '123456', '系统管理员', '13800000001', 'admin@property.com', NULL, 1, 'ADMIN', '2025-09-30 16:01:37', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_user` VALUES (1001, 'manager', '123456', '物业经理', '13800000002', 'manager@property.com', NULL, 1, 'ADMIN', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (1002, 'owner001', '123456', 'Yan', '13800000101', 'zhangsan@example.com', NULL, 1, 'OWNER', '2025-09-29 21:30:04', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, 'MALE', '', '111', '', '');
+INSERT INTO `sys_user` VALUES (1002, 'owner001', '123456', 'Yan', '13800000101', 'zhangsan@example.com', NULL, 1, 'OWNER', '2025-09-30 12:30:00', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, 'MALE', '', '111', '', '');
 INSERT INTO `sys_user` VALUES (1003, 'owner002', '123456', '李四', '13800000102', 'lisi@example.com', NULL, 1, 'OWNER', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (1004, 'owner003', '123456', '王五', '13800000103', 'wangwu@example.com', NULL, 1, 'OWNER', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1004, 'owner003', '123456', '王五', '13800000103', 'wangwu@example.com', NULL, 1, 'OWNER', NULL, '2025-09-29 18:34:09', '2025-09-30 16:08:20', 0, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_user` VALUES (1005, 'guard001', '123456', '保安小刘', '13800000201', 'guard001@property.com', NULL, 1, 'GUARD', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_user` VALUES (1006, 'guard002', '123456', '保安小赵', '13800000202', 'guard002@property.com', NULL, 1, 'GUARD', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (1007, 'worker001', '123456', '维修师傅老张', '13800000301', 'worker001@property.com', NULL, 1, 'WORKER', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1007, 'worker001', '123456', '维修师傅老张', '13800000301', 'worker001@property.com', NULL, 1, 'WORKER', '2025-09-30 13:45:18', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_user` VALUES (1008, 'worker002', '123456', '维修师傅老李', '13800000302', 'worker002@property.com', NULL, 1, 'WORKER', NULL, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1009, '19903849502', '123456', 'CQQ', '19903849502', '', NULL, 1, 'OWNER', NULL, '2025-09-30 17:33:58', '2025-09-30 17:36:04', 1, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1010, '111', '123456', '111', '19948576890', '1990646@qq.com', NULL, 1, 'WORKER', NULL, '2025-09-30 17:36:45', '2025-09-30 17:36:55', 1, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -585,11 +691,18 @@ CREATE TABLE `work_order`  (
   CONSTRAINT `fk_order_assignee` FOREIGN KEY (`assignee_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_order_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_order_submitter` FOREIGN KEY (`submitter_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工单表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of work_order
 -- ----------------------------
+INSERT INTO `work_order` VALUES (1, 'WO202509300001', '水电设施故障', '111111', 'REPAIR', 'MEDIUM', 'COMPLETED', 1002, 1007, 1, NULL, '2025-09-30 13:13:55', '2025-09-30 13:15:15', '2025-09-30 13:15:22', '2025-09-30 13:15:32', NULL, NULL, 0.00, '2025-09-30 13:13:55', '2025-09-30 13:41:21', 1);
+INSERT INTO `work_order` VALUES (2, 'WO202509300002', '水电设施故障', '请描述具体的水电问11题，如：漏水位置、电路故障现象等', 'REPAIR', 'URGENT', 'PENDING', 1002, NULL, 1, NULL, '2025-09-30 13:24:01', NULL, NULL, NULL, NULL, NULL, NULL, '2025-09-30 13:24:01', '2025-09-30 13:24:01', 0);
+INSERT INTO `work_order` VALUES (3, 'WO202509300010', '客厅灯不亮了', '客厅的主灯突然不亮了，可能是灯泡坏了或者开关有问题', 'REPAIR', 'MEDIUM', 'PROCESSING', 1002, 1007, 1, '[]', '2025-09-30 13:44:17', '2025-09-30 13:57:21', '2025-09-30 14:00:12', NULL, NULL, NULL, NULL, '2025-09-30 13:44:17', '2025-09-30 15:40:25', 1);
+INSERT INTO `work_order` VALUES (4, 'WO202509300011', '卫生间水龙头漏水', '卫生间洗手盆的水龙头一直滴水，需要更换阀芯', 'REPAIR', 'HIGH', 'PENDING', 1002, NULL, 1, '[]', '2025-09-30 13:44:17', NULL, NULL, NULL, NULL, NULL, NULL, '2025-09-30 13:44:17', '2025-09-30 13:44:17', 0);
+INSERT INTO `work_order` VALUES (5, 'WO202509300012', '厨房排气扇噪音大', '厨房排气扇运转时噪音很大，可能需要清洗或更换', 'REPAIR', 'LOW', 'PENDING', 1002, NULL, 1, '[]', '2025-09-30 13:44:17', NULL, NULL, NULL, NULL, NULL, NULL, '2025-09-30 13:44:17', '2025-09-30 13:44:17', 0);
+INSERT INTO `work_order` VALUES (6, 'WO202509300013', '阳台窗户关不严', '阳台推拉窗关不严，有缝隙，雨天会漏水', 'REPAIR', 'URGENT', 'PENDING', 1002, NULL, 1, '[]', '2025-09-30 13:44:17', NULL, NULL, NULL, NULL, NULL, NULL, '2025-09-30 13:44:17', '2025-09-30 13:44:17', 0);
+INSERT INTO `work_order` VALUES (7, 'WO202509300014', '空调不制冷', '客厅空调打开后不制冷，只吹风不降温', 'REPAIR', 'HIGH', 'COMPLETED', 1002, 1007, 1, '[]', '2025-09-30 13:44:17', '2025-09-30 13:56:58', '2025-09-30 14:00:58', '2025-09-30 14:01:15', NULL, NULL, NULL, '2025-09-30 13:44:17', '2025-09-30 13:44:17', 0);
 
 -- ----------------------------
 -- Table structure for work_order_log

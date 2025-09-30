@@ -118,6 +118,9 @@ public class AuthService {
         // user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         // 设置默认值
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword("123456"); // 设置默认密码
+        }
         if (user.getStatus() == null) {
             user.setStatus(1); // 默认启用
         }
@@ -254,11 +257,8 @@ public class AuthService {
             throw new RuntimeException("用户不存在");
         }
         
-        // 逻辑删除
-        user.setDeleted(1);
-        user.setUpdateTime(LocalDateTime.now());
-        
-        return userMapper.updateById(user) > 0;
+        // 使用MyBatis-Plus的逻辑删除，会自动将deleted设置为1
+        return userMapper.deleteById(userId) > 0;
     }
 
     /**
@@ -272,6 +272,37 @@ public class AuthService {
         SysUser user = userMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");
+        }
+        
+        // 设置新密码（明文）
+        user.setPassword(newPassword);
+        user.setUpdateTime(LocalDateTime.now());
+        
+        return userMapper.updateById(user) > 0;
+    }
+    
+    /**
+     * 通过手机号重置密码（忘记密码功能）
+     * 
+     * @param phone 手机号
+     * @param newPassword 新密码
+     * @return 是否成功
+     */
+    public boolean resetPasswordByPhone(String phone, String newPassword) {
+        // 验证手机号格式
+        if (phone == null || !phone.matches("^1[3-9]\\d{9}$")) {
+            throw new RuntimeException("手机号格式不正确");
+        }
+        
+        // 验证密码
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new RuntimeException("密码长度不能少于6位");
+        }
+        
+        // 查找用户
+        SysUser user = userMapper.selectByPhone(phone);
+        if (user == null) {
+            throw new RuntimeException("该手机号未注册");
         }
         
         // 设置新密码（明文）
@@ -344,7 +375,21 @@ public class AuthService {
         }
         
         // 返回更新后的用户信息
-        return convertToUserInfoDTO(user);
+        UserInfoDTO userInfo = new UserInfoDTO();
+        userInfo.setId(user.getId());
+        userInfo.setUsername(user.getUsername());
+        userInfo.setRealName(user.getRealName());
+        userInfo.setPhone(user.getPhone());
+        userInfo.setEmail(user.getEmail());
+        userInfo.setAvatar(user.getAvatar());
+        userInfo.setUserType(user.getUserType());
+        userInfo.setGender(user.getGender());
+        userInfo.setBirthday(user.getBirthday());
+        userInfo.setSignature(user.getSignature());
+        userInfo.setEmergencyContact(user.getEmergencyContact());
+        userInfo.setEmergencyPhone(user.getEmergencyPhone());
+        
+        return userInfo;
     }
 }
 

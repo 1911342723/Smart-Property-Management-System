@@ -255,7 +255,7 @@ const fetchData = async () => {
     }
     const res = await getVisitorList(params)
     if (res.code === 200) {
-      tableData.value = res.data.records
+      tableData.value = res.data.list || res.data.records || []
       pagination.total = res.data.total
     }
   } catch (error) {
@@ -464,6 +464,11 @@ onMounted(() => {
   }
 }
 </style>
+
+
+
+
+
 
 
 

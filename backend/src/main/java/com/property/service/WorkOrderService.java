@@ -23,6 +23,9 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
 
     @Autowired
     private SysUserMapper sysUserMapper;
+    
+    @Autowired
+    private MessageService messageService;
 
     /**
      * 分页查询工单
@@ -62,7 +65,23 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
         workOrder.setStatus("PENDING");
         workOrder.setSubmitTime(LocalDateTime.now());
         
-        return this.save(workOrder);
+        boolean success = this.save(workOrder);
+        
+        // 发送提交成功通知给业主
+        if (success && workOrder.getSubmitterId() != null) {
+            try {
+                String title = "工单提交成功";
+                String content = String.format("您的%s工单（编号：%s）已成功提交，我们会尽快为您处理。", 
+                    getCategoryName(workOrder.getCategory()), workOrder.getOrderNo());
+                messageService.sendServiceMessage(title, content, workOrder.getSubmitterId(), 
+                    workOrder.getId(), "WORK_ORDER");
+            } catch (Exception e) {
+                // 消息发送失败不影响主业务
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
     }
 
     /**
@@ -102,7 +121,26 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
         workOrder.setAssigneeId(assigneeId);
         workOrder.setAssignTime(LocalDateTime.now());
         
-        return this.updateById(workOrder);
+        boolean success = this.updateById(workOrder);
+        
+        // 发送工单已分配通知给业主
+        if (success && workOrder.getSubmitterId() != null) {
+            try {
+                // 获取维修工姓名
+                com.property.entity.SysUser assignee = sysUserMapper.selectById(assigneeId);
+                String assigneeName = assignee != null ? assignee.getRealName() : "维修人员";
+                
+                String title = "工单已分配";
+                String content = String.format("您的工单（编号：%s）已分配给%s处理，请耐心等待。", 
+                    workOrder.getOrderNo(), assigneeName);
+                messageService.sendServiceMessage(title, content, workOrder.getSubmitterId(), 
+                    workOrder.getId(), "WORK_ORDER");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
     }
 
     /**
@@ -140,7 +178,26 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
         workOrder.setAssigneeId(assigneeId);
         workOrder.setAssignTime(LocalDateTime.now());
         
-        return this.updateById(workOrder);
+        boolean success = this.updateById(workOrder);
+        
+        // 发送工单已接单通知给业主
+        if (success && workOrder.getSubmitterId() != null) {
+            try {
+                // 获取维修工姓名
+                com.property.entity.SysUser worker = sysUserMapper.selectById(assigneeId);
+                String workerName = worker != null ? worker.getRealName() : "维修人员";
+                
+                String title = "工单已接单";
+                String content = String.format("您的工单（编号：%s）已被%s接单，我们会尽快为您处理。", 
+                    workOrder.getOrderNo(), workerName);
+                messageService.sendServiceMessage(title, content, workOrder.getSubmitterId(), 
+                    workOrder.getId(), "WORK_ORDER");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
     }
 
     /**
@@ -171,7 +228,22 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
         workOrder.setStatus("PROCESSING");
         workOrder.setStartTime(LocalDateTime.now());
         
-        return this.updateById(workOrder);
+        boolean success = this.updateById(workOrder);
+        
+        // 发送工单处理中通知给业主
+        if (success && workOrder.getSubmitterId() != null) {
+            try {
+                String title = "工单处理中";
+                String content = String.format("您的工单（编号：%s）维修人员正在处理中，请您耐心等待。", 
+                    workOrder.getOrderNo());
+                messageService.sendServiceMessage(title, content, workOrder.getSubmitterId(), 
+                    workOrder.getId(), "WORK_ORDER");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
     }
     
     /**
@@ -224,7 +296,23 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
             workOrder.setCost(cost);
         }
         
-        return this.updateById(workOrder);
+        boolean success = this.updateById(workOrder);
+        
+        // 发送工单已完成通知给业主
+        if (success && workOrder.getSubmitterId() != null) {
+            try {
+                String costInfo = cost != null ? String.format("，维修费用：¥%.2f", cost) : "";
+                String title = "工单已完成";
+                String content = String.format("您的工单（编号：%s）已完成处理%s。如果您对服务满意，欢迎给予评价。", 
+                    workOrder.getOrderNo(), costInfo);
+                messageService.sendServiceMessage(title, content, workOrder.getSubmitterId(), 
+                    workOrder.getId(), "WORK_ORDER");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
     }
 
     /**
@@ -310,5 +398,20 @@ public class WorkOrderService extends ServiceImpl<WorkOrderMapper, WorkOrder> {
         }
         
         return stats;
+    }
+    
+    /**
+     * 获取工单类别名称
+     */
+    private String getCategoryName(String category) {
+        if (category == null) return "工单";
+        switch (category) {
+            case "REPAIR": return "维修";
+            case "CLEAN": return "清洁";
+            case "SECURITY": return "安保";
+            case "GREEN": return "绿化";
+            case "OTHER": return "其他";
+            default: return "工单";
+        }
     }
 }

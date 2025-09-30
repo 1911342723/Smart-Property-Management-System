@@ -55,6 +55,23 @@ export function deletePayment(id) {
   })
 }
 
+/**
+ * 导出缴费记录
+ */
+export function exportPayments(params) {
+  return request({
+    url: '/payment/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+
+
+
+
+
+
 
 
 

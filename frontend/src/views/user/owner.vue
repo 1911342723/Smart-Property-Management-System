@@ -405,6 +405,7 @@ export default {
     const selectedOwner = ref(null)
     const approvalOwner = ref(null)
     const activeTab = ref('basic')
+    const ownerForm = ref(null)
     
     // 统计数据
     const stats = reactive({
@@ -434,11 +435,16 @@ export default {
     
     // 新建业主表单
     const newOwner = reactive({
+      name: '',
       username: '',
       realName: '',
       phone: '',
       password: '123456',
       email: '',
+      idCard: '',
+      building: '',
+      unit: '',
+      room: '',
       userType: 'OWNER',
       status: 1
     })
@@ -451,15 +457,10 @@ export default {
     
     // 表单验证规则
     const ownerRules = {
-      realName: [{ required: true, message: '请输入业主姓名', trigger: 'blur' }],
-      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+      name: [{ required: true, message: '请输入业主姓名', trigger: 'blur' }],
       phone: [
         { required: true, message: '请输入手机号', trigger: 'blur' },
         { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-      ],
-      password: [
-        { required: true, message: '请输入密码', trigger: 'blur' },
-        { min: 6, message: '密码至少6位', trigger: 'blur' }
       ],
       email: [
         { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
@@ -641,16 +642,35 @@ export default {
           realName: newOwner.name,
           phone: newOwner.phone,
           email: newOwner.email,
+          idCard: newOwner.idCard,
           password: '123456', // 默认密码
           userType: 'OWNER'
         }
         
-        await createOwner(data)
+        const response = await createOwner(data)
+        console.log('添加业主响应:', response)
+        
         ElMessage.success('业主添加成功')
         showAddDialog.value = false
+        
+        // 重置表单
+        ownerForm.value.resetFields()
+        Object.keys(newOwner).forEach(key => {
+          if (key === 'password') {
+            newOwner[key] = '123456'
+          } else if (key === 'userType') {
+            newOwner[key] = 'OWNER'
+          } else if (key === 'status') {
+            newOwner[key] = 1
+          } else {
+            newOwner[key] = ''
+          }
+        })
+        
         loadOwners()
       } catch (error) {
-        ElMessage.error('添加业主失败')
+        console.error('添加业主失败:', error)
+        ElMessage.error(error.message || error.response?.data?.message || '添加业主失败')
       } finally {
         adding.value = false
       }

@@ -1,5 +1,6 @@
 package com.property.controller;
 
+import com.property.annotation.OperationLog;
 import com.property.dto.PageResult;
 import com.property.dto.Result;
 import com.property.entity.Bill;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -35,6 +38,7 @@ public class BillController {
     @ApiOperation("分页查询账单列表")
     @GetMapping("/list")
     @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "SELECT", description = "查询账单列表")
     public Result<PageResult<Bill>> getBillList(
             @ApiParam("页码") @RequestParam(defaultValue = "1") int pageNum,
             @ApiParam("每页大小") @RequestParam(defaultValue = "10") int pageSize,
@@ -67,6 +71,7 @@ public class BillController {
     @ApiOperation("创建账单")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "INSERT", description = "创建账单")
     public Result<String> createBill(@ApiParam("账单信息") @Valid @RequestBody Bill bill) {
         boolean success = billService.createBill(bill);
         return success ? Result.success("创建成功") : Result.error("创建失败");
@@ -78,6 +83,7 @@ public class BillController {
     @ApiOperation("批量创建账单")
     @PostMapping("/batch")
     @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "INSERT", description = "批量创建账单")
     public Result<String> createBillsBatch(@ApiParam("账单列表") @Valid @RequestBody List<Bill> bills) {
         boolean success = billService.createBillsBatch(bills);
         return success ? Result.success("批量创建成功") : Result.error("批量创建失败");
@@ -148,6 +154,7 @@ public class BillController {
     @ApiOperation("更新账单")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "UPDATE", description = "更新账单")
     public Result<String> updateBill(
             @ApiParam("账单ID") @PathVariable Long id,
             @ApiParam("账单信息") @Valid @RequestBody Bill bill) {
@@ -163,9 +170,67 @@ public class BillController {
     @ApiOperation("删除账单")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "DELETE", description = "删除账单")
     public Result<String> deleteBill(@ApiParam("账单ID") @PathVariable Long id) {
         boolean success = billService.removeById(id);
         return success ? Result.success("删除成功") : Result.error("删除失败");
+    }
+
+    /**
+     * 导出账单列表
+     */
+    @ApiOperation("导出账单列表")
+    @GetMapping("/export")
+    @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "账单管理", operationType = "EXPORT", description = "导出账单列表")
+    public void exportBills(
+            @ApiParam("账单类型") @RequestParam(required = false) String billType,
+            @ApiParam("账单状态") @RequestParam(required = false) String status,
+            @ApiParam("业主ID") @RequestParam(required = false) Long ownerId,
+            @ApiParam("计费周期") @RequestParam(required = false) String billingPeriod,
+            HttpServletResponse response) throws IOException {
+        try {
+            billService.exportBillList(billType, status, ownerId, billingPeriod, response);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write("{\"code\":500,\"message\":\"导出失败：" + e.getMessage() + "\"}");
+        }
+    }
+
+    /**
+     * 导出财务报表
+     */
+    @ApiOperation("导出财务报表")
+    @GetMapping("/export-report")
+    @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "财务管理", operationType = "EXPORT", description = "导出财务报表")
+    public void exportReport(
+            @ApiParam("报表类型") @RequestParam(required = false) String reportType,
+            @ApiParam("时间范围") @RequestParam(required = false) String timeRange,
+            @ApiParam("楼栋") @RequestParam(required = false) String building,
+            HttpServletResponse response) throws IOException {
+        try {
+            billService.exportFinanceReport(reportType, timeRange, building, response);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write("{\"code\":500,\"message\":\"导出报表失败：" + e.getMessage() + "\"}");
+        }
+    }
+
+    /**
+     * 获取楼栋收费统计
+     */
+    @ApiOperation("获取楼栋收费统计")
+    @GetMapping("/building-stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<List<BillService.BuildingStats>> getBuildingStats(
+            @ApiParam("计费周期") @RequestParam(required = false) String billingPeriod) {
+        try {
+            List<BillService.BuildingStats> stats = billService.getBuildingStats(billingPeriod);
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error("获取楼栋统计失败：" + e.getMessage());
+        }
     }
 }
 

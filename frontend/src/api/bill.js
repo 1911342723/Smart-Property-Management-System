@@ -111,6 +111,34 @@ export function exportBills(params) {
   })
 }
 
+/**
+ * 导出财务报表
+ */
+export function exportFinanceReport(params) {
+  return request({
+    url: '/bill/export-report',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+
+/**
+ * 获取楼栋收费统计
+ */
+export function getBuildingStats(billingPeriod) {
+  return request({
+    url: '/bill/building-stats',
+    method: 'get',
+    params: { billingPeriod }
+  })
+}
+
+
+
+
+
+
 
 
 

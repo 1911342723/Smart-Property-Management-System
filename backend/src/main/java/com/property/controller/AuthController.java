@@ -1,11 +1,13 @@
 package com.property.controller;
 
+import com.property.annotation.OperationLog;
 import com.property.dto.LoginDTO;
 import com.property.dto.PageResult;
 import com.property.dto.Result;
 import com.property.dto.UserInfoDTO;
 import com.property.entity.SysUser;
-import com.property.service.AuthService;
+import com.property.service.*;
+import com.property.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 认证控制器
@@ -29,9 +33,22 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+    
+    @Autowired
+    private WorkOrderService workOrderService;
+    
+    @Autowired
+    private BillService billService;
+    
+    @Autowired
+    private ComplaintService complaintService;
+    
+    @Autowired
+    private VisitorService visitorService;
 
     @ApiOperation("用户登录")
     @PostMapping("/login")
+    @OperationLog(module = "用户认证", operationType = "LOGIN", description = "用户登录")
     public Result<UserInfoDTO> login(@Validated @RequestBody LoginDTO loginDTO) {
         try {
             UserInfoDTO userInfo = authService.login(loginDTO);
@@ -133,6 +150,7 @@ public class AuthController {
     @ApiOperation("删除用户")
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @OperationLog(module = "用户管理", operationType = "DELETE", description = "删除用户")
     public Result<String> deleteUser(@ApiParam("用户ID") @PathVariable Long id) {
         try {
             boolean success = authService.deleteUser(id);
@@ -166,6 +184,73 @@ public class AuthController {
             return Result.error("更新资料失败：" + e.getMessage());
         }
     }
+    
+    @ApiOperation("忘记密码-通过手机号重置")
+    @PostMapping("/forgot-password")
+    public Result<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            boolean success = authService.resetPasswordByPhone(request.getPhone(), request.getNewPassword());
+            return success ? Result.success("密码重置成功") : Result.error("密码重置失败");
+        } catch (Exception e) {
+            return Result.error("密码重置失败：" + e.getMessage());
+        }
+    }
+    
+    @ApiOperation("获取当前用户统计数据")
+    @GetMapping("/stats")
+    public Result<Map<String, Object>> getUserStats() {
+        try {
+            // 获取当前用户ID
+            Long userId = SecurityUtils.getCurrentUser().getId();
+            
+            Map<String, Object> stats = new HashMap<>();
+            
+            // 获取工单统计
+            try {
+                Object workOrderStats = workOrderService.getWorkOrderStats(null);
+                if (workOrderStats instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> wsMap = (Map<String, Object>) workOrderStats;
+                    stats.put("repairCount", wsMap.getOrDefault("total", 0));
+                } else {
+                    stats.put("repairCount", 0);
+                }
+            } catch (Exception e) {
+                stats.put("repairCount", 0);
+            }
+            
+            // 获取缴费统计
+            try {
+                BillService.BillStats billStats = billService.getBillStats(userId);
+                stats.put("paymentCount", billStats.getPaidBills());
+            } catch (Exception e) {
+                stats.put("paymentCount", 0);
+            }
+            
+            // 获取投诉统计
+            try {
+                ComplaintService.ComplaintStats complaintStats = complaintService.getComplaintStats(userId);
+                stats.put("complaintCount", complaintStats.getTotal());
+            } catch (Exception e) {
+                stats.put("complaintCount", 0);
+            }
+            
+            // 获取访客统计
+            try {
+                VisitorService.VisitorStats visitorStats = visitorService.getVisitorStats(userId);
+                stats.put("visitorCount", visitorStats.getTotal());
+            } catch (Exception e) {
+                stats.put("visitorCount", 0);
+            }
+            
+            // 活动统计暂时设为0（如果有活动模块，可以添加）
+            stats.put("activityCount", 0);
+            
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error("获取统计数据失败：" + e.getMessage());
+        }
+    }
 
     /**
      * 密码重置请求
@@ -177,6 +262,30 @@ public class AuthController {
             return newPassword;
         }
 
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
+        }
+    }
+    
+    /**
+     * 忘记密码请求
+     */
+    public static class ForgotPasswordRequest {
+        private String phone;
+        private String newPassword;
+        
+        public String getPhone() {
+            return phone;
+        }
+        
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+        
+        public String getNewPassword() {
+            return newPassword;
+        }
+        
         public void setNewPassword(String newPassword) {
             this.newPassword = newPassword;
         }

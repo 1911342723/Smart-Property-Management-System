@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.property.dto.PageResult;
 import com.property.entity.Bill;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -82,6 +84,35 @@ public interface BillService extends IService<Bill> {
     BillSummary getBillSummary(Long ownerId);
 
     /**
+     * 导出账单列表
+     * 
+     * @param billType 账单类型
+     * @param status 账单状态
+     * @param ownerId 业主ID
+     * @param billingPeriod 计费周期
+     * @param response HTTP响应
+     */
+    void exportBillList(String billType, String status, Long ownerId, String billingPeriod, HttpServletResponse response) throws IOException;
+
+    /**
+     * 导出财务报表
+     * 
+     * @param reportType 报表类型
+     * @param timeRange 时间范围
+     * @param building 楼栋
+     * @param response HTTP响应
+     */
+    void exportFinanceReport(String reportType, String timeRange, String building, HttpServletResponse response) throws IOException;
+
+    /**
+     * 获取楼栋收费统计
+     * 
+     * @param billingPeriod 计费周期
+     * @return 楼栋统计列表
+     */
+    List<BuildingStats> getBuildingStats(String billingPeriod);
+
+    /**
      * 账单统计信息（用于仪表盘）
      */
     class BillStats {
@@ -151,6 +182,93 @@ public interface BillService extends IService<Bill> {
 
         public void setNearestDueDate(String nearestDueDate) {
             this.nearestDueDate = nearestDueDate;
+        }
+    }
+
+    /**
+     * 楼栋收费统计
+     */
+    class BuildingStats {
+        private String building;              // 楼栋名称
+        private Long buildingId;              // 楼栋ID
+        private Integer totalHouses;          // 总房屋数
+        private Integer paidHouses;           // 已缴费房屋数
+        private Integer unpaidHouses;         // 未缴费房屋数
+        private Double paymentRate;           // 缴费率
+        private BigDecimal totalAmount;       // 应收总额
+        private BigDecimal paidAmount;        // 已收金额
+        private BigDecimal unpaidAmount;      // 未收金额
+
+        public String getBuilding() {
+            return building;
+        }
+
+        public void setBuilding(String building) {
+            this.building = building;
+        }
+
+        public Long getBuildingId() {
+            return buildingId;
+        }
+
+        public void setBuildingId(Long buildingId) {
+            this.buildingId = buildingId;
+        }
+
+        public Integer getTotalHouses() {
+            return totalHouses;
+        }
+
+        public void setTotalHouses(Integer totalHouses) {
+            this.totalHouses = totalHouses;
+        }
+
+        public Integer getPaidHouses() {
+            return paidHouses;
+        }
+
+        public void setPaidHouses(Integer paidHouses) {
+            this.paidHouses = paidHouses;
+        }
+
+        public Integer getUnpaidHouses() {
+            return unpaidHouses;
+        }
+
+        public void setUnpaidHouses(Integer unpaidHouses) {
+            this.unpaidHouses = unpaidHouses;
+        }
+
+        public Double getPaymentRate() {
+            return paymentRate;
+        }
+
+        public void setPaymentRate(Double paymentRate) {
+            this.paymentRate = paymentRate;
+        }
+
+        public BigDecimal getTotalAmount() {
+            return totalAmount;
+        }
+
+        public void setTotalAmount(BigDecimal totalAmount) {
+            this.totalAmount = totalAmount;
+        }
+
+        public BigDecimal getPaidAmount() {
+            return paidAmount;
+        }
+
+        public void setPaidAmount(BigDecimal paidAmount) {
+            this.paidAmount = paidAmount;
+        }
+
+        public BigDecimal getUnpaidAmount() {
+            return unpaidAmount;
+        }
+
+        public void setUnpaidAmount(BigDecimal unpaidAmount) {
+            this.unpaidAmount = unpaidAmount;
         }
     }
 }

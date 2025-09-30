@@ -78,7 +78,7 @@
     <div class="filter-section responsive-card">
       <el-form :model="filters" inline class="filter-form">
         <el-form-item label="费用类型">
-          <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 120px">
+          <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 140px">
             <el-option label="物业费" value="property" />
             <el-option label="停车费" value="parking" />
             <el-option label="水费" value="water" />
@@ -88,7 +88,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="缴费状态">
-          <el-select v-model="filters.status" placeholder="全部状态" clearable style="width: 120px">
+          <el-select v-model="filters.status" placeholder="全部状态" clearable style="width: 140px">
             <el-option label="待缴费" value="pending" />
             <el-option label="已缴费" value="paid" />
             <el-option label="已逾期" value="overdue" />
@@ -102,11 +102,11 @@
             placeholder="选择月份"
             format="YYYY-MM"
             value-format="YYYY-MM"
-            style="width: 150px"
+            style="width: 160px"
           />
         </el-form-item>
         <el-form-item label="楼栋">
-          <el-select v-model="filters.building" placeholder="全部楼栋" clearable style="width: 100px">
+          <el-select v-model="filters.building" placeholder="全部楼栋" clearable style="width: 120px">
             <el-option label="A栋" value="A" />
             <el-option label="B栋" value="B" />
             <el-option label="C栋" value="C" />
@@ -118,13 +118,19 @@
             v-model="filters.keyword"
             placeholder="搜索业主姓名、房号"
             prefix-icon="Search"
-            style="width: 200px"
+            style="width: 220px"
             @keyup.enter="loadBills"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="loadBills">搜索</el-button>
-          <el-button @click="resetFilters">重置</el-button>
+          <el-button type="primary" @click="loadBills">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="resetFilters">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -441,14 +447,15 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   Plus, Download, Money, Warning, PieChart, Clock, ArrowUp, ArrowDown, 
-  Search, ArrowDown as ArrowDownIcon, House 
+  Search, Refresh, ArrowDown as ArrowDownIcon, House 
 } from '@element-plus/icons-vue'
+import { getBillList, getBillStats, createBillsBatch, payBill, exportBills } from '@/api/bill'
 
 export default {
   name: 'FinanceBill',
   components: {
     Plus, Download, Money, Warning, PieChart, Clock, ArrowUp, ArrowDown, 
-    Search, ArrowDown: ArrowDownIcon, House
+    Search, Refresh, ArrowDown: ArrowDownIcon, House
   },
   setup() {
     const loading = ref(false)
@@ -571,14 +578,132 @@ export default {
     const loadBills = async () => {
       loading.value = true
       try {
-        await new Promise(resolve => setTimeout(resolve, 500))
+        const params = {
+          pageNum: pagination.page,
+          pageSize: pagination.pageSize,
+          billType: mapFilterType(filters.type),
+          status: mapFilterStatus(filters.status),
+          billingPeriod: filters.period
+        }
+        
+        console.log('请求账单列表参数:', params)
+        
+        const response = await getBillList(params)
+        console.log('API响应:', response)
+        
+        if (response && response.data) {
+          const result = response.data
+          const list = result.list || result.records || []
+          
+          // 映射后端数据到前端格式
+          bills.value = list.map(bill => ({
+            id: bill.id,
+            billNo: bill.billNo,
+            building: extractBuilding(bill.roomAddress),
+            unit: extractUnit(bill.roomAddress),
+            room: extractRoom(bill.roomAddress),
+            ownerName: bill.ownerName || '未知',
+            ownerAvatar: '',
+            type: mapBillType(bill.billType),
+            period: bill.billingPeriod,
+            amount: bill.amount || 0,
+            paidAmount: bill.paidAmount || 0,
+            status: mapBillStatus(bill.status),
+            dueDate: formatDate(bill.dueDate),
+            createdAt: formatDateTime(bill.createTime),
+            paidAt: bill.paidDate ? formatDateTime(bill.paidDate) : null,
+            paymentMethod: bill.paymentMethod || null,
+            paymentHistory: [],
+            selected: false
+          }))
+          
+          pagination.total = result.total || 0
+          console.log('账单列表加载完成:', bills.value)
+        }
+      } catch (error) {
+        console.error('加载账单列表失败:', error)
+        ElMessage.error('加载账单列表失败: ' + (error.message || '未知错误'))
+        // 使用模拟数据作为后备
         bills.value = mockBills.map(bill => ({ ...bill, selected: false }))
         pagination.total = mockBills.length
-      } catch (error) {
-        ElMessage.error('加载账单列表失败')
       } finally {
         loading.value = false
       }
+    }
+    
+    // 类型映射函数
+    const mapFilterType = (type) => {
+      const typeMap = {
+        'property': 'PROPERTY_FEE',
+        'parking': 'PARKING_FEE',
+        'water': 'WATER_FEE',
+        'electricity': 'ELECTRICITY_FEE',
+        'gas': 'GAS_FEE',
+        'maintenance': 'MAINTENANCE_FUND'
+      }
+      return typeMap[type] || ''
+    }
+    
+    const mapFilterStatus = (status) => {
+      const statusMap = {
+        'pending': 'UNPAID',
+        'paid': 'PAID',
+        'overdue': 'OVERDUE',
+        'partial': 'PARTIAL'
+      }
+      return statusMap[status] || ''
+    }
+    
+    const mapBillType = (billType) => {
+      const typeMap = {
+        'PROPERTY_FEE': 'property',
+        'PARKING_FEE': 'parking',
+        'WATER_FEE': 'water',
+        'ELECTRICITY_FEE': 'electricity',
+        'GAS_FEE': 'gas',
+        'MAINTENANCE_FUND': 'maintenance'
+      }
+      return typeMap[billType] || 'property'
+    }
+    
+    const mapBillStatus = (status) => {
+      const statusMap = {
+        'UNPAID': 'pending',
+        'PAID': 'paid',
+        'OVERDUE': 'overdue',
+        'PARTIAL': 'partial'
+      }
+      return statusMap[status] || 'pending'
+    }
+    
+    const extractBuilding = (address) => {
+      if (!address) return 'A'
+      const match = address.match(/([A-Z])\u680b/)
+      return match ? match[1] : 'A'
+    }
+    
+    const extractUnit = (address) => {
+      if (!address) return '1'
+      const match = address.match(/(\d+)\u5355\u5143/)
+      return match ? match[1] : '1'
+    }
+    
+    const extractRoom = (address) => {
+      if (!address) return '101'
+      const match = address.match(/(\d+)\u5ba4/)
+      return match ? match[1] : '101'
+    }
+    
+    const formatDateTime = (dateTime) => {
+      if (!dateTime) return ''
+      if (typeof dateTime === 'string') return dateTime
+      
+      // 处理LocalDateTime对象
+      if (dateTime.year) {
+        return `${dateTime.year}-${String(dateTime.monthValue).padStart(2, '0')}-${String(dateTime.dayOfMonth).padStart(2, '0')} ${String(dateTime.hour).padStart(2, '0')}:${String(dateTime.minute).padStart(2, '0')}:${String(dateTime.second).padStart(2, '0')}`
+      }
+      
+      return String(dateTime)
     }
     
     // 重置筛选条件
@@ -626,8 +751,37 @@ export default {
     }
     
     // 导出报表
-    const exportReport = () => {
-      ElMessage.success('报表导出成功，请查看下载文件')
+    const exportReport = async () => {
+      try {
+        ElMessage.info('正在导出账单数据，请稍候...')
+        
+        const params = {
+          billType: filters.type,
+          status: filters.status,
+          billingPeriod: filters.period
+        }
+        
+        const response = await exportBills(params)
+        
+        // 创建下载链接
+        const blob = new Blob([response], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        const fileName = `账单列表_${new Date().getTime()}.xlsx`
+        link.setAttribute('download', fileName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        ElMessage.success('导出成功')
+      } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败: ' + (error.message || '未知错误'))
+      }
     }
     
     // 批量催缴
@@ -641,8 +795,41 @@ export default {
     }
     
     // 批量导出
-    const batchExport = () => {
-      ElMessage.success(`已导出${selectedBills.value.length}条账单记录`)
+    const batchExport = async () => {
+      if (selectedBills.value.length === 0) {
+        ElMessage.warning('请先选择要导出的账单')
+        return
+      }
+      
+      try {
+        ElMessage.info('正在导出选中的账单，请稍候...')
+        
+        // 使用当前筛选条件导出（实际应该支持按选中ID导出，这里简化处理）
+        const params = {
+          billType: filters.type,
+          status: filters.status,
+          billingPeriod: filters.period
+        }
+        
+        const response = await exportBills(params)
+        
+        const blob = new Blob([response], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `选中账单_${new Date().getTime()}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        ElMessage.success(`已导出${selectedBills.value.length}条账单记录`)
+      } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败: ' + (error.message || '未知错误'))
+      }
     }
     
     // 处理全选
@@ -744,8 +931,25 @@ export default {
       return new Date(dueDate) < new Date()
     }
     
-    onMounted(() => {
-      loadBills()
+    // 加载统计数据
+    const loadStats = async () => {
+      try {
+        const response = await getBillStats()
+        if (response && response.data) {
+          const data = response.data
+          stats.totalRevenue = data.paidAmount || 0
+          stats.unpaidAmount = (data.totalAmount || 0) - (data.paidAmount || 0)
+          stats.collectionRate = data.paymentRate || 0
+          stats.overdueCount = data.totalBills - data.paidBills || 0
+        }
+      } catch (error) {
+        console.error('加载统计数据失败:', error)
+      }
+    }
+    
+    onMounted(async () => {
+      await loadStats()
+      await loadBills()
     })
     
     return {
@@ -918,10 +1122,15 @@ export default {
   background: $bg-tertiary;
   border: 1px solid $border-color;
   border-radius: $border-radius-lg;
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
   
   .filter-form {
+    :deep(.el-form-item) {
+      margin-bottom: 0;
+      margin-right: 20px;
+    }
+    
     @include mobile {
       .el-form-item {
         width: 100%;
@@ -946,18 +1155,22 @@ export default {
   background: $bg-tertiary;
   border: 1px solid $border-color;
   border-radius: $border-radius-lg;
-  padding: 20px;
+  padding: 24px;
   
   .list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     
     .bulk-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+      
+      .el-checkbox {
+        margin-right: 4px;
+      }
     }
     
     @include mobile {

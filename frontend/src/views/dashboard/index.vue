@@ -64,17 +64,17 @@
         </el-col>
         
         <el-col :xl="6" :lg="12" :md="12" :sm="24" :xs="24">
-          <div class="kpi-card satisfaction">
+          <div class="kpi-card worker">
             <div class="kpi-content">
               <div class="kpi-icon">
-                <el-icon><StarFilled /></el-icon>
+                <el-icon><User /></el-icon>
               </div>
               <div class="kpi-info">
-                <div class="kpi-value">{{ kpiData.satisfactionScore || 0 }}</div>
-                <div class="kpi-label">业主满意度</div>
-                <div class="kpi-trend" :class="kpiData.satisfactionTrend > 0 ? 'trend-up' : 'trend-down'">
-                  <el-icon><ArrowUp v-if="kpiData.satisfactionTrend > 0" /><ArrowDown v-else /></el-icon>
-                  {{ Math.abs(kpiData.satisfactionTrend) || 0 }}
+                <div class="kpi-value">{{ kpiData.totalWorkers || 0 }}</div>
+                <div class="kpi-label">维修人员</div>
+                <div class="kpi-trend" :class="kpiData.workerTrend > 0 ? 'trend-up' : 'trend-down'">
+                  <el-icon><ArrowUp v-if="kpiData.workerTrend > 0" /><ArrowDown v-else /></el-icon>
+                  {{ Math.abs(kpiData.workerTrend) || 0 }}
                 </div>
               </div>
             </div>
@@ -86,18 +86,18 @@
     <!-- 图表区域 -->
     <div class="charts-section">
       <div class="charts-grid">
-        <!-- 业主满意度趋势图 -->
-        <div class="chart-card chart-card-main">
+        <!-- 工单趋势图 -->
+        <div class="chart-card">
           <div class="card-header">
-            <span>业主满意度趋势</span>
-            <el-select v-model="satisfactionPeriod" size="small" style="width: 120px">
-              <el-option label="最近7天" value="7days" />
-              <el-option label="最近30天" value="30days" />
-              <el-option label="最近90天" value="90days" />
+            <span>工单趋势</span>
+            <el-select v-model="trendDays" size="small" style="width: 120px" @change="fetchWorkOrderTrend">
+              <el-option label="最近7天" :value="7" />
+              <el-option label="最近14天" :value="14" />
+              <el-option label="最近30天" :value="30" />
             </el-select>
           </div>
           <div class="chart-container chart-responsive">
-            <v-chart :option="satisfactionChartOption" />
+            <v-chart :option="workOrderTrendOption" />
           </div>
         </div>
         
@@ -111,16 +111,6 @@
           </div>
         </div>
         
-        <!-- 月度收费统计 -->
-        <div class="chart-card">
-          <div class="card-header">
-            <span>月度收费统计</span>
-          </div>
-          <div class="chart-container chart-responsive">
-            <v-chart :option="paymentBarOption" />
-          </div>
-        </div>
-        
         <!-- 入住率变化趋势 -->
         <div class="chart-card">
           <div class="card-header">
@@ -128,6 +118,16 @@
           </div>
           <div class="chart-container chart-responsive">
             <v-chart :option="occupancyLineOption" />
+          </div>
+        </div>
+        
+        <!-- 月度收费统计 -->
+        <div class="chart-card">
+          <div class="card-header">
+            <span>月度收费统计</span>
+          </div>
+          <div class="chart-container chart-responsive">
+            <v-chart :option="paymentBarOption" />
           </div>
         </div>
       </div>
@@ -171,6 +171,15 @@ import {
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 import { House, Tools, Money, StarFilled, ArrowUp, ArrowDown, Document, CreditCard, Bell, User } from '@element-plus/icons-vue'
+import { 
+  getWorkOrderStats, 
+  getWorkOrderDistribution, 
+  getWorkOrderTrend,
+  getPropertyStats,
+  getBillStats,
+  getOccupancyTrend,
+  getMonthlyPayment
+} from '@/api/dashboard'
 
 use([
   CanvasRenderer,
@@ -199,7 +208,7 @@ export default {
     User
   },
   setup() {
-    const satisfactionPeriod = ref('30days')
+    const trendDays = ref(7)
     const chartRefs = ref([])
     const loading = ref(false)
     
@@ -210,50 +219,45 @@ export default {
       repairTrend: 0,
       paymentRate: 0,
       paymentTrend: 0,
-      satisfactionScore: 0,
-      satisfactionTrend: 0
+      totalWorkers: 0,
+      workerTrend: 0
     })
     
     // 获取KPI数据
     const fetchKPIData = async () => {
       loading.value = true
       try {
-        // 从多个API获取数据并组合
-        const { getWorkOrderList } = await import('@/api/workorder')
-        const { getBillStats } = await import('@/api/bill')
-        const { getUserList } = await import('@/api/user')
-        
         // 获取工单统计
-        const workOrderRes = await getWorkOrderList({ pageNum: 1, pageSize: 100 })
-        if (workOrderRes.code === 200 && workOrderRes.data) {
-          const records = workOrderRes.data.records || []
-          const total = records.length
-          const completed = records.filter(item => item.status === 'COMPLETED').length
-          kpiData.repairCompletionRate = total > 0 ? Math.round((completed / total) * 100 * 10) / 10 : 0
-          kpiData.repairTrend = 5.1 // 模拟趋势
+        const workOrderRes = await getWorkOrderStats()
+        if (workOrderRes && workOrderRes.data) {
+          const stats = workOrderRes.data
+          kpiData.repairCompletionRate = stats.completionRate || 0
+          kpiData.repairTrend = parseFloat(stats.trend || 0)
         }
         
         // 获取账单统计
         const billRes = await getBillStats()
-        if (billRes.code === 200 && billRes.data) {
+        if (billRes && billRes.data) {
           const stats = billRes.data
           kpiData.paymentRate = stats.paymentRate || 0
-          kpiData.paymentTrend = stats.paymentTrend || 0
+          kpiData.paymentTrend = parseFloat(stats.paymentTrend || 0)
         }
         
-        // 获取用户统计（计算入住率）
-        const userRes = await getUserList({ role: 'OWNER' })
-        if (userRes.code === 200 && userRes.data) {
-          // 假设总房间数为500
-          const totalRooms = 500
-          const occupiedRooms = userRes.data.total || 0
-          kpiData.occupancyRate = Math.round((occupiedRooms / totalRooms) * 100 * 10) / 10
-          kpiData.occupancyTrend = 2.3 // 模拟趋势
+        // 获取房产统计（计算入住率）
+        const propertyRes = await getPropertyStats()
+        if (propertyRes && propertyRes.data) {
+          const stats = propertyRes.data
+          kpiData.occupancyRate = stats.occupancyRate || 0
+          kpiData.occupancyTrend = parseFloat(stats.occupancyTrend || 0)
         }
         
-        // 满意度分数（从投诉和评价数据计算）
-        kpiData.satisfactionScore = 4.6
-        kpiData.satisfactionTrend = 0.3
+        // 获取维修人员统计
+        const { getUserList } = await import('@/api/user')
+        const workerRes = await getUserList({ role: 'WORKER', pageNum: 1, pageSize: 1 })
+        if (workerRes && workerRes.data) {
+          kpiData.totalWorkers = workerRes.data.total || 0
+          kpiData.workerTrend = 0
+        }
         
       } catch (error) {
         console.error('获取KPI数据失败:', error)
@@ -261,7 +265,7 @@ export default {
         kpiData.occupancyRate = 92.5
         kpiData.repairCompletionRate = 87.2
         kpiData.paymentRate = 94.8
-        kpiData.satisfactionScore = 4.6
+        kpiData.totalWorkers = 8
       } finally {
         loading.value = false
       }
@@ -296,31 +300,47 @@ export default {
     }
 
     // 图表配置
-    const satisfactionChartOption = reactive({
+    const workOrderTrendOption = reactive({
       ...getResponsiveChartConfig(),
       xAxis: {
         type: 'category',
-        data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        data: [],
         axisLabel: {
           fontSize: window.innerWidth < 768 ? 10 : 12
         }
       },
       yAxis: { 
-        type: 'value', 
-        min: 0, 
-        max: 5,
+        type: 'value',
         axisLabel: {
           fontSize: window.innerWidth < 768 ? 10 : 12
         }
       },
       series: [{
-        data: [4.2, 4.3, 4.1, 4.5, 4.4, 4.6],
+        name: '工单数量',
+        data: [],
         type: 'line',
         smooth: true,
         itemStyle: { color: '#5865f2' },
-        lineStyle: { width: window.innerWidth < 768 ? 2 : 3 }
+        lineStyle: { width: window.innerWidth < 768 ? 2 : 3 },
+        areaStyle: {
+          color: 'rgba(88, 101, 242, 0.1)'
+        }
       }]
     })
+    
+    // 获取工单趋势
+    const fetchWorkOrderTrend = async () => {
+      try {
+        const res = await getWorkOrderTrend(trendDays.value)
+        if (res && res.data) {
+          const data = res.data
+          workOrderTrendOption.xAxis.data = data.dates || []
+          workOrderTrendOption.series[0].data = data.counts || []
+        }
+      } catch (error) {
+        console.error('获取工单趋势失败:', error)
+      }
+    }
 
     const workOrderPieOption = reactive({
       tooltip: { 
@@ -345,21 +365,42 @@ export default {
         label: {
           fontSize: window.innerWidth < 768 ? 10 : 12
         },
-        data: [
-          { value: 35, name: '设备维修' },
-          { value: 25, name: '清洁保养' },
-          { value: 20, name: '安全检查' },
-          { value: 15, name: '投诉处理' },
-          { value: 5, name: '其他' }
-        ]
+        data: []
       }]
     })
+    
+    // 获取工单类型分布
+    const fetchWorkOrderDistribution = async () => {
+      try {
+        const res = await getWorkOrderDistribution()
+        if (res && res.data) {
+          const data = res.data
+          const categories = data.categories || []
+          const counts = data.counts || []
+          
+          workOrderPieOption.series[0].data = categories.map((name, index) => ({
+            name,
+            value: counts[index] || 0
+          }))
+        }
+      } catch (error) {
+        console.error('获取工单类型分布失败:', error)
+        // 使用默认数据
+        workOrderPieOption.series[0].data = [
+          { value: 35, name: '设备维修' },
+          { value: 25, name: '安全隐患' },
+          { value: 20, name: '环境卫生' },
+          { value: 15, name: '投诉建议' },
+          { value: 5, name: '其他' }
+        ]
+      }
+    }
 
     const paymentBarOption = reactive({
       ...getResponsiveChartConfig(),
       xAxis: {
         type: 'category',
-        data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        data: [],
         axisLabel: {
           fontSize: window.innerWidth < 768 ? 10 : 12,
           rotate: window.innerWidth < 768 ? 45 : 0
@@ -368,22 +409,40 @@ export default {
       yAxis: { 
         type: 'value',
         axisLabel: {
-          fontSize: window.innerWidth < 768 ? 10 : 12
+          fontSize: window.innerWidth < 768 ? 10 : 12,
+          formatter: function(value) {
+            return (value / 1000).toFixed(0) + 'K'
+          }
         }
       },
       series: [{
-        data: [85000, 92000, 88000, 95000, 91000, 97000],
+        name: '收费金额',
+        data: [],
         type: 'bar',
         itemStyle: { color: '#38a169' },
         barWidth: window.innerWidth < 768 ? '50%' : '60%'
       }]
     })
+    
+    // 获取月度收费统计
+    const fetchMonthlyPayment = async () => {
+      try {
+        const res = await getMonthlyPayment(6)
+        if (res && res.data) {
+          const data = res.data
+          paymentBarOption.xAxis.data = data.months || []
+          paymentBarOption.series[0].data = data.amounts || []
+        }
+      } catch (error) {
+        console.error('获取月度收费统计失败:', error)
+      }
+    }
 
     const occupancyLineOption = reactive({
       ...getResponsiveChartConfig(),
       xAxis: {
         type: 'category',
-        data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        data: [],
         axisLabel: {
           fontSize: window.innerWidth < 768 ? 10 : 12
         }
@@ -393,35 +452,51 @@ export default {
         min: 80, 
         max: 100,
         axisLabel: {
-          fontSize: window.innerWidth < 768 ? 10 : 12
+          fontSize: window.innerWidth < 768 ? 10 : 12,
+          formatter: '{value}%'
         }
       },
       series: [{
-        data: [88.5, 89.2, 90.1, 91.3, 91.8, 92.5],
+        name: '入住率',
+        data: [],
         type: 'line',
         smooth: true,
         itemStyle: { color: '#d69e2e' },
         lineStyle: { width: window.innerWidth < 768 ? 2 : 3 }
       }]
     })
+    
+    // 获取入住率趋势
+    const fetchOccupancyTrend = async () => {
+      try {
+        const res = await getOccupancyTrend(6)
+        if (res && res.data) {
+          const data = res.data
+          occupancyLineOption.xAxis.data = data.months || []
+          occupancyLineOption.series[0].data = data.rates || []
+        }
+      } catch (error) {
+        console.error('获取入住率趋势失败:', error)
+      }
+    }
 
     // 图表响应式更新函数
     const updateChartsResponsive = () => {
       const config = getResponsiveChartConfig()
       const isMobile = window.innerWidth < 768
       
-      // 更新满意度趋势图
-      Object.assign(satisfactionChartOption, {
+      // 更新工单趋势图
+      Object.assign(workOrderTrendOption, {
         ...config,
         xAxis: {
-          ...satisfactionChartOption.xAxis,
+          ...workOrderTrendOption.xAxis,
           axisLabel: { fontSize: isMobile ? 10 : 12 }
         },
         yAxis: {
-          ...satisfactionChartOption.yAxis,
+          ...workOrderTrendOption.yAxis,
           axisLabel: { fontSize: isMobile ? 10 : 12 }
         },
-        series: satisfactionChartOption.series.map(s => ({
+        series: workOrderTrendOption.series.map(s => ({
           ...s,
           lineStyle: { width: isMobile ? 2 : 3 }
         }))
@@ -495,7 +570,10 @@ export default {
       
       // 获取真实数据
       await fetchKPIData()
-      await fetchChartData()
+      await fetchWorkOrderTrend()
+      await fetchWorkOrderDistribution()
+      await fetchMonthlyPayment()
+      await fetchOccupancyTrend()
       
       updateChartsResponsive()
       window.addEventListener('resize', handleResize)
@@ -515,7 +593,7 @@ export default {
         // 获取工单分布数据
         const workOrderRes = await getWorkOrderList({ pageNum: 1, pageSize: 100 })
         if (workOrderRes.code === 200 && workOrderRes.data) {
-          const records = workOrderRes.data.records || []
+          const records = workOrderRes.data.list || workOrderRes.data.records || []
           const categoryCount = {}
           records.forEach(item => {
             const category = item.category || '其他'
@@ -531,7 +609,7 @@ export default {
         // 获取月度收费数据
         const billRes = await getBillList({ pageNum: 1, pageSize: 100 })
         if (billRes.code === 200 && billRes.data) {
-          const records = billRes.data.records || []
+          const records = billRes.data.list || billRes.data.records || []
           // 按月统计
           const monthlyData = {}
           records.forEach(item => {
@@ -555,15 +633,18 @@ export default {
     })
     
     return {
-      satisfactionPeriod,
+      trendDays,
       kpiData,
       loading,
-      satisfactionChartOption,
+      workOrderTrendOption,
       workOrderPieOption,
       paymentBarOption,
       occupancyLineOption,
       fetchKPIData,
-      fetchChartData
+      fetchWorkOrderTrend,
+      fetchWorkOrderDistribution,
+      fetchMonthlyPayment,
+      fetchOccupancyTrend
     }
   }
 }
@@ -726,26 +807,12 @@ export default {
   
   .charts-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-    
-    @media (max-width: 1200px) {
-      grid-template-columns: 1fr 1fr;
-    }
     
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
       gap: 16px;
-    }
-    
-    .chart-card-main {
-      grid-row: 1 / 3;
-      
-      @media (max-width: 1200px) {
-        grid-row: auto;
-        grid-column: 1 / -1;
-      }
     }
   }
   

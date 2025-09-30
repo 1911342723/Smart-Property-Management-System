@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.property.dto.PageResult;
 import com.property.entity.Payment;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * 支付记录服务接口
  * 
@@ -32,6 +35,16 @@ public interface PaymentService extends IService<Payment> {
      * @return 是否成功
      */
     boolean createPayment(Payment payment);
+
+    /**
+     * 导出缴费记录列表
+     * 
+     * @param ownerId 业主ID
+     * @param paymentMethod 支付方式
+     * @param status 支付状态
+     * @param response HTTP响应
+     */
+    void exportPaymentList(Long ownerId, String paymentMethod, String status, HttpServletResponse response) throws IOException;
 }
 
 

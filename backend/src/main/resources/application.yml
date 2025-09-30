@@ -92,6 +92,17 @@ jwt:
   header: Authorization
   prefix: Bearer
 
+# AI配置
+ai:
+  openai:
+    enabled: true  # 已启用AI功能
+    api-key: ${OPENAI_API_KEY:62abb713-752c-4b9f-be2e-9d05333a7cf8}
+    base-url: ${OPENAI_BASE_URL:https://ark.cn-beijing.volces.com/api/v3/chat/completions}
+    model: ${OPENAI_MODEL:doubao-1-5-thinking-vision-pro-250428}
+    timeout: 60
+    temperature: 0.7
+    max-tokens: 1000
+
 # 日志配置
 logging:
   level:

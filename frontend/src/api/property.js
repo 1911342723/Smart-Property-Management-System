@@ -94,3 +94,26 @@ export function unbindOwner(propertyId, ownerId) {
     }
   })
 }
+
+/**
+ * 导出房产列表
+ */
+export function exportPropertyList(params) {
+  return request({
+    url: '/property/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+
+/**
+ * 下载房产导入模板
+ */
+export function downloadTemplate() {
+  return request({
+    url: '/property/template',
+    method: 'get',
+    responseType: 'blob'
+  })
+}

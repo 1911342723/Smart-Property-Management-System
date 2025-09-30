@@ -121,16 +121,16 @@
         </el-table-column>
         <el-table-column label="绑定业主" width="200">
           <template #default="scope">
-            <div v-if="scope.row.owners.length > 0">
+            <div v-if="scope.row.owners && scope.row.owners.length > 0">
               <div
                 v-for="owner in scope.row.owners"
                 :key="owner.id"
                 class="owner-item"
               >
                 <el-avatar :src="owner.avatar" :size="24">
-                  {{ owner.name.charAt(0) }}
+                  {{ owner.name ? owner.name.charAt(0) : '?' }}
                 </el-avatar>
-                <span class="owner-name">{{ owner.name }}</span>
+                <span class="owner-name">{{ owner.name || '未知' }}</span>
                 <el-tag :type="getOwnerTypeTag(owner.type)" size="small">
                   {{ getOwnerTypeText(owner.type) }}
                 </el-tag>
@@ -230,7 +230,7 @@
 
         <div class="owner-section">
           <h3>绑定业主</h3>
-          <div v-if="currentProperty.owners.length > 0" class="owner-list">
+          <div v-if="currentProperty.owners && currentProperty.owners.length > 0" class="owner-list">
             <el-card
               v-for="owner in currentProperty.owners"
               :key="owner.id"
@@ -238,11 +238,11 @@
             >
               <div class="owner-info">
                 <el-avatar :src="owner.avatar" :size="40">
-                  {{ owner.name.charAt(0) }}
+                  {{ owner.name ? owner.name.charAt(0) : '?' }}
                 </el-avatar>
                 <div class="owner-details">
-                  <h4>{{ owner.name }}</h4>
-                  <p>{{ owner.phone }}</p>
+                  <h4>{{ owner.name || '未知' }}</h4>
+                  <p>{{ owner.phone || '无' }}</p>
                   <el-tag :type="getOwnerTypeTag(owner.type)" size="small">
                     {{ getOwnerTypeText(owner.type) }}
                   </el-tag>
@@ -421,7 +421,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Upload, Delete, Download, Document } from '@element-plus/icons-vue'
-import { getPropertyList, getPropertyDetail, createProperty, updateProperty, deleteProperty, batchDeleteProperty, bindOwner, unbindOwner } from '@/api/property'
+import { getPropertyList, getPropertyDetail, createProperty, updateProperty, deleteProperty, batchDeleteProperty, bindOwner, unbindOwner, exportPropertyList, downloadTemplate } from '@/api/property'
 import { getOwnerList } from '@/api/owner'
 
 export default {
@@ -605,7 +605,13 @@ export default {
             propertyFee: room.propertyFee || 0,
             feeStatus: room.feeStatus || 'unpaid',
             createTime: formatDateTime(room.createTime),
-            owners: room.owners || [],
+            owners: (room.owners || []).map(owner => ({
+              id: owner.id,
+              name: owner.realName || owner.username || '未知',
+              phone: owner.phone,
+              avatar: owner.avatar,
+              type: owner.relationType || 'owner'
+            })),
             status: room.status || 'VACANT',
             ownerName: room.ownerName
           }))
@@ -661,7 +667,16 @@ export default {
     }
     
     const handleView = (row) => {
-      currentProperty.value = row
+      currentProperty.value = {
+        ...row,
+        owners: (row.owners || []).map(owner => ({
+          id: owner.id,
+          name: owner.name || owner.realName || owner.username || '未知',
+          phone: owner.phone,
+          avatar: owner.avatar,
+          type: owner.type || owner.relationType || 'owner'
+        }))
+      }
       showDetailDialog.value = true
     }
     
@@ -671,7 +686,16 @@ export default {
     }
     
     const handleBind = async (row) => {
-      currentProperty.value = row
+      currentProperty.value = {
+        ...row,
+        owners: (row.owners || []).map(owner => ({
+          id: owner.id,
+          name: owner.name || owner.realName || owner.username || '未知',
+          phone: owner.phone,
+          avatar: owner.avatar,
+          type: owner.type || owner.relationType || 'owner'
+        }))
+      }
       bindForm.propertyId = row.id
       
       // 从后端获取业主列表
@@ -702,7 +726,16 @@ export default {
         // 刷新当前房产详情
         const response = await getPropertyDetail(currentProperty.value.id)
         if (response && response.data) {
-          currentProperty.value = response.data
+          currentProperty.value = {
+            ...response.data,
+            owners: (response.data.owners || []).map(o => ({
+              id: o.id,
+              name: o.realName || o.username || '未知',
+              phone: o.phone,
+              avatar: o.avatar,
+              type: o.relationType || 'owner'
+            }))
+          }
         }
         getList()
       } catch (error) {
@@ -755,12 +788,67 @@ export default {
       }
     }
     
-    const handleExport = () => {
-      ElMessage.info('导出功能开发中...')
+    const handleExport = async () => {
+      try {
+        ElMessage.info('正在导出数据，请稍候...')
+        
+        // 使用当前筛选条件导出
+        const params = {
+          building: queryParams.building,
+          unit: queryParams.unit,
+          room: queryParams.room,
+          type: queryParams.type,
+          bindStatus: queryParams.bindStatus,
+          keyword: queryParams.keyword
+        }
+        
+        const response = await exportPropertyList(params)
+        
+        // 创建下载链接
+        const blob = new Blob([response], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        const fileName = `房产列表_${new Date().getTime()}.xlsx`
+        link.setAttribute('download', fileName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        ElMessage.success('导出成功')
+      } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败: ' + (error.message || '未知错误'))
+      }
     }
     
-    const handleTemplate = () => {
-      ElMessage.info('下载模板功能开发中...')
+    const handleTemplate = async () => {
+      try {
+        ElMessage.info('正在下载模板，请稍候...')
+        
+        const response = await downloadTemplate()
+        
+        // 创建下载链接
+        const blob = new Blob([response], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', '房产导入模板.xlsx')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        ElMessage.success('模板下载成功')
+      } catch (error) {
+        console.error('下载模板失败:', error)
+        ElMessage.error('下载模板失败: ' + (error.message || '未知错误'))
+      }
     }
     
     const handleSelectionChange = (selection) => {
@@ -857,7 +945,16 @@ export default {
         if (currentProperty.value) {
           const response = await getPropertyDetail(currentProperty.value.id)
           if (response && response.data) {
-            currentProperty.value = response.data
+            currentProperty.value = {
+              ...response.data,
+              owners: (response.data.owners || []).map(o => ({
+                id: o.id,
+                name: o.realName || o.username || '未知',
+                phone: o.phone,
+                avatar: o.avatar,
+                type: o.relationType || 'owner'
+              }))
+            }
           }
         }
         

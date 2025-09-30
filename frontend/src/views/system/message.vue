@@ -266,7 +266,7 @@ const fetchData = async () => {
     }
     const res = await getMessageList(params)
     if (res.code === 200) {
-      tableData.value = res.data.records
+      tableData.value = res.data.list || res.data.records || []
       pagination.total = res.data.total
     }
   } catch (error) {
@@ -342,7 +342,7 @@ const handleSendMessage = async () => {
   try {
     const res = await getUserList({})
     if (res.code === 200) {
-      userList.value = res.data.records
+      userList.value = res.data.list || res.data.records || []
     }
   } catch (error) {
     console.error('获取用户列表失败:', error)
@@ -530,6 +530,11 @@ onMounted(() => {
   }
 }
 </style>
+
+
+
+
+
 
 
 

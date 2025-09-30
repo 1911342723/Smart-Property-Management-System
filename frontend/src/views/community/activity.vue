@@ -203,7 +203,20 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="活动图片">
-              <el-input v-model="form.imageUrl" placeholder="请输入活动主图URL" />
+              <el-upload
+                class="activity-uploader"
+                :action="uploadUrl"
+                :headers="uploadHeaders"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :on-error="handleUploadError"
+                :before-upload="beforeUpload"
+                accept="image/*"
+              >
+                <img v-if="form.imageUrl" :src="form.imageUrl" class="activity-image" />
+                <el-icon v-else class="uploader-icon"><Plus /></el-icon>
+              </el-upload>
+              <div class="upload-tip">建议尺寸：750x500px，支持jpg、png格式，大小不超过2MB</div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -275,10 +288,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Calendar, Clock, Timer, User, Search, Edit, Delete, View, Document, Warning, Check, Close } from '@element-plus/icons-vue'
 import { getActivityPage, getActivityDetail, createActivity, updateActivity, deleteActivity as deleteActivityApi, publishActivity, cancelActivity, getSignUpList, confirmRegistration as confirmRegistrationApi, cancelSignUp } from '@/api/activity'
+
+// 上传配置
+const uploadUrl = computed(() => {
+  // Webpack 项目使用 process.env，不是 import.meta.env
+  const baseURL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:8081/api'
+  return `${baseURL}/file/upload?type=activity`
+})
+
+const uploadHeaders = computed(() => {
+  const token = localStorage.getItem('token')
+  return {
+    'Authorization': `Bearer ${token}`
+  }
+})
 
 const loading = ref(false)
 const saving = ref(false)
@@ -338,7 +365,7 @@ const loadActivities = async () => {
   try {
     const res = await getActivityPage({ pageNum: pagination.pageNum, pageSize: pagination.pageSize, ...filters })
     if (res.code === 200) {
-      activities.value = res.data.records || []
+      activities.value = res.data.list || res.data.records || []
       pagination.total = res.data.total || 0
       calculateStats()
     }
@@ -497,7 +524,7 @@ const loadRegistrations = async () => {
   try {
     const res = await getSignUpList(currentActivityId.value, { pageNum: registrationPagination.pageNum, pageSize: registrationPagination.pageSize })
     if (res.code === 200) {
-      registrations.value = res.data.records || []
+      registrations.value = res.data.list || res.data.records || []
       registrationPagination.total = res.data.total || 0
     }
   } catch (error) {
@@ -544,6 +571,35 @@ const getStatusColor = (status) => ({ DRAFT: 'info', REGISTRATION: 'warning', ON
 const getStatusLabel = (status) => ({ DRAFT: '待发布', REGISTRATION: '报名中', ONGOING: '进行中', COMPLETED: '已结束', CANCELLED: '已取消' }[status] || status)
 const getRegistrationStatusColor = (status) => ({ PENDING: 'warning', CONFIRMED: 'success', CANCELLED: 'info', ATTENDED: 'primary' }[status] || 'info')
 const getRegistrationStatusLabel = (status) => ({ PENDING: '待确认', CONFIRMED: '已确认', CANCELLED: '已取消', ATTENDED: '已参加' }[status] || status)
+
+// 图片上传处理
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+const handleUploadSuccess = (response) => {
+  if (response.code === 200) {
+    form.imageUrl = response.data.url
+    ElMessage.success('图片上传成功')
+  } else {
+    ElMessage.error(response.message || '图片上传失败')
+  }
+}
+
+const handleUploadError = () => {
+  ElMessage.error('图片上传失败，请重试')
+}
 
 onMounted(() => { loadActivities() })
 </script>
@@ -646,6 +702,43 @@ onMounted(() => { loadActivities() })
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .activity-uploader {
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    width: 200px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      border-color: #409eff;
+    }
+
+    .uploader-icon {
+      font-size: 32px;
+      color: #8c939d;
+    }
+
+    .activity-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  .upload-tip {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-top: 8px;
+    line-height: 1.5;
   }
 }
 

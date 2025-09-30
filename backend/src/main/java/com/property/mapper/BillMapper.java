@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * 账单Mapper接口
  * 
@@ -70,6 +72,14 @@ public interface BillMapper extends BaseMapper<Bill> {
     @Select("SELECT CONCAT('BILL', DATE_FORMAT(NOW(), '%Y%m%d'), LPAD(IFNULL(MAX(SUBSTRING(bill_no, 13)), 0) + 1, 3, '0')) " +
             "FROM bill WHERE bill_no LIKE CONCAT('BILL', DATE_FORMAT(NOW(), '%Y%m%d'), '%')")
     String generateBillNo();
+
+    /**
+     * 查询不同的楼栋ID
+     * 
+     * @return 楼栋ID列表
+     */
+    @Select("SELECT DISTINCT r.building_id FROM room r WHERE r.deleted = 0 ORDER BY r.building_id")
+    List<Long> selectDistinctBuildingIds();
 }
 
 

@@ -26,6 +26,14 @@ html, body {
     background-color: transparent !important;
     border-radius: $border-radius !important;
     margin: 4px 8px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+    padding: 0 16px !important;
+    
+    .el-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
     
     &:hover {
       background-color: $bg-hover !important;
@@ -44,6 +52,14 @@ html, body {
     background-color: transparent !important;
     border-radius: $border-radius !important;
     margin: 4px 8px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+    padding: 0 16px !important;
+    
+    .el-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
     
     &:hover {
       background-color: $bg-hover !important;
@@ -128,8 +144,18 @@ html, body {
   }
 }
 
+.el-form-item {
+  margin-bottom: 22px !important;
+}
+
 .el-form-item__label {
   color: $text-primary !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+.el-form--inline .el-form-item {
+  margin-right: 16px !important;
 }
 
 .el-input {
@@ -137,6 +163,8 @@ html, body {
     background-color: $bg-secondary !important;
     border: 1px solid $border-lighter !important;
     box-shadow: none !important;
+    padding: 1px 12px !important;
+    min-height: 36px !important;
     
     &:hover {
       border-color: $border-hover !important;
@@ -150,6 +178,8 @@ html, body {
   
   .el-input__inner {
     color: $text-primary !important;
+    height: 34px !important;
+    line-height: 34px !important;
     
     &::placeholder {
       color: $text-muted !important;
@@ -160,7 +190,32 @@ html, body {
 .el-select {
   .el-input__wrapper {
     background-color: $bg-secondary !important;
+    min-height: 36px !important;
   }
+}
+
+.el-button {
+  padding: 9px 18px !important;
+  font-size: 14px !important;
+  border-radius: $border-radius !important;
+  
+  .el-icon {
+    font-size: 16px;
+  }
+  
+  & + .el-button {
+    margin-left: 12px !important;
+  }
+}
+
+.el-button--large {
+  padding: 12px 24px !important;
+  font-size: 15px !important;
+}
+
+.el-button--small {
+  padding: 6px 12px !important;
+  font-size: 13px !important;
 }
 
 .el-select-dropdown {

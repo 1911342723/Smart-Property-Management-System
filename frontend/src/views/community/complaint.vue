@@ -468,7 +468,7 @@ const handleAssign = async (row) => {
   try {
     const res = await getUserList({ role: 'ADMIN' })
     if (res.code === 200) {
-      handlerList.value = res.data.records
+      handlerList.value = res.data.list || res.data.records || []
     }
   } catch (error) {
     console.error('获取处理人列表失败:', error)

@@ -2,7 +2,9 @@
   <div class="sidebar">
     <div class="logo-container">
       <div class="logo">
-        <img src="@/assets/logo.png" alt="Logo" class="logo-img">
+        <el-icon :size="32" class="logo-icon">
+          <House />
+        </el-icon>
         <h1 v-show="!isCollapse" class="logo-title">物业管理系统</h1>
       </div>
     </div>
@@ -31,12 +33,14 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { House } from '@element-plus/icons-vue'
 import SidebarItem from './SidebarItem.vue'
 
 export default {
   name: 'Sidebar',
   components: {
-    SidebarItem
+    SidebarItem,
+    House
   },
   setup() {
     const route = useRoute()
@@ -90,24 +94,24 @@ export default {
     align-items: center;
     padding: 0 20px;
     border-bottom: 1px solid $border-lighter;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-hover 100%);
     
     .logo {
       display: flex;
       align-items: center;
       gap: 12px;
+      width: 100%;
       
-      .logo-img {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        background-color: $primary-color;
-        padding: 6px;
+      .logo-icon {
+        color: #ffffff;
+        font-size: 32px;
+        flex-shrink: 0;
       }
       
       .logo-title {
         font-size: 18px;
         font-weight: 600;
-        color: $text-primary;
+        color: #ffffff;
         margin: 0;
         white-space: nowrap;
       }

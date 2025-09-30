@@ -664,7 +664,7 @@ export default {
         
         const response = await getAnnouncementPage(params)
         if (response.code === 200) {
-          notices.value = response.data.records || []
+          notices.value = response.data.list || response.data.records || []
           pagination.total = response.data.total || 0
           // 同时更新统计数据
           loadStats()
