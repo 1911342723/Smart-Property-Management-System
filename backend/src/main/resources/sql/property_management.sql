@@ -728,4 +728,152 @@ CREATE TABLE `work_order_log`  (
 -- Records of work_order_log
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for skill_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `skill_tag`;
+CREATE TABLE `skill_tag`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '技能标签ID',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '技能名称',
+  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '技能分类',
+  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '技能描述',
+  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '图标地址',
+  `sort_order` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `is_active` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用：0-禁用，1-启用',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_skill_name`(`name` ASC) USING BTREE,
+  INDEX `idx_category`(`category` ASC) USING BTREE,
+  INDEX `idx_active`(`is_active` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '技能标签表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of skill_tag
+-- ----------------------------
+INSERT INTO `skill_tag` VALUES (1, '水电维修', '基础维修', '水管、电路等基础设施维修', NULL, 1, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (2, '家电维修', '电器维修', '冰箱、洗衣机、电视等家电维修', NULL, 2, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (3, '门窗维修', '基础维修', '门锁、窗户等维修安装', NULL, 3, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (4, '管道疏通', '管道维修', '下水道、马桶等管道疏通', NULL, 4, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (5, '防水补漏', '防水工程', '屋顶、墙面防水处理', NULL, 5, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (6, '墙面修补', '装修维修', '墙面粉刷、裂缝修补', NULL, 6, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (7, '灯具安装', '电器安装', '吊灯、射灯等灯具安装', NULL, 7, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (8, '开锁服务', '安全服务', '开锁、换锁服务', NULL, 8, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (9, '家具安装', '家具服务', '家具组装、安装', NULL, 9, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (10, '网络布线', '网络服务', '网线布线、路由器安装', NULL, 10, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (11, '监控安装', '安防服务', '监控摄像头安装调试', NULL, 11, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (12, '空调维修', '电器维修', '空调清洗、维修、加氟', NULL, 12, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (13, '热水器维修', '电器维修', '热水器安装、维修', NULL, 13, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (14, '马桶维修', '卫浴维修', '马桶、水箱维修更换', NULL, 14, 1, NOW(), NOW(), 0);
+INSERT INTO `skill_tag` VALUES (15, '地板维修', '装修维修', '地板、地砖维修更换', NULL, 15, 1, NOW(), NOW(), 0);
+
+-- ----------------------------
+-- Table structure for worker_skill
+-- ----------------------------
+DROP TABLE IF EXISTS `worker_skill`;
+CREATE TABLE `worker_skill`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `worker_id` bigint NOT NULL COMMENT '维修工ID',
+  `skill_id` bigint NOT NULL COMMENT '技能标签ID',
+  `proficiency_level` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'INTERMEDIATE' COMMENT '熟练度：BEGINNER-初级，INTERMEDIATE-中级，ADVANCED-高级，EXPERT-专家',
+  `years_of_experience` int NULL DEFAULT 0 COMMENT '从业年限',
+  `certification` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '相关证书',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_worker_skill`(`worker_id` ASC, `skill_id` ASC) USING BTREE,
+  INDEX `fk_worker_skill_skill`(`skill_id` ASC) USING BTREE,
+  CONSTRAINT `fk_worker_skill_worker` FOREIGN KEY (`worker_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_worker_skill_skill` FOREIGN KEY (`skill_id`) REFERENCES `skill_tag` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '维修工技能关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of worker_skill
+-- ----------------------------
+INSERT INTO `worker_skill` VALUES (1, 1007, 1, 'EXPERT', 10, '高级电工证', NOW(), NOW());
+INSERT INTO `worker_skill` VALUES (2, 1007, 2, 'ADVANCED', 8, '家电维修证', NOW(), NOW());
+INSERT INTO `worker_skill` VALUES (3, 1007, 3, 'INTERMEDIATE', 5, NULL, NOW(), NOW());
+INSERT INTO `worker_skill` VALUES (4, 1008, 4, 'EXPERT', 12, '管道工证', NOW(), NOW());
+INSERT INTO `worker_skill` VALUES (5, 1008, 5, 'ADVANCED', 10, '防水工证', NOW(), NOW());
+INSERT INTO `worker_skill` VALUES (6, 1008, 14, 'EXPERT', 12, NULL, NOW(), NOW());
+
+-- ----------------------------
+-- Table structure for work_order_rating
+-- ----------------------------
+DROP TABLE IF EXISTS `work_order_rating`;
+CREATE TABLE `work_order_rating`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '评价ID',
+  `order_id` bigint NOT NULL COMMENT '工单ID',
+  `worker_id` bigint NOT NULL COMMENT '维修工ID',
+  `rater_id` bigint NOT NULL COMMENT '评价人ID',
+  `overall_score` tinyint NOT NULL COMMENT '总体评分（1-5分）',
+  `service_attitude_score` tinyint NULL DEFAULT NULL COMMENT '服务态度评分（1-5分）',
+  `work_quality_score` tinyint NULL DEFAULT NULL COMMENT '工作质量评分（1-5分）',
+  `response_speed_score` tinyint NULL DEFAULT NULL COMMENT '响应速度评分（1-5分）',
+  `professionalism_score` tinyint NULL DEFAULT NULL COMMENT '专业能力评分（1-5分）',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '评价内容',
+  `images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '评价图片（JSON数组）',
+  `tags` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '评价标签（JSON数组）',
+  `is_anonymous` tinyint NOT NULL DEFAULT 0 COMMENT '是否匿名：0-否，1-是',
+  `worker_reply` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '维修工回复',
+  `reply_time` datetime NULL DEFAULT NULL COMMENT '回复时间',
+  `is_helpful` int NULL DEFAULT 0 COMMENT '有用数（点赞数）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_order_rating`(`order_id` ASC) USING BTREE,
+  INDEX `fk_rating_worker`(`worker_id` ASC) USING BTREE,
+  INDEX `fk_rating_rater`(`rater_id` ASC) USING BTREE,
+  INDEX `idx_overall_score`(`overall_score` ASC) USING BTREE,
+  CONSTRAINT `fk_rating_order` FOREIGN KEY (`order_id`) REFERENCES `work_order` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_rating_worker` FOREIGN KEY (`worker_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_rating_rater` FOREIGN KEY (`rater_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工单评价表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of work_order_rating
+-- ----------------------------
+INSERT INTO `work_order_rating` VALUES (1, 7, 1007, 1002, 5, 5, 5, 4, 5, '师傅很专业，服务态度好，空调修好了！', NULL, '["专业", "态度好", "准时"]', 0, '感谢您的认可，为您服务是我们的荣幸！', NOW(), 3, NOW(), NOW(), 0);
+
+-- ----------------------------
+-- Table structure for worker_profile
+-- ----------------------------
+DROP TABLE IF EXISTS `worker_profile`;
+CREATE TABLE `worker_profile`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `worker_id` bigint NOT NULL COMMENT '维修工ID',
+  `work_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'AVAILABLE' COMMENT '工作状态：AVAILABLE-空闲，BUSY-忙碌，OFFLINE-离线',
+  `total_orders` int NOT NULL DEFAULT 0 COMMENT '总工单数',
+  `completed_orders` int NOT NULL DEFAULT 0 COMMENT '已完成工单数',
+  `processing_orders` int NOT NULL DEFAULT 0 COMMENT '处理中工单数',
+  `average_rating` decimal(3, 2) NULL DEFAULT 0.00 COMMENT '平均评分',
+  `total_ratings` int NOT NULL DEFAULT 0 COMMENT '评价总数',
+  `five_star_count` int NOT NULL DEFAULT 0 COMMENT '5星评价数',
+  `four_star_count` int NOT NULL DEFAULT 0 COMMENT '4星评价数',
+  `three_star_count` int NOT NULL DEFAULT 0 COMMENT '3星评价数',
+  `two_star_count` int NOT NULL DEFAULT 0 COMMENT '2星评价数',
+  `one_star_count` int NOT NULL DEFAULT 0 COMMENT '1星评价数',
+  `total_income` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '总收入',
+  `service_area` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '服务区域（JSON数组）',
+  `work_time` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '工作时间',
+  `introduction` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '个人简介',
+  `response_rate` decimal(5, 2) NULL DEFAULT 100.00 COMMENT '响应率（%）',
+  `completion_rate` decimal(5, 2) NULL DEFAULT 100.00 COMMENT '完工率（%）',
+  `on_time_rate` decimal(5, 2) NULL DEFAULT 100.00 COMMENT '准时率（%）',
+  `last_online_time` datetime NULL DEFAULT NULL COMMENT '最后在线时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_worker`(`worker_id` ASC) USING BTREE,
+  CONSTRAINT `fk_profile_worker` FOREIGN KEY (`worker_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '维修工档案表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of worker_profile
+-- ----------------------------
+INSERT INTO `worker_profile` VALUES (1, 1007, 'AVAILABLE', 2, 1, 1, 5.00, 1, 1, 0, 0, 0, 0, 0.00, '["A栋", "B栋", "C栋"]', '周一至周六 8:00-18:00', '从事水电维修10年，经验丰富，服务热情。', 100.00, 100.00, 95.00, NOW(), NOW(), NOW());
+INSERT INTO `worker_profile` VALUES (2, 1008, 'AVAILABLE', 0, 0, 0, 0.00, 0, 0, 0, 0, 0, 0, 0.00, '["A栋", "D栋"]', '周一至周五 9:00-17:00', '专业管道维修，12年工作经验。', 100.00, 100.00, 100.00, NOW(), NOW(), NOW());
+
 SET FOREIGN_KEY_CHECKS = 1;
