@@ -32,7 +32,7 @@
             <el-input
               ref="username"
               v-model="loginForm.username"
-              placeholder="用户名"
+              placeholder="账号/手机号"
               name="username"
               type="text"
               tabindex="1"
@@ -118,14 +118,14 @@ export default {
     const redirect = ref(undefined)
     
     const loginForm = reactive({
-      username: 'admin',
+      username: '13800000001',
       password: '123456',
       rememberMe: false
     })
     
     const validateUsername = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请输入用户名'))
+        callback(new Error('请输入账号或手机号'))
       } else {
         callback()
       }

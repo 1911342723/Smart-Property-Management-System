@@ -13,8 +13,9 @@ Page({
     canLogin: false,
     rememberMe: false,
     demoAccounts: [
-      { phone: '13800000101', password: '123456', roleText: '业主账号' },
-      { phone: '13800000301', password: '123456', roleText: '维修工账号' }
+      { role: 'OWNER', phone: '13800000101', password: '123456', roleText: '业主账号' },
+      { role: 'WORKER', phone: '13800000301', password: '123456', roleText: '维修工账号' },
+      { role: 'GUARD', phone: '13800000201', password: '123456', roleText: '保安账号' }
     ]
   },
 
