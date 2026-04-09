@@ -259,6 +259,13 @@ function getMyRooms() {
 }
 
 /**
+ * 获取当前用户车位信息
+ */
+function getMyParkingSpaces() {
+  return get('/owner/my-parking-spaces')
+}
+
+/**
  * 获取房屋详情
  * @param {number} roomId 房屋ID
  */
@@ -1003,6 +1010,7 @@ module.exports = {
   getRoomList,
   getUserRooms,
   getMyRooms,
+  getMyParkingSpaces,
   getRoomDetail,
   updateRoom,
   verifyRoomOwnership,

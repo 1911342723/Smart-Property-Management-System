@@ -71,6 +71,18 @@ public class ParkingSpaceService {
         return parkingSpace;
     }
 
+    public List<ParkingSpace> getOwnerParkingSpaces(Long ownerId) {
+        QueryWrapper<ParkingSpace> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+            .eq("owner_id", ownerId)
+            .orderByAsc("area_code")
+            .orderByAsc("space_no");
+
+        List<ParkingSpace> parkingSpaces = parkingSpaceMapper.selectList(queryWrapper);
+        fillOwnerInfo(parkingSpaces);
+        return parkingSpaces;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void createParkingSpace(ParkingSpace parkingSpace) {
         validateUniqueSpaceNo(null, parkingSpace.getSpaceNo());

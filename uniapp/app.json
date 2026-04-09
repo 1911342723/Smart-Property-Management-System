@@ -23,6 +23,7 @@
     "pages/owner/profile",
     "pages/owner/edit-profile",
     "pages/owner/house-info",
+    "pages/owner/parking",
     "pages/owner/rate-order",
     "pages/worker/dashboard",
     "pages/worker/orders",

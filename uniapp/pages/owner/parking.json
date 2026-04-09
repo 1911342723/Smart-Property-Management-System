@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "车位信息",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f6faf9",
+  "backgroundTextStyle": "dark"
+}

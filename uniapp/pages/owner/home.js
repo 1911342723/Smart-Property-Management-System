@@ -45,6 +45,14 @@ Page({
         gradient: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
         route: '/pages/owner/visitor',
         badge: null
+      },
+      {
+        id: 5,
+        name: '我的车位',
+        icon: '/static/icons/location.svg',
+        gradient: 'linear-gradient(135deg, #0f766e 0%, #115e59 100%)',
+        route: '/pages/owner/parking',
+        badge: null
       }
     ],
     todoList: [],

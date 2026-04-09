@@ -1,11 +1,13 @@
 package com.property.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.property.entity.ParkingSpace;
 import com.property.entity.Room;
 import com.property.entity.SysUser;
 import com.property.mapper.RoomMapper;
 import com.property.mapper.SysUserMapper;
 import com.property.service.OwnerService;
+import com.property.service.ParkingSpaceService;
 import com.property.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +31,9 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
+    @Autowired
+    private ParkingSpaceService parkingSpaceService;
+
     @Override
     public List<Room> getUserRooms(Long userId) {
         // 只返回用户作为业主拥有的房屋
@@ -51,6 +56,16 @@ public class OwnerServiceImpl implements OwnerService {
         System.out.println("Found rooms count: " + (rooms != null ? rooms.size() : 0));
         
         return rooms;
+    }
+
+    @Override
+    public List<ParkingSpace> getCurrentUserParkingSpaces() {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+
+        return parkingSpaceService.getOwnerParkingSpaces(userId);
     }
 
     @Override

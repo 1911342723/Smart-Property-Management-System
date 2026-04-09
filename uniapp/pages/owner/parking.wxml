@@ -1,0 +1,64 @@
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">我的车位</text>
+    <text class="page-subtitle">查看您名下的车位与停车费用</text>
+  </view>
+
+  <view class="parking-list">
+    <block wx:for="{{parkingSpaces}}" wx:key="id">
+      <view class="parking-card">
+        <view class="parking-header">
+          <view>
+            <text class="parking-name">{{item.fullName}}</text>
+            <text class="parking-type">{{item.typeText}}</text>
+          </view>
+          <view class="parking-status status-{{item.status}}">
+            <text>{{item.statusText}}</text>
+          </view>
+        </view>
+
+        <view class="parking-details">
+          <view class="detail-row">
+            <view class="detail-item">
+              <text class="detail-label">绑定车辆</text>
+              <text class="detail-value">{{item.vehicleNoText}}</text>
+            </view>
+          </view>
+          <view class="detail-row two-column">
+            <view class="detail-item">
+              <text class="detail-label">停车费</text>
+              <text class="detail-value highlight">{{item.monthlyFeeText}}</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">到期时间</text>
+              <text class="detail-value">{{item.expireDateText}}</text>
+            </view>
+          </view>
+          <view class="detail-row" wx:if="{{item.remarkText}}">
+            <view class="detail-item detail-item-block">
+              <text class="detail-label">备注</text>
+              <text class="detail-value">{{item.remarkText}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="parking-actions">
+          <button class="action-btn detail-btn" bindtap="viewParkingDetail" data-parking="{{item}}">
+            <image class="btn-icon" src="/static/icons/eye.svg" mode="aspectFit"></image>
+            <text>查看详情</text>
+          </button>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{parkingSpaces.length === 0}}" class="empty-state">
+      <image class="empty-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无车位信息</text>
+      <text class="empty-desc">如果您已购买或租用了车位，请联系物业核对绑定关系</text>
+    </view>
+  </view>
+
+  <view wx:if="{{refreshing}}" class="refresh-indicator">
+    <text>刷新中...</text>
+  </view>
+</view>

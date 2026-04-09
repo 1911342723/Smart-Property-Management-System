@@ -2,6 +2,7 @@ package com.property.controller;
 
 import com.property.dto.PageResult;
 import com.property.dto.Result;
+import com.property.entity.ParkingSpace;
 import com.property.entity.Room;
 import com.property.service.OwnerService;
 import io.swagger.annotations.Api;
@@ -47,6 +48,17 @@ public class OwnerController {
             return Result.success(rooms);
         } catch (Exception e) {
             return Result.error("获取房屋信息失败：" + e.getMessage());
+        }
+    }
+
+    @ApiOperation("获取当前用户车位信息")
+    @GetMapping("/my-parking-spaces")
+    public Result<List<ParkingSpace>> getMyParkingSpaces() {
+        try {
+            List<ParkingSpace> parkingSpaces = ownerService.getCurrentUserParkingSpaces();
+            return Result.success(parkingSpaces);
+        } catch (Exception e) {
+            return Result.error("获取车位信息失败：" + e.getMessage());
         }
     }
 

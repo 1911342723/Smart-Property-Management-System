@@ -1,5 +1,6 @@
 package com.property.service;
 
+import com.property.entity.ParkingSpace;
 import com.property.entity.Room;
 
 import java.util.List;
@@ -26,6 +27,13 @@ public interface OwnerService {
      * @return 房屋信息列表
      */
     List<Room> getCurrentUserRooms();
+
+    /**
+     * 获取当前用户的车位信息
+     *
+     * @return 车位信息列表
+     */
+    List<ParkingSpace> getCurrentUserParkingSpaces();
 
     /**
      * 获取房屋详情

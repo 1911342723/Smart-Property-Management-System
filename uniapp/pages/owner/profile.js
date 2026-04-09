@@ -196,6 +196,12 @@ Page({
     })
   },
 
+  parkingInfo() {
+    wx.navigateTo({
+      url: '/pages/owner/parking'
+    })
+  },
+
   repairHistory() {
     wx.navigateTo({
       url: '/pages/owner/repair-list'
