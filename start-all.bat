@@ -14,16 +14,6 @@ echo.
 
 pause
 
-REM 启动后端
-echo.
-echo [1/2] 正在启动后端服务...
-start "智慧物业-后端服务" cmd /k "%~dp0start-backend.bat"
-echo [✓] 后端服务启动窗口已打开
-echo.
-
-REM 等待5秒让后端先启动
-echo 等待5秒让后端服务先启动...
-timeout /t 5 /nobreak >nul
 
 REM 启动前端
 echo.
