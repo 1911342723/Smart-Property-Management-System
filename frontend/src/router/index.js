@@ -44,12 +44,6 @@ const routes = [
         name: 'Property',
         component: () => import('@/views/user/property.vue'),
         meta: { title: '房产管理', icon: 'House' }
-      },
-      {
-        path: 'parking',
-        name: 'Parking',
-        component: () => import('@/views/user/parking.vue'),
-        meta: { title: '车位管理', icon: 'Location' }
       }
     ]
   },
@@ -122,12 +116,6 @@ const routes = [
         name: 'Visitor',
         component: () => import('@/views/community/visitor.vue'),
         meta: { title: '访客管理', icon: 'User' }
-      },
-      {
-        path: 'guard',
-        name: 'Guard',
-        component: () => import('@/views/community/guard.vue'),
-        meta: { title: '保安管理', icon: 'Lock' }
       }
     ]
   },

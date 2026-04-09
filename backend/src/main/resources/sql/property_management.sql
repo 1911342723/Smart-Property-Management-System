@@ -877,26 +877,3 @@ INSERT INTO `worker_profile` VALUES (1, 1007, 'AVAILABLE', 2, 1, 1, 5.00, 1, 1, 
 INSERT INTO `worker_profile` VALUES (2, 1008, 'AVAILABLE', 0, 0, 0, 0.00, 0, 0, 0, 0, 0, 0, 0.00, '["A栋", "D栋"]', '周一至周五 9:00-17:00', '专业管道维修，12年工作经验。', 100.00, 100.00, 100.00, NOW(), NOW(), NOW());
 
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ----------------------------
--- Table structure for parking_space
--- ----------------------------
-DROP TABLE IF EXISTS `parking_space`;
-CREATE TABLE `parking_space`  (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `space_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '车位编号',
-  `location` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '车位位置',
-  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'IDLE' COMMENT '状态：IDLE-空闲, OCCUPIED-使用中, SOLD-已售',
-  `owner_id` bigint NULL DEFAULT NULL COMMENT '绑定的业主ID',
-  `vehicle_no` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '绑定的车牌号',
-  `parking_fee` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '停车管理费',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除标识',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_space_no`(`space_no`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '车位表' ROW_FORMAT = Dynamic;
-
-INSERT INTO `parking_space` VALUES (1, 'A-001', '地下A区', 'IDLE', NULL, NULL, 200.00, NOW(), NOW(), 0);
-INSERT INTO `parking_space` VALUES (2, 'A-002', '地下A区', 'OCCUPIED', 1001, '粤B12345', 200.00, NOW(), NOW(), 0);
-

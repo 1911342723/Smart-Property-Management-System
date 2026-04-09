@@ -81,6 +81,10 @@
           <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 140px">
             <el-option label="物业费" value="property" />
             <el-option label="停车费" value="parking" />
+            <el-option label="水费" value="water" />
+            <el-option label="电费" value="electricity" />
+            <el-option label="燃气费" value="gas" />
+            <el-option label="维修基金" value="maintenance" />
           </el-select>
         </el-form-item>
         <el-form-item label="缴费状态">
@@ -390,6 +394,9 @@
           <el-select v-model="batchBillForm.type" placeholder="请选择费用类型">
             <el-option label="物业费" value="property" />
             <el-option label="停车费" value="parking" />
+            <el-option label="水费" value="water" />
+            <el-option label="电费" value="electricity" />
+            <el-option label="燃气费" value="gas" />
           </el-select>
         </el-form-item>
         <el-form-item label="缴费周期" required>
@@ -628,7 +635,11 @@ export default {
     const mapFilterType = (type) => {
       const typeMap = {
         'property': 'PROPERTY_FEE',
-        'parking': 'PARKING_FEE'
+        'parking': 'PARKING_FEE',
+        'water': 'WATER_FEE',
+        'electricity': 'ELECTRICITY_FEE',
+        'gas': 'GAS_FEE',
+        'maintenance': 'MAINTENANCE_FUND'
       }
       return typeMap[type] || ''
     }
@@ -646,7 +657,11 @@ export default {
     const mapBillType = (billType) => {
       const typeMap = {
         'PROPERTY_FEE': 'property',
-        'PARKING_FEE': 'parking'
+        'PARKING_FEE': 'parking',
+        'WATER_FEE': 'water',
+        'ELECTRICITY_FEE': 'electricity',
+        'GAS_FEE': 'gas',
+        'MAINTENANCE_FUND': 'maintenance'
       }
       return typeMap[billType] || 'property'
     }
@@ -863,7 +878,11 @@ export default {
     const getTypeName = (type) => {
       const typeMap = {
         property: '物业费',
-        parking: '停车费'
+        parking: '停车费',
+        water: '水费',
+        electricity: '电费',
+        gas: '燃气费',
+        maintenance: '维修基金'
       }
       return typeMap[type] || type
     }
@@ -871,7 +890,11 @@ export default {
     const getTypeTagType = (type) => {
       const typeMap = {
         property: 'primary',
-        parking: 'success'
+        parking: 'success',
+        water: 'info',
+        electricity: 'warning',
+        gas: 'danger',
+        maintenance: ''
       }
       return typeMap[type] || ''
     }
