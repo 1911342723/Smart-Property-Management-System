@@ -1,0 +1,175 @@
+<!--pages/worker/settings.wxml-->
+<view class="settings-container">
+  <scroll-view scroll-y class="content">
+    <!-- 通知设置 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">通知设置</text>
+      </view>
+      
+      <view class="setting-list">
+        <view class="setting-item">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+            <view class="setting-content">
+              <text class="setting-name">消息通知</text>
+              <text class="setting-desc">接收系统消息和工单通知</text>
+            </view>
+          </view>
+          <switch 
+            class="setting-switch" 
+            checked="{{settings.notificationEnabled}}"
+            bindchange="toggleNotification"
+          />
+        </view>
+
+        <view class="setting-item">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+            <view class="setting-content">
+              <text class="setting-name">提示音</text>
+              <text class="setting-desc">新消息提示音</text>
+            </view>
+          </view>
+          <switch 
+            class="setting-switch" 
+            checked="{{settings.soundEnabled}}"
+            bindchange="toggleSound"
+          />
+        </view>
+
+        <view class="setting-item">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+            <view class="setting-content">
+              <text class="setting-name">震动</text>
+              <text class="setting-desc">新消息震动提醒</text>
+            </view>
+          </view>
+          <switch 
+            class="setting-switch" 
+            checked="{{settings.vibrationEnabled}}"
+            bindchange="toggleVibration"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- 工作设置 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">工作设置</text>
+      </view>
+      
+      <view class="setting-list">
+        <view class="setting-item">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/wrench.svg" mode="aspectFit"></image>
+            <view class="setting-content">
+              <text class="setting-name">自动接单</text>
+              <text class="setting-desc">自动接收范围内的工单</text>
+            </view>
+          </view>
+          <switch 
+            class="setting-switch" 
+            checked="{{settings.autoAcceptOrder}}"
+            bindchange="toggleAutoAccept"
+          />
+        </view>
+
+        <view class="setting-item" bindtap="setWorkRadius">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+            <view class="setting-content">
+              <text class="setting-name">接单范围</text>
+              <text class="setting-desc">{{settings.workRadius >= 999 ? '不限' : settings.workRadius + '公里'}}</text>
+            </view>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 账号设置 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">账号设置</text>
+      </view>
+      
+      <view class="setting-list">
+        <view class="setting-item" bindtap="changePassword">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/settings.svg" mode="aspectFit"></image>
+            <text class="setting-name">修改密码</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他设置 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">其他</text>
+      </view>
+      
+      <view class="setting-list">
+        <view class="setting-item" bindtap="clearCache">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/refresh.svg" mode="aspectFit"></image>
+            <text class="setting-name">清除缓存</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+
+        <view class="setting-item" bindtap="feedback">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/feedback.svg" mode="aspectFit"></image>
+            <text class="setting-name">意见反馈</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+
+        <view class="setting-item" bindtap="contactService">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/message.svg" mode="aspectFit"></image>
+            <text class="setting-name">联系客服</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+
+        <view class="setting-item" bindtap="aboutUs">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/info.svg" mode="aspectFit"></image>
+            <text class="setting-name">关于我们</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+
+        <view class="setting-item" bindtap="viewAgreement">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/info.svg" mode="aspectFit"></image>
+            <text class="setting-name">用户协议</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+
+        <view class="setting-item" bindtap="viewPrivacy">
+          <view class="setting-info">
+            <image class="setting-icon" src="/static/icons/info.svg" mode="aspectFit"></image>
+            <text class="setting-name">隐私政策</text>
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 版本信息 -->
+    <view class="version-info">
+      <text class="version-text">版本 {{version}}</text>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

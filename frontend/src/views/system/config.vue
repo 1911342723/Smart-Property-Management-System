@@ -8,8 +8,8 @@
     <!-- 配置选项卡 -->
     <el-card>
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
-        <!-- 物业费配置 -->
-        <el-tab-pane label="物业费配置" name="property">
+        <!-- 收费配置 -->
+        <el-tab-pane label="收费配置" name="property">
           <el-form 
             :model="propertyConfig" 
             :rules="propertyRules" 
@@ -43,49 +43,9 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="水费单价" prop="waterFeePerTon">
-                  <el-input-number 
-                    v-model="propertyConfig.waterFeePerTon" 
-                    :min="0" 
-                    :precision="2"
-                    :step="0.1"
-                    placeholder="请输入水费单价"
-                  />
-                  <span class="unit">元/吨</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="电费单价" prop="electricFeePerKwh">
-                  <el-input-number 
-                    v-model="propertyConfig.electricFeePerKwh" 
-                    :min="0" 
-                    :precision="2"
-                    :step="0.1"
-                    placeholder="请输入电费单价"
-                  />
-                  <span class="unit">元/度</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="燃气费单价" prop="gasFeePerCubic">
-                  <el-input-number 
-                    v-model="propertyConfig.gasFeePerCubic" 
-                    :min="0" 
-                    :precision="2"
-                    :step="0.1"
-                    placeholder="请输入燃气费单价"
-                  />
-                  <span class="unit">元/立方米</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
             <el-alert 
               title="提示" 
-              description="物业费配置修改后将影响新生成的账单金额，历史账单不受影响。" 
+              description="当前仅支持物业费与停车费配置，修改后将影响新生成的账单金额，历史账单不受影响。" 
               type="info" 
               :closable="false"
               style="margin-bottom: 20px"
@@ -235,17 +195,11 @@ const loading = ref(false)
 const propertyFormRef = ref(null)
 const propertyConfig = reactive({
   propertyFeePerSqm: 2.5,
-  parkingFeeMonthly: 200,
-  waterFeePerTon: 3.5,
-  electricFeePerKwh: 0.6,
-  gasFeePerCubic: 2.8
+  parkingFeeMonthly: 200
 })
 const propertyRules = {
   propertyFeePerSqm: [{ required: true, message: '请输入物业费单价', trigger: 'blur' }],
-  parkingFeeMonthly: [{ required: true, message: '请输入停车费', trigger: 'blur' }],
-  waterFeePerTon: [{ required: true, message: '请输入水费单价', trigger: 'blur' }],
-  electricFeePerKwh: [{ required: true, message: '请输入电费单价', trigger: 'blur' }],
-  gasFeePerCubic: [{ required: true, message: '请输入燃气费单价', trigger: 'blur' }]
+  parkingFeeMonthly: [{ required: true, message: '请输入停车费', trigger: 'blur' }]
 }
 
 // 邮件配置
@@ -285,10 +239,7 @@ const loadConfigs = async () => {
     if (propertyRes.code === 200 && propertyRes.data) {
       Object.assign(propertyConfig, {
         propertyFeePerSqm: Number(propertyRes.data.propertyFeePerSqm) || 2.5,
-        parkingFeeMonthly: Number(propertyRes.data.parkingFeeMonthly) || 200,
-        waterFeePerTon: Number(propertyRes.data.waterFeePerTon) || 3.5,
-        electricFeePerKwh: Number(propertyRes.data.electricFeePerKwh) || 0.6,
-        gasFeePerCubic: Number(propertyRes.data.gasFeePerCubic) || 2.8
+        parkingFeeMonthly: Number(propertyRes.data.parkingFeeMonthly) || 200
       })
     }
 
@@ -319,10 +270,7 @@ const savePropertyConfig = async () => {
   try {
     const res = await updatePropertyFeeConfig({
       propertyFeePerSqm: String(propertyConfig.propertyFeePerSqm),
-      parkingFeeMonthly: String(propertyConfig.parkingFeeMonthly),
-      waterFeePerTon: String(propertyConfig.waterFeePerTon),
-      electricFeePerKwh: String(propertyConfig.electricFeePerKwh),
-      gasFeePerCubic: String(propertyConfig.gasFeePerCubic)
+      parkingFeeMonthly: String(propertyConfig.parkingFeeMonthly)
     })
     if (res.code === 200) {
       ElMessage.success('保存成功')
@@ -342,10 +290,7 @@ const resetPropertyConfig = () => {
   }).then(() => {
     Object.assign(propertyConfig, {
       propertyFeePerSqm: 2.5,
-      parkingFeeMonthly: 200,
-      waterFeePerTon: 3.5,
-      electricFeePerKwh: 0.6,
-      gasFeePerCubic: 2.8
+      parkingFeeMonthly: 200
     })
     ElMessage.success('已恢复默认配置')
   })

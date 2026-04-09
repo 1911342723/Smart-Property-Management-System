@@ -1,0 +1,133 @@
+<!--业绩统计详情页面-->
+<view class="page-container">
+  <!-- 时间筛选 -->
+  <view class="time-filter">
+    <view class="filter-tabs">
+      <view class="filter-tab {{activeTimeRange === 'week' ? 'active' : ''}}" bindtap="switchTimeRange" data-range="week">本周</view>
+      <view class="filter-tab {{activeTimeRange === 'month' ? 'active' : ''}}" bindtap="switchTimeRange" data-range="month">本月</view>
+      <view class="filter-tab {{activeTimeRange === 'quarter' ? 'active' : ''}}" bindtap="switchTimeRange" data-range="quarter">本季度</view>
+    </view>
+  </view>
+
+  <!-- 核心指标 -->
+  <view class="metrics-overview card">
+    <view class="metrics-title">核心指标</view>
+    <view class="metrics-grid">
+      <view class="metric-item">
+        <view class="metric-value">{{metrics.patrolRate}}%</view>
+        <view class="metric-label">巡检完成率</view>
+        <view class="metric-trend trend-{{metrics.patrolTrend}}">
+          <image src="/static/icons/{{metrics.patrolTrend === 'up' ? 'arrow-up' : 'arrow-down'}}.svg" class="trend-icon"></image>
+          <text>{{metrics.patrolChange}}%</text>
+        </view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-value">{{metrics.responseTime}}</view>
+        <view class="metric-label">平均响应时间</view>
+        <view class="metric-trend trend-{{metrics.responseTrend}}">
+          <image src="/static/icons/{{metrics.responseTrend === 'up' ? 'arrow-up' : 'arrow-down'}}.svg" class="trend-icon"></image>
+          <text>{{metrics.responseChange}}%</text>
+        </view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-value">{{metrics.reportCount}}</view>
+        <view class="metric-label">上报事件数</view>
+        <view class="metric-trend trend-{{metrics.reportTrend}}">
+          <image src="/static/icons/{{metrics.reportTrend === 'up' ? 'arrow-up' : 'arrow-down'}}.svg" class="trend-icon"></image>
+          <text>{{metrics.reportChange}}%</text>
+        </view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-value">{{metrics.score}}</view>
+        <view class="metric-label">综合评分</view>
+        <view class="metric-trend trend-{{metrics.scoreTrend}}">
+          <image src="/static/icons/{{metrics.scoreTrend === 'up' ? 'arrow-up' : 'arrow-down'}}.svg" class="trend-icon"></image>
+          <text>{{metrics.scoreChange}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 业绩排名 */
+  <view class="ranking-section card">
+    <view class="section-header">
+      <text class="section-title">本月排名</text>
+      <text class="ranking-desc">在{{totalGuards}}名保安中排名</text>
+    </view>
+    <view class="ranking-display">
+      <view class="rank-number">#{{currentRank}}</view>
+      <view class="rank-info">
+        <text class="rank-text">您的排名</text>
+        <text class="rank-change {{rankChange >= 0 ? 'rank-up' : 'rank-down'}}">
+          {{rankChange >= 0 ? '↑' : '↓'}} {{Math.abs(rankChange)}}
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 工作明细 */
+  <view class="work-details card">
+    <view class="section-title">工作明细</view>
+    <view class="detail-list">
+      <view class="detail-item">
+        <view class="detail-icon">
+          <image src="/static/icons/calendar.svg" class="icon"></image>
+        </view>
+        <view class="detail-content">
+          <view class="detail-title">出勤统计</view>
+          <view class="detail-stats">
+            <text class="stat-item">工作日：{{workDetails.workDays}}天</text>
+            <text class="stat-item">加班：{{workDetails.overtimeHours}}小时</text>
+            <text class="stat-item">请假：{{workDetails.leaveDays}}天</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="detail-item">
+        <view class="detail-icon">
+          <image src="/static/icons/location.svg" class="icon"></image>
+        </view>
+        <view class="detail-content">
+          <view class="detail-title">巡检统计</view>
+          <view class="detail-stats">
+            <text class="stat-item">总次数：{{workDetails.totalPatrols}}次</text>
+            <text class="stat-item">正常：{{workDetails.normalPatrols}}次</text>
+            <text class="stat-item">异常：{{workDetails.abnormalPatrols}}次</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="detail-item">
+        <view class="detail-icon">
+          <image src="/static/icons/alert-circle.svg" class="icon"></image>
+        </view>
+        <view class="detail-content">
+          <view class="detail-title">事件处理</view>
+          <view class="detail-stats">
+            <text class="stat-item">上报：{{workDetails.reportEvents}}件</text>
+            <text class="stat-item">已处理：{{workDetails.resolvedEvents}}件</text>
+            <text class="stat-item">处理率：{{workDetails.resolveRate}}%</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史趋势图 -->
+  <view class="trend-chart card">
+    <view class="section-title">近30天趋势</view>
+    <view class="chart-placeholder">
+      <text class="chart-note">图表功能开发中...</text>
+    </view>
+  </view>
+</view>
+
+
+
+
+
+
+
+
+
+

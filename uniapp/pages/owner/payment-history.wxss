@@ -1,0 +1,319 @@
+/* pages/owner/payment-history.wxss */
+page {
+  background-color: #f5f5f5;
+  height: 100vh;
+}
+
+.payment-history-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  color: white;
+  padding: 60rpx 32rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.page-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 12rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 28rpx;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* 筛选区域 */
+.filter-section {
+  background: white;
+  border-bottom: 2rpx solid #f7fafc;
+}
+
+.filter-tabs {
+  padding: 20rpx 32rpx;
+  white-space: nowrap;
+}
+
+.filter-tab {
+  display: inline-block;
+  padding: 16rpx 32rpx;
+  margin-right: 20rpx;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  color: #718096;
+  background: #f7fafc;
+  transition: all 0.3s ease;
+}
+
+.filter-tab.active {
+  color: white;
+  background: linear-gradient(135deg, #38a169, #2f855a);
+  box-shadow: 0 4rpx 12rpx rgba(56, 161, 105, 0.3);
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  height: calc(100vh - 200rpx);
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+  color: #a0aec0;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #e2e8f0;
+  border-top: 4rpx solid #38a169;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner.small {
+  width: 40rpx;
+  height: 40rpx;
+  border-width: 3rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+}
+
+/* 缴费记录列表 */
+.payments-list {
+  padding: 20rpx;
+}
+
+.payment-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.payment-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.15);
+}
+
+.payment-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.icon-svg {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.payment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.payment-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.payment-status {
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.payment-status.success {
+  background: #f0fff4;
+  color: #38a169;
+}
+
+.payment-status.pending {
+  background: #fffbf0;
+  color: #d69e2e;
+}
+
+.payment-status.failed {
+  background: #fed7d7;
+  color: #e53e3e;
+}
+
+.payment-desc {
+  font-size: 26rpx;
+  color: #718096;
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.payment-time {
+  font-size: 24rpx;
+  color: #a0aec0;
+}
+
+.payment-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.amount-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #38a169;
+  margin-bottom: 4rpx;
+}
+
+.payment-method {
+  font-size: 22rpx;
+  color: #718096;
+  padding: 4rpx 8rpx;
+  background: #f7fafc;
+  border-radius: 8rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.3;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #4a5568;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #a0aec0;
+  line-height: 1.5;
+}
+
+/* 加载更多 */
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  color: #a0aec0;
+}
+
+.load-more-text {
+  margin-left: 16rpx;
+  font-size: 26rpx;
+}
+
+/* 没有更多 */
+.no-more {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #a0aec0;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 40rpx;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 600rpx) {
+  .payment-item {
+    padding: 24rpx;
+  }
+  
+  .payment-icon {
+    width: 64rpx;
+    height: 64rpx;
+    margin-right: 20rpx;
+  }
+  
+  .icon-svg {
+    width: 32rpx;
+    height: 32rpx;
+  }
+  
+  .payment-title {
+    font-size: 28rpx;
+  }
+  
+  .amount-text {
+    font-size: 32rpx;
+  }
+}
+
+
+
+
+
+

@@ -1,0 +1,186 @@
+/* pages/owner/profile.wxss */
+.profile-container {
+  width: 100%;
+  height: 100vh;
+  background: #f8f9fa;
+  box-sizing: border-box;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: calc(var(--status-bar-height, 20px) + 40rpx) 32rpx 100rpx;
+  position: relative;
+  border-bottom: 1rpx solid #dee2e6;
+  z-index: 1;
+}
+
+.page-title {
+  color: #333333;
+  font-size: 40rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.user-card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 48rpx 32rpx 40rpx;
+  margin: -80rpx 32rpx 32rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e9ecef;
+  position: relative;
+  z-index: 2;
+  min-height: 220rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin: 0 auto 20rpx;
+  border: 4rpx solid #2d3748;
+  display: block;
+  object-fit: cover;
+  background: #f8f9fa;
+}
+
+.username {
+  display: block;
+  color: #333333;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.user-role {
+  display: inline-block;
+  color: #2d3748;
+  font-size: 24rpx;
+  background: rgba(45, 55, 72, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.content {
+  padding: 0 32rpx;
+}
+
+.menu-section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  color: #333333;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.menu-list {
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e9ecef;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f1f3f5;
+  transition: all 0.2s ease;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: #f7fafc;
+  transform: translateY(-1rpx);
+}
+
+.menu-item.logout {
+  color: #e53e3e;
+}
+
+.menu-item.logout:active {
+  background: rgba(229, 62, 62, 0.05);
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  width: 64rpx;
+  height: 64rpx;
+  background: #f7fafc;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #e2e8f0;
+}
+
+.menu-icon-svg {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.7;
+}
+
+.menu-text {
+  color: #333333;
+  font-size: 28rpx;
+}
+
+.menu-item.logout .menu-text {
+  color: #e53e3e;
+}
+
+.menu-arrow {
+  color: #adb5bd;
+  font-size: 28rpx;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e9ecef;
+}
+
+.stat-number {
+  display: block;
+  color: #2d3748;
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  color: #6c757d;
+  font-size: 22rpx;
+}
+
+.bottom-placeholder {
+  /* tabbar高度(约100rpx) + 底部安全区 + 额外间距 */
+  height: calc(100rpx + env(safe-area-inset-bottom) + 40rpx);
+  padding-bottom: env(safe-area-inset-bottom);
+}

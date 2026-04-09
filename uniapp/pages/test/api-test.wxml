@@ -1,0 +1,64 @@
+<!-- pages/test/api-test.wxml -->
+<view class="container">
+  <view class="header">
+    <view class="title">API连接测试</view>
+    <view class="api-url">
+      <text>API地址: {{apiBaseUrl}}</text>
+      <button class="copy-btn" size="mini" bindtap="copyApiUrl">复制</button>
+    </view>
+  </view>
+
+  <view class="test-buttons">
+    <button class="test-btn" bindtap="testHealthCheck" disabled="{{testing}}">
+      系统健康检查
+    </button>
+    <button class="test-btn" bindtap="testLogin" disabled="{{testing}}">
+      登录测试
+    </button>
+    <button class="test-btn" bindtap="testUserInfo" disabled="{{testing}}">
+      用户信息测试
+    </button>
+    <button class="test-btn" bindtap="testWorkOrderList" disabled="{{testing}}">
+      工单列表测试
+    </button>
+  </view>
+
+  <view class="action-buttons">
+    <button class="action-btn primary" bindtap="runAllTests" disabled="{{testing}}">
+      {{testing ? '测试中...' : '运行所有测试'}}
+    </button>
+    <button class="action-btn" bindtap="clearResults" disabled="{{testing}}">
+      清除结果
+    </button>
+  </view>
+
+  <view class="results">
+    <view class="results-title">测试结果 ({{testResults.length}})</view>
+    
+    <view wx:if="{{testResults.length === 0}}" class="empty-results">
+      暂无测试结果
+    </view>
+    
+    <view wx:for="{{testResults}}" wx:key="id" class="result-item" bindtap="viewTestDetail" data-test="{{item}}">
+      <view class="result-header">
+        <text class="result-name">{{item.name}}</text>
+        <text class="result-status" style="color: {{item.status === '成功' ? '#38a169' : item.status === '失败' ? '#e53e3e' : '#d69e2e'}}">
+          {{item.status}}
+        </text>
+      </view>
+      <view class="result-time">{{item.timestamp}}</view>
+      <view wx:if="{{item.data && item.status === '成功'}}" class="result-preview">
+        <text>{{item.data.message || '响应成功'}}</text>
+      </view>
+      <view wx:if="{{item.data && item.status === '失败'}}" class="result-error">
+        <text>{{item.data}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+
+
+

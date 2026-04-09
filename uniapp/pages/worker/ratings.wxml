@@ -1,0 +1,93 @@
+<!--pages/worker/ratings.wxml-->
+<view class="ratings-container">
+  <view class="ratings-header">
+    <view class="avg-rating">
+      <text class="avg-value">{{stats.avgRating}}</text>
+      <view class="stars">
+        <text class="star" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+      </view>
+      <text class="total-count">共{{stats.totalRatings}}条评价</text>
+    </view>
+    
+    <view class="rating-distribution">
+      <view class="dist-item">
+        <text class="dist-label">5星</text>
+        <view class="dist-bar">
+          <view class="dist-fill" style="width: {{stats.fiveStars/stats.totalRatings*100}}%;"></view>
+        </view>
+        <text class="dist-count">{{stats.fiveStars}}</text>
+      </view>
+      <view class="dist-item">
+        <text class="dist-label">4星</text>
+        <view class="dist-bar">
+          <view class="dist-fill" style="width: {{stats.fourStars/stats.totalRatings*100}}%;"></view>
+        </view>
+        <text class="dist-count">{{stats.fourStars}}</text>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="ratings-list">
+    <view class="rating-item" wx:for="{{ratings}}" wx:key="id">
+      <view class="rating-header">
+        <text class="rating-user">{{item.ownerName}}</text>
+        <text class="rating-date">{{item.date}}</text>
+      </view>
+      
+      <!-- 总体评分 -->
+      <view class="rating-stars">
+        <text class="star {{index < item.rating ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index" wx:for-item="starIndex">★</text>
+        <text class="rating-score">{{item.rating}}分</text>
+      </view>
+      
+      <!-- 工单标题 -->
+      <text class="rating-title">工单：{{item.title}}</text>
+      
+      <!-- 详细评分 -->
+      <view class="detail-scores" wx:if="{{item.serviceAttitudeScore}}">
+        <view class="score-item">
+          <text class="score-label">服务态度</text>
+          <view class="score-stars">
+            <text class="mini-star {{index < item.serviceAttitudeScore ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+          </view>
+        </view>
+        <view class="score-item">
+          <text class="score-label">工作质量</text>
+          <view class="score-stars">
+            <text class="mini-star {{index < item.workQualityScore ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+          </view>
+        </view>
+        <view class="score-item">
+          <text class="score-label">响应速度</text>
+          <view class="score-stars">
+            <text class="mini-star {{index < item.responseSpeedScore ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+          </view>
+        </view>
+        <view class="score-item">
+          <text class="score-label">专业能力</text>
+          <view class="score-stars">
+            <text class="mini-star {{index < item.professionalismScore ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 评价标签 -->
+      <view class="rating-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+        <text class="tag" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</text>
+      </view>
+      
+      <!-- 评价内容 -->
+      <text class="rating-content">{{item.content}}</text>
+      
+      <!-- 维修工回复 -->
+      <view class="worker-reply" wx:if="{{item.workerReply}}">
+        <text class="reply-label">我的回复：</text>
+        <text class="reply-content">{{item.workerReply}}</text>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{ratings.length === 0 && !loading}}">
+      <text class="empty-text">暂无评价</text>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,97 @@
+<!--pages/owner/payment-history.wxml-->
+<view class="payment-history-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <text class="page-title">缴费记录</text>
+    <text class="page-subtitle">查看历史缴费记录</text>
+  </view>
+
+  <!-- 筛选区域 -->
+  <view class="filter-section">
+    <scroll-view scroll-x class="filter-tabs">
+      <view 
+        class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+        wx:for="{{filterTabs}}"
+        wx:key="key"
+        bindtap="switchFilter"
+        data-filter="{{item.key}}"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view 
+    scroll-y 
+    class="content"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+  >
+    <!-- 加载状态 -->
+    <view wx:if="{{loading && payments.length === 0}}" class="loading-container">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 缴费记录列表 -->
+    <view wx:elif="{{payments.length > 0}}" class="payments-list">
+      <view 
+        class="payment-item"
+        wx:for="{{payments}}"
+        wx:key="id"
+        bindtap="viewPaymentDetail"
+        data-payment="{{item}}"
+      >
+        <view class="payment-icon" style="background: {{item.iconBg}}">
+          <image class="icon-svg" src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
+        
+        <view class="payment-content">
+          <view class="payment-header">
+            <text class="payment-title">{{item.title}}</text>
+            <view class="payment-status {{item.status}}">
+              <text class="status-text">{{item.statusText}}</text>
+            </view>
+          </view>
+          <text class="payment-desc">{{item.description}}</text>
+          <text class="payment-time">{{item.paymentTimeText}}</text>
+        </view>
+        
+        <view class="payment-amount">
+          <text class="amount-text">¥{{item.amount}}</text>
+          <text class="payment-method">{{item.paymentMethodText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:else class="empty-state">
+      <image class="empty-icon" src="/static/icons/empty.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无缴费记录</text>
+      <text class="empty-desc">您还没有任何缴费记录</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{loading && payments.length > 0}}" class="load-more">
+      <view class="loading-spinner small"></view>
+      <text class="load-more-text">加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view wx:elif="{{!hasMore && payments.length > 0}}" class="no-more">
+      <text class="no-more-text">没有更多记录了</text>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>
+
+
+
+
+
+

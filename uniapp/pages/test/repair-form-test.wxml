@@ -1,0 +1,46 @@
+<!--pages/test/repair-form-test.wxml-->
+<view class="test-container">
+  <view class="test-header">
+    <text class="test-title">报修表单测试</text>
+    <text class="test-subtitle">验证WXML编译是否正常</text>
+  </view>
+
+  <view class="test-content">
+    <view class="test-section">
+      <text class="section-title">测试项目</text>
+      
+      <button 
+        class="test-btn" 
+        bindtap="testNavigateToForm"
+        disabled="{{isLoading}}"
+      >
+        测试快速报修页面
+      </button>
+      
+      <button 
+        class="test-btn" 
+        bindtap="testNormalForm"
+        disabled="{{isLoading}}"
+      >
+        测试普通报修页面
+      </button>
+    </view>
+
+    <view class="test-result">
+      <text class="result-title">测试结果:</text>
+      <view class="result-content">
+        <text class="result-text">{{testResult || '等待测试...'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="test-footer">
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+</view>
+
+
+
+
+
+

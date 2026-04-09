@@ -1,0 +1,157 @@
+<!--消息通知页面-->
+<view class="page-container">
+  <!-- 消息类型切换 -->
+  <view class="message-tabs">
+    <view class="tab-item {{activeTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text>全部消息</text>
+      <view class="tab-badge" wx:if="{{unreadCounts.all > 0}}">{{unreadCounts.all}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'system' ? 'active' : ''}}" bindtap="switchTab" data-tab="system">
+      <text>系统通知</text>
+      <view class="tab-badge" wx:if="{{unreadCounts.system > 0}}">{{unreadCounts.system}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'work' ? 'active' : ''}}" bindtap="switchTab" data-tab="work">
+      <text>工作消息</text>
+      <view class="tab-badge" wx:if="{{unreadCounts.work > 0}}">{{unreadCounts.work}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'notice' ? 'active' : ''}}" bindtap="switchTab" data-tab="notice">
+      <text>公告通知</text>
+      <view class="tab-badge" wx:if="{{unreadCounts.notice > 0}}">{{unreadCounts.notice}}</view>
+    </view>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="action-bar" wx:if="{{currentMessages.length > 0}}">
+    <view class="action-left">
+      <button class="action-btn" bindtap="markAllRead" disabled="{{markingAllRead}}">
+        {{markingAllRead ? '标记中...' : '全部已读'}}
+      </button>
+    </view>
+    <view class="action-right">
+      <text class="message-count">共 {{currentMessages.length}} 条消息</text>
+    </view>
+  </view>
+
+  <!-- 消息列表 -->
+  <view class="message-list">
+    <block wx:for="{{currentMessages}}" wx:key="id">
+      <view class="message-item {{item.isRead ? 'read' : 'unread'}}" bindtap="viewMessage" data-message="{{item}}">
+        <view class="message-header">
+          <view class="message-type">
+            <view class="type-icon type-{{item.type}}">
+              <image src="{{getTypeIcon(item.type)}}" class="icon"></image>
+            </view>
+            <text class="type-text">{{getTypeName(item.type)}}</text>
+          </view>
+          <view class="message-time">{{item.createTime}}</view>
+        </view>
+        
+        <view class="message-content">
+          <view class="message-title">{{item.title}}</view>
+          <view class="message-preview">{{item.content}}</view>
+        </view>
+        
+        <view class="message-footer" wx:if="{{item.attachments || item.actionRequired}}">
+          <view class="message-tags">
+            <view class="tag tag-attachment" wx:if="{{item.attachments}}">
+              <image src="/static/icons/attachment.svg" class="tag-icon"></image>
+              <text>附件</text>
+            </view>
+            <view class="tag tag-urgent" wx:if="{{item.priority === 'high'}}">
+              <image src="/static/icons/alert-circle.svg" class="tag-icon"></image>
+              <text>紧急</text>
+            </view>
+            <view class="tag tag-action" wx:if="{{item.actionRequired}}">
+              <image src="/static/icons/clock.svg" class="tag-icon"></image>
+              <text>待处理</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="unread-indicator" wx:if="{{!item.isRead}}"></view>
+      </view>
+    </block>
+    
+    <!-- 加载状态 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 没有更多数据 -->
+    <view class="no-more" wx:if="{{noMore && currentMessages.length > 0}}">
+      <text class="no-more-text">没有更多消息了</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{currentMessages.length === 0 && !loading}}">
+      <image src="/static/icons/message.svg" class="empty-icon"></image>
+      <text class="empty-text">暂无{{getTabName(activeTab)}}消息</text>
+      <text class="empty-desc">有新消息时会及时通知您</text>
+    </view>
+  </view>
+</view>
+
+<!-- 消息详情弹窗 -->
+<view class="modal-overlay {{showMessageModal ? 'show' : ''}}" bindtap="closeMessageModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">消息详情</view>
+      <view class="modal-close" bindtap="closeMessageModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedMessage}}">
+      <view class="message-detail-header">
+        <view class="detail-type">
+          <view class="type-icon type-{{selectedMessage.type}}">
+            <image src="{{getTypeIcon(selectedMessage.type)}}" class="icon"></image>
+          </view>
+          <text class="type-name">{{getTypeName(selectedMessage.type)}}</text>
+        </view>
+        <view class="detail-time">{{selectedMessage.createTime}}</view>
+      </view>
+      
+      <view class="message-detail-content">
+        <view class="detail-title">{{selectedMessage.title}}</view>
+        <view class="detail-content">{{selectedMessage.content}}</view>
+        
+        <view class="detail-attachments" wx:if="{{selectedMessage.attachments && selectedMessage.attachments.length > 0}}">
+          <view class="attachments-title">附件</view>
+          <block wx:for="{{selectedMessage.attachments}}" wx:key="*this">
+            <view class="attachment-item" bindtap="downloadAttachment" data-url="{{item.url}}">
+              <image src="/static/icons/document.svg" class="attachment-icon"></image>
+              <text class="attachment-name">{{item.name}}</text>
+              <image src="/static/icons/download.svg" class="download-icon"></image>
+            </view>
+          </block>
+        </view>
+        
+        <view class="detail-actions" wx:if="{{selectedMessage.actionRequired}}">
+          <view class="actions-title">需要处理</view>
+          <view class="action-buttons">
+            <button class="btn btn-outline" bindtap="handleMessageAction" data-action="later">稍后处理</button>
+            <button class="btn btn-success" bindtap="handleMessageAction" data-action="confirm">确认处理</button>
+          </view>
+        </view>
+      </view>
+      
+      <view class="message-detail-footer">
+        <view class="detail-sender" wx:if="{{selectedMessage.sender}}">
+          <text class="sender-label">发送人：</text>
+          <text class="sender-name">{{selectedMessage.sender}}</text>
+        </view>
+        <view class="detail-read-status">
+          <text class="read-label">{{selectedMessage.isRead ? '已读' : '未读'}}</text>
+          <text class="read-time" wx:if="{{selectedMessage.readTime}}">{{selectedMessage.readTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+
+

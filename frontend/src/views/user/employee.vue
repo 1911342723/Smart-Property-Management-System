@@ -232,9 +232,9 @@
           <el-col :span="12">
             <el-form-item label="角色" prop="role">
               <el-select v-model="form.role" placeholder="请选择角色" style="width: 100%">
-                <el-option label="管理员" value="admin" />
-                <el-option label="主管" value="supervisor" />
-                <el-option label="员工" value="employee" />
+                <el-option label="管理员" value="ADMIN" />
+                <el-option label="维修工" value="WORKER" />
+                <el-option label="保安" value="GUARD" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -453,13 +453,7 @@ export default {
     
     // 根据用户类型获取角色
     const getUserRole = (userType) => {
-      const roleMap = {
-        'ADMIN': 'admin',
-        'WORKER': 'employee',
-        'GUARD': 'employee',
-        'OWNER': 'owner'
-      }
-      return roleMap[userType] || 'employee'
+      return userType || 'WORKER'
     }
     
     const handleQuery = () => {
@@ -487,6 +481,7 @@ export default {
     const handleEdit = (row) => {
       Object.assign(form, {
         ...row,
+        role: row.userType || row.role,
         password: ''
       })
       showFormDialog.value = true
@@ -620,7 +615,7 @@ export default {
           realName: form.name,
           phone: form.phone,
           email: form.email,
-          userType: getDepartmentUserType(form.department),
+          userType: form.role || getDepartmentUserType(form.department),
           status: form.status === 'active' ? 1 : 0
         }
         
@@ -678,18 +673,18 @@ export default {
     
     const getRoleText = (role) => {
       const roleMap = {
-        admin: '管理员',
-        supervisor: '主管',
-        employee: '员工'
+        ADMIN: '管理员',
+        WORKER: '维修工',
+        GUARD: '保安'
       }
       return roleMap[role] || '未知'
     }
     
     const getRoleTagType = (role) => {
       const roleMap = {
-        admin: 'danger',
-        supervisor: 'warning',
-        employee: 'success'
+        ADMIN: 'danger',
+        WORKER: 'success',
+        GUARD: 'warning'
       }
       return roleMap[role] || 'info'
     }

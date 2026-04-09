@@ -1,0 +1,43 @@
+<!-- components/notice-popup/notice-popup.wxml -->
+<view class="notice-popup" wx:if="{{visible}}" catchtouchmove="preventTouchMove">
+  <view class="popup-mask" bindtap="closePopup"></view>
+  <view class="popup-content">
+    <view class="popup-header">
+      <text class="popup-title">公告通知</text>
+      <view class="close-btn" bindtap="closePopup">
+        <text class="close-icon">✕</text>
+      </view>
+    </view>
+    
+    <swiper 
+      class="notice-swiper" 
+      indicator-dots="{{notices.length > 1}}" 
+      circular="{{notices.length > 1}}"
+      indicator-color="rgba(0, 0, 0, 0.3)"
+      indicator-active-color="#2d3748"
+      bindchange="onSwiperChange"
+    >
+      <swiper-item wx:for="{{notices}}" wx:key="id">
+        <scroll-view scroll-y class="notice-content">
+          <view class="notice-header">
+            <text class="notice-title">{{item.title}}</text>
+            <view class="notice-meta">
+              <text class="notice-date">{{item.dateText}}</text>
+              <view class="notice-tag {{item.type}}">
+                <text class="tag-text">{{item.typeText}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="notice-body">
+            <text class="notice-text">{{item.content}}</text>
+          </view>
+        </scroll-view>
+      </swiper-item>
+    </swiper>
+    
+    <view class="popup-footer">
+      <text class="notice-count" wx:if="{{notices.length > 1}}">{{currentIndex + 1}} / {{notices.length}}</text>
+      <button class="footer-btn" bindtap="viewAllNotices">查看全部公告</button>
+    </view>
+  </view>
+</view>

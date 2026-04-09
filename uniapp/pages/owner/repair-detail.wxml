@@ -1,0 +1,234 @@
+<!--pages/owner/repair-detail.wxml-->
+<view class="repair-detail-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 工单详情 -->
+  <view wx:else class="detail-content">
+    <scroll-view scroll-y class="content">
+      <!-- 状态卡片 -->
+      <view class="status-card">
+        <view class="status-header">
+          <view class="status-info">
+            <text class="order-no">{{workOrder.orderNo || workOrder.id}}</text>
+            <view class="status-badge" style="background-color: {{workOrder.statusColor}}">
+              {{workOrder.statusText}}
+            </view>
+          </view>
+          <view class="priority-info">
+            <view class="priority-badge" style="color: {{workOrder.priorityColor}}">
+              {{workOrder.priorityText}}优先级
+            </view>
+          </view>
+        </view>
+        <view class="order-title">{{workOrder.title}}</view>
+        <view class="submit-time">提交时间：{{workOrder.submitTimeText}}</view>
+      </view>
+
+      <!-- 基本信息 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">基本信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-item">
+            <text class="info-label">工单编号</text>
+            <text class="info-value">{{workOrder.orderNo || workOrder.id}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">报修类型</text>
+            <text class="info-value">{{workOrder.category}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">提交人</text>
+            <text class="info-value">{{workOrder.submitterName}}</text>
+          </view>
+          <view class="info-item" wx:if="{{workOrder.phone}}">
+            <text class="info-label">联系电话</text>
+            <text class="info-value">{{workOrder.phone}}</text>
+          </view>
+          <view class="info-item" wx:if="{{workOrder.appointmentTime}}">
+            <text class="info-label">预约时间</text>
+            <text class="info-value">{{workOrder.appointmentTime}}</text>
+          </view>
+          <view class="info-item" wx:if="{{workOrder.assigneeName}}">
+            <text class="info-label">维修师傅</text>
+            <text class="info-value">{{workOrder.assigneeName}}</text>
+          </view>
+          <view class="info-item" wx:if="{{workOrder.cost}}">
+            <text class="info-label">维修费用</text>
+            <text class="info-value cost-value">{{workOrder.costText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 问题描述 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">问题描述</text>
+        </view>
+        <view class="description-text">{{workOrder.content}}</view>
+      </view>
+
+      <!-- 现场照片 -->
+      <view class="detail-section" wx:if="{{workOrder.images && workOrder.images.length > 0}}">
+        <view class="section-title">
+          <text class="title-text">现场照片</text>
+        </view>
+        <view class="images-grid">
+          <view 
+            class="image-item" 
+            wx:for="{{workOrder.images}}" 
+            wx:key="index"
+            bindtap="previewImage"
+            data-index="{{index}}"
+          >
+            <image class="repair-image" src="{{item}}" mode="aspectFill" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 处理进度 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">处理进度</text>
+        </view>
+        <view class="timeline">
+          <view class="timeline-item active">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">工单提交</view>
+              <view class="timeline-time">{{workOrder.submitTimeText}}</view>
+            </view>
+          </view>
+          <view class="timeline-item {{workOrder.assignTimeText ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">分配师傅</view>
+              <view class="timeline-time" wx:if="{{workOrder.assignTimeText}}">{{workOrder.assignTimeText}}</view>
+              <view class="timeline-pending" wx:else>等待分配</view>
+            </view>
+          </view>
+          <view class="timeline-item {{workOrder.startTimeText ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">开始处理</view>
+              <view class="timeline-time" wx:if="{{workOrder.startTimeText}}">{{workOrder.startTimeText}}</view>
+              <view class="timeline-pending" wx:else>等待开始</view>
+            </view>
+          </view>
+          <view class="timeline-item {{workOrder.completeTimeText ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">维修完成</view>
+              <view class="timeline-time" wx:if="{{workOrder.completeTimeText}}">{{workOrder.completeTimeText}}</view>
+              <view class="timeline-pending" wx:else>等待完成</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 评价信息 -->
+      <view class="detail-section" wx:if="{{workOrder.rating}}">
+        <view class="section-title">
+          <text class="title-text">我的评价</text>
+        </view>
+        <view class="rating-display">
+          <view class="rating-stars">
+            <view 
+              class="star {{index < workOrder.rating ? 'filled' : ''}}"
+              wx:for="{{[1,2,3,4,5]}}" 
+              wx:key="index"
+            >
+              ★
+            </view>
+          </view>
+          <view class="rating-feedback" wx:if="{{workOrder.feedback}}">
+            {{workOrder.feedback}}
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 底部操作区 -->
+    <view class="bottom-actions">
+      <button 
+        class="action-btn secondary" 
+        wx:if="{{workOrder.assigneeName}}"
+        bindtap="contactWorker"
+      >
+        联系师傅
+      </button>
+      <button 
+        class="action-btn primary" 
+        wx:if="{{canRate}}"
+        bindtap="showRating"
+      >
+        评价服务
+      </button>
+      <button 
+        class="action-btn" 
+        bindtap="onRefresh"
+      >
+        刷新状态
+      </button>
+    </view>
+  </view>
+
+  <!-- 评价弹窗 -->
+  <view class="rating-modal" wx:if="{{showRatingModal}}">
+    <view class="modal-mask" bindtap="closeRatingModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">评价服务</text>
+        <view class="close-btn" bindtap="closeRatingModal">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="rating-section">
+          <text class="rating-label">服务评分</text>
+          <view class="rating-stars">
+            <view 
+              class="star {{index < rating ? 'filled' : ''}}"
+              wx:for="{{[1,2,3,4,5]}}" 
+              wx:key="index"
+              bindtap="selectRating"
+              data-rating="{{index + 1}}"
+            >
+              ★
+            </view>
+          </view>
+        </view>
+        <view class="feedback-section">
+          <text class="feedback-label">服务反馈（可选）</text>
+          <textarea 
+            class="feedback-input"
+            placeholder="请填写对本次服务的意见和建议"
+            value="{{feedback}}"
+            bindinput="onFeedbackInput"
+            maxlength="200"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button 
+          class="cancel-btn" 
+          bindtap="closeRatingModal"
+          disabled="{{ratingSubmitting}}"
+        >
+          取消
+        </button>
+        <button 
+          class="submit-btn" 
+          bindtap="submitRating"
+          disabled="{{ratingSubmitting}}"
+          loading="{{ratingSubmitting}}"
+        >
+          提交评价
+        </button>
+      </view>
+    </view>
+  </view>
+</view>

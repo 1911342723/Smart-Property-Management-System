@@ -1,0 +1,175 @@
+<!--保安任务中心页面-->
+<view class="page-container">
+  <!-- 头部统计 -->
+  <view class="stats-container">
+    <view class="stat-card">
+      <view class="stat-number">{{todayPatrolCount}}</view>
+      <view class="stat-label">今日巡检</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-number">{{completedPatrolCount}}</view>
+      <view class="stat-label">已完成</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-number">{{pendingPatrolCount}}</view>
+      <view class="stat-label">待巡检</view>
+    </view>
+  </view>
+
+  <!-- 快速打卡 -->
+  <view class="quick-patrol card">
+    <view class="patrol-header">
+      <view class="patrol-title">快速巡检打卡</view>
+      <view class="current-location">{{currentLocation || '获取位置中...'}}</view>
+    </view>
+    
+    <view class="patrol-form">
+      <view class="form-item">
+        <text class="form-label">巡检点</text>
+        <picker bindchange="onPatrolPointChange" value="{{patrolPointIndex}}" range="{{patrolPoints}}" range-key="name">
+          <view class="picker">{{patrolPoints[patrolPointIndex].name || '请选择巡检点'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">状态</text>
+        <view class="status-options">
+          <view class="status-option {{patrolStatus === 'normal' ? 'active' : ''}}" bindtap="selectStatus" data-status="normal">
+            <image src="/static/icons/check-circle.svg" class="status-icon"></image>
+            <text>正常</text>
+          </view>
+          <view class="status-option {{patrolStatus === 'abnormal' ? 'active' : ''}}" bindtap="selectStatus" data-status="abnormal">
+            <image src="/static/icons/alert-circle.svg" class="status-icon"></image>
+            <text>异常</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item" wx:if="{{patrolStatus === 'abnormal'}}">
+        <text class="form-label">异常描述</text>
+        <textarea placeholder="请描述发现的异常情况..." value="{{abnormalDescription}}" bindinput="onAbnormalInput" class="abnormal-input"></textarea>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">现场照片</text>
+        <view class="photo-upload">
+          <view class="photo-list">
+            <block wx:for="{{patrolPhotos}}" wx:key="*this">
+              <view class="photo-item">
+                <image src="{{item}}" mode="aspectFill" class="photo-preview" bindtap="previewImage" data-src="{{item}}"></image>
+                <view class="photo-delete" bindtap="deletePhoto" data-index="{{index}}">
+                  <image src="/static/icons/close.svg" class="delete-icon"></image>
+                </view>
+              </view>
+            </block>
+            <view class="photo-add" bindtap="chooseImage" wx:if="{{patrolPhotos.length < 6}}">
+              <image src="/static/icons/camera.svg" class="add-icon"></image>
+              <text class="add-text">添加照片</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="patrol-actions">
+      <button class="btn btn-success patrol-btn" bindtap="submitPatrol" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交巡检'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 今日巡检记录 -->
+  <view class="patrol-records">
+    <view class="section-title">今日巡检记录</view>
+    <view class="record-list">
+      <block wx:for="{{todayPatrolRecords}}" wx:key="id">
+        <view class="record-item card-hover" bindtap="viewRecord" data-record="{{item}}">
+          <view class="record-header">
+            <view class="record-point">{{item.patrolPoint}}</view>
+            <view class="record-time">{{item.createTime}}</view>
+          </view>
+          <view class="record-content">
+            <view class="record-status">
+              <view class="status-badge {{item.status === 'normal' ? 'status-normal' : 'status-abnormal'}}">
+                {{item.status === 'normal' ? '正常' : '异常'}}
+              </view>
+            </view>
+            <view class="record-location">{{item.location}}</view>
+          </view>
+          <view class="record-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          <view class="record-photos" wx:if="{{item.photos && item.photos.length > 0}}">
+            <block wx:for="{{item.photos}}" wx:for-item="photo" wx:key="*this">
+              <image src="{{photo}}" mode="aspectFill" class="record-photo"></image>
+            </block>
+          </view>
+        </view>
+      </block>
+      
+      <view class="empty-state" wx:if="{{todayPatrolRecords.length === 0}}">
+        <image src="/static/icons/calendar.svg" class="empty-icon"></image>
+        <text class="empty-text">今日暂无巡检记录</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 历史记录入口 -->
+  <view class="history-entry">
+    <view class="entry-card card-hover" bindtap="goToHistory">
+      <view class="entry-icon">
+        <image src="/static/icons/history.svg" class="icon"></image>
+      </view>
+      <view class="entry-content">
+        <view class="entry-title">历史巡检记录</view>
+        <view class="entry-desc">查看更多巡检记录</view>
+      </view>
+      <view class="entry-arrow">
+        <image src="/static/icons/arrow-right.svg" class="arrow-icon"></image>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 巡检详情弹窗 -->
+<view class="modal-overlay {{showRecordModal ? 'show' : ''}}" bindtap="closeRecordModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">巡检详情</view>
+      <view class="modal-close" bindtap="closeRecordModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedRecord}}">
+      <view class="detail-item">
+        <text class="detail-label">巡检点：</text>
+        <text class="detail-value">{{selectedRecord.patrolPoint}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">时间：</text>
+        <text class="detail-value">{{selectedRecord.createTime}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">位置：</text>
+        <text class="detail-value">{{selectedRecord.location}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">状态：</text>
+        <view class="status-badge {{selectedRecord.status === 'normal' ? 'status-normal' : 'status-abnormal'}}">
+          {{selectedRecord.status === 'normal' ? '正常' : '异常'}}
+        </view>
+      </view>
+      <view class="detail-item" wx:if="{{selectedRecord.description}}">
+        <text class="detail-label">异常描述：</text>
+        <text class="detail-value">{{selectedRecord.description}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{selectedRecord.photos && selectedRecord.photos.length > 0}}">
+        <text class="detail-label">现场照片：</text>
+        <view class="detail-photos">
+          <block wx:for="{{selectedRecord.photos}}" wx:for-item="photo" wx:key="*this">
+            <image src="{{photo}}" mode="aspectFill" class="detail-photo" bindtap="previewImage" data-src="{{photo}}"></image>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

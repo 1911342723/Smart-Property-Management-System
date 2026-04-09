@@ -1,0 +1,87 @@
+<!--pages/common/activity-detail.wxml-->
+<view class="activity-detail-container">
+  <!-- 错误状态 -->
+  <view class="error-container" wx:if="{{activity.error}}">
+    <view class="error-content">
+      <view class="error-icon">⚠️</view>
+      <text class="error-title">加载失败</text>
+      <text class="error-message">{{activity.error}}</text>
+      <button class="retry-btn" bindtap="retryLoadActivity">重新加载</button>
+    </view>
+  </view>
+
+  <!-- 正常内容 -->
+  <block wx:else>
+    <view class="activity-header">
+      <image class="activity-image" src="{{activity.imageUrl}}" mode="aspectFill"></image>
+      <view class="activity-overlay">
+        <view class="activity-status {{activity.status}}">
+          <text class="status-text">{{activity.statusText}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <scroll-view scroll-y class="activity-content">
+      <view class="content-section">
+        <text class="activity-title">{{activity.title}}</text>
+        <view class="activity-meta">
+          <view class="meta-item">
+            <image class="meta-icon" src="/static/icons/calendar.svg" mode="aspectFit"></image>
+            <text class="meta-text">{{activity.timeText}}</text>
+          </view>
+          <view class="meta-item">
+            <image class="meta-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+            <text class="meta-text">{{activity.location}}</text>
+          </view>
+          <view class="meta-item">
+            <image class="meta-icon" src="/static/icons/users.svg" mode="aspectFit"></image>
+            <text class="meta-text">{{activity.currentParticipants}}/{{activity.maxParticipants}}人</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="content-section">
+        <text class="section-title">活动详情</text>
+        <text class="activity-description">{{activity.description}}</text>
+      </view>
+      
+      <view class="content-section" wx:if="{{activity.requirements}}">
+        <text class="section-title">参与要求</text>
+        <text class="activity-requirements">{{activity.requirements}}</text>
+      </view>
+      
+      <view class="content-section" wx:if="{{activity.contact}}">
+        <text class="section-title">联系方式</text>
+        <text class="activity-contact">{{activity.contact}}</text>
+      </view>
+      
+      <view class="bottom-placeholder"></view>
+    </scroll-view>
+    
+    <view class="activity-actions">
+      <button 
+        class="action-btn btn-success" 
+        wx:if="{{activity.isRegistered}}"
+        disabled>
+        已报名
+      </button>
+      <button 
+        class="action-btn btn-danger" 
+        bindtap="cancelRegistration"
+        wx:if="{{activity.isRegistered && activity.status === 'REGISTRATION'}}">
+        取消报名
+      </button>
+      <button 
+        class="action-btn btn-primary" 
+        bindtap="joinActivity"
+        wx:if="{{!activity.isRegistered && activity.status === 'REGISTRATION'}}">
+        立即报名
+      </button>
+    </view>
+  </block>
+</view>
+
+
+
+
+

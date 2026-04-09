@@ -1,0 +1,241 @@
+<!--保安异常上报页面-->
+<view class="page-container">
+  <!-- 快速上报类型 -->
+  <view class="report-types">
+    <view class="types-title">快速上报</view>
+    <view class="types-grid">
+      <view class="type-item {{selectedType === 'security' ? 'active' : ''}}" bindtap="selectType" data-type="security">
+        <image src="/static/icons/alert-circle.svg" class="type-icon"></image>
+        <text class="type-text">安全事故</text>
+      </view>
+      <view class="type-item {{selectedType === 'fire' ? 'active' : ''}}" bindtap="selectType" data-type="fire">
+        <image src="/static/icons/alert-circle.svg" class="type-icon"></image>
+        <text class="type-text">火灾隐患</text>
+      </view>
+      <view class="type-item {{selectedType === 'facility' ? 'active' : ''}}" bindtap="selectType" data-type="facility">
+        <image src="/static/icons/wrench.svg" class="type-icon"></image>
+        <text class="type-text">设施损坏</text>
+      </view>
+      <view class="type-item {{selectedType === 'dispute' ? 'active' : ''}}" bindtap="selectType" data-type="dispute">
+        <image src="/static/icons/users.svg" class="type-icon"></image>
+        <text class="type-text">人员纠纷</text>
+      </view>
+      <view class="type-item {{selectedType === 'environment' ? 'active' : ''}}" bindtap="selectType" data-type="environment">
+        <image src="/static/icons/droplet.svg" class="type-icon"></image>
+        <text class="type-text">环境问题</text>
+      </view>
+      <view class="type-item {{selectedType === 'other' ? 'active' : ''}}" bindtap="selectType" data-type="other">
+        <image src="/static/icons/plus.svg" class="type-icon"></image>
+        <text class="type-text">其他事件</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 上报表单 -->
+  <view class="report-form card">
+    <view class="form-header">
+      <view class="form-title">事件详情</view>
+      <view class="form-desc">请详细描述发生的情况</view>
+    </view>
+    
+    <view class="form-body">
+      <view class="form-item">
+        <text class="form-label">事件类型</text>
+        <view class="selected-type">
+          <text class="type-name">{{typeNames[selectedType] || '请选择事件类型'}}</text>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">事件地点 *</text>
+        <input class="form-input" placeholder="请输入事件发生地点" value="{{reportForm.location}}" bindinput="onFormInput" data-field="location" />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">事件描述 *</text>
+        <textarea class="form-textarea" placeholder="请详细描述事件经过、现状和处理情况..." value="{{reportForm.description}}" bindinput="onFormInput" data-field="description" maxlength="500"></textarea>
+        <view class="char-count">{{reportForm.description.length}}/500</view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">紧急程度</text>
+        <view class="urgency-options">
+          <view class="urgency-item {{reportForm.urgency === 'low' ? 'active' : ''}}" bindtap="selectUrgency" data-urgency="low">
+            <view class="urgency-dot low"></view>
+            <text>一般</text>
+          </view>
+          <view class="urgency-item {{reportForm.urgency === 'medium' ? 'active' : ''}}" bindtap="selectUrgency" data-urgency="medium">
+            <view class="urgency-dot medium"></view>
+            <text>紧急</text>
+          </view>
+          <view class="urgency-item {{reportForm.urgency === 'high' ? 'active' : ''}}" bindtap="selectUrgency" data-urgency="high">
+            <view class="urgency-dot high"></view>
+            <text>非常紧急</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">现场照片</text>
+        <view class="photo-upload">
+          <view class="photo-list">
+            <block wx:for="{{reportForm.photos}}" wx:key="*this">
+              <view class="photo-item">
+                <image src="{{item}}" mode="aspectFill" class="photo-preview" bindtap="previewImage" data-src="{{item}}"></image>
+                <view class="photo-delete" bindtap="deletePhoto" data-index="{{index}}">
+                  <image src="/static/icons/close.svg" class="delete-icon"></image>
+                </view>
+              </view>
+            </block>
+            <view class="photo-add" bindtap="chooseImage" wx:if="{{reportForm.photos.length < 9}}">
+              <image src="/static/icons/camera.svg" class="add-icon"></image>
+              <text class="add-text">拍照</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">语音记录</text>
+        <view class="voice-record">
+          <view class="voice-list" wx:if="{{reportForm.voiceRecords.length > 0}}">
+            <block wx:for="{{reportForm.voiceRecords}}" wx:key="*this">
+              <view class="voice-item">
+                <view class="voice-info">
+                  <image src="/static/icons/message.svg" class="voice-icon"></image>
+                  <text class="voice-duration">{{item.duration}}s</text>
+                </view>
+                <view class="voice-actions">
+                  <button class="voice-btn play" bindtap="playVoice" data-index="{{index}}">
+                    {{item.playing ? '暂停' : '播放'}}
+                  </button>
+                  <button class="voice-btn delete" bindtap="deleteVoice" data-index="{{index}}">删除</button>
+                </view>
+              </view>
+            </block>
+          </view>
+          
+          <view class="record-controls">
+            <button class="record-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord">
+              <image src="/static/icons/message.svg" class="record-icon"></image>
+              <text>{{recording ? '松开结束' : '按住录音'}}</text>
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="form-actions">
+      <button class="btn btn-error form-btn" bindtap="submitReport" disabled="{{submitting}}">
+        {{submitting ? '上报中...' : '立即上报'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 今日上报记录 -->
+  <view class="report-records">
+    <view class="section-title">今日上报记录</view>
+    <view class="record-list">
+      <block wx:for="{{todayReports}}" wx:key="id">
+        <view class="record-item card-hover" bindtap="viewReport" data-report="{{item}}">
+          <view class="record-header">
+            <view class="record-type">
+              <view class="type-badge type-{{item.type}}">{{typeNames[item.type]}}</view>
+            </view>
+            <view class="record-time">{{item.createTime}}</view>
+          </view>
+          <view class="record-content">
+            <view class="record-location">{{item.location}}</view>
+            <view class="record-status">
+              <view class="status-badge status-{{item.status}}">
+                {{statusNames[item.status]}}
+              </view>
+            </view>
+          </view>
+          <view class="record-desc">{{item.description}}</view>
+          <view class="record-urgency">
+            <view class="urgency-badge urgency-{{item.urgency}}">
+              {{urgencyNames[item.urgency]}}
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <view class="empty-state" wx:if="{{todayReports.length === 0}}">
+        <image src="/static/icons/alert-circle.svg" class="empty-icon"></image>
+        <text class="empty-text">今日暂无上报记录</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 历史记录入口 -->
+  <view class="history-entry">
+    <view class="entry-card card-hover" bindtap="goToHistory">
+      <view class="entry-icon">
+        <image src="/static/icons/history.svg" class="icon"></image>
+      </view>
+      <view class="entry-content">
+        <view class="entry-title">历史上报记录</view>
+        <view class="entry-desc">查看更多上报记录</view>
+      </view>
+      <view class="entry-arrow">
+        <image src="/static/icons/arrow-right.svg" class="arrow-icon"></image>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 上报详情弹窗 -->
+<view class="modal-overlay {{showReportModal ? 'show' : ''}}" bindtap="closeReportModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">上报详情</view>
+      <view class="modal-close" bindtap="closeReportModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedReport}}">
+      <view class="detail-item">
+        <text class="detail-label">事件类型：</text>
+        <view class="type-badge type-{{selectedReport.type}}">{{typeNames[selectedReport.type]}}</view>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">上报时间：</text>
+        <text class="detail-value">{{selectedReport.createTime}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">事件地点：</text>
+        <text class="detail-value">{{selectedReport.location}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">紧急程度：</text>
+        <view class="urgency-badge urgency-{{selectedReport.urgency}}">
+          {{urgencyNames[selectedReport.urgency]}}
+        </view>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">处理状态：</text>
+        <view class="status-badge status-{{selectedReport.status}}">
+          {{statusNames[selectedReport.status]}}
+        </view>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">事件描述：</text>
+        <text class="detail-value">{{selectedReport.description}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{selectedReport.photos && selectedReport.photos.length > 0}}">
+        <text class="detail-label">现场照片：</text>
+        <view class="detail-photos">
+          <block wx:for="{{selectedReport.photos}}" wx:for-item="photo" wx:key="*this">
+            <image src="{{photo}}" mode="aspectFill" class="detail-photo" bindtap="previewImage" data-src="{{photo}}"></image>
+          </block>
+        </view>
+      </view>
+      <view class="detail-item" wx:if="{{selectedReport.handleResult}}">
+        <text class="detail-label">处理结果：</text>
+        <text class="detail-value">{{selectedReport.handleResult}}</text>
+      </view>
+    </view>
+  </view>
+</view>

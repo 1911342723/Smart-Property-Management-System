@@ -1,0 +1,231 @@
+<!--pages/owner/complaint-detail.wxml-->
+<view class="complaint-detail-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 投诉详情 -->
+  <view wx:else class="detail-content">
+    <scroll-view scroll-y class="content">
+      <!-- 状态卡片 -->
+      <view class="status-card">
+        <view class="status-header">
+          <view class="status-info">
+            <text class="complaint-no">{{complaint.complaintNo || complaint.id}}</text>
+            <view class="status-badge" style="background-color: {{complaint.statusColor}}">
+              {{complaint.statusText}}
+            </view>
+          </view>
+          <view class="urgency-info">
+            <view class="urgency-badge" style="color: {{complaint.urgencyColor}}">
+              {{complaint.urgencyText}}
+            </view>
+          </view>
+        </view>
+        <view class="complaint-title">{{complaint.title}}</view>
+        <view class="submit-time">提交时间：{{complaint.submitTimeText}}</view>
+      </view>
+
+      <!-- 基本信息 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">基本信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-item">
+            <text class="info-label">投诉编号</text>
+            <text class="info-value">{{complaint.complaintNo || complaint.id}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">投诉类型</text>
+            <text class="info-value">{{complaint.typeText}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">紧急程度</text>
+            <text class="info-value urgency-value" style="color: {{complaint.urgencyColor}}">{{complaint.urgencyText}}</text>
+          </view>
+          <view class="info-item" wx:if="{{complaint.complainantName}}">
+            <text class="info-label">投诉人</text>
+            <text class="info-value">{{complaint.complainantName}}</text>
+          </view>
+          <view class="info-item" wx:if="{{complaint.roomAddress}}">
+            <text class="info-label">房屋地址</text>
+            <text class="info-value">{{complaint.roomAddress}}</text>
+          </view>
+          <view class="info-item" wx:if="{{complaint.handlerName}}">
+            <text class="info-label">处理人员</text>
+            <text class="info-value">{{complaint.handlerName}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 问题描述 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">问题描述</text>
+        </view>
+        <view class="description-text">{{complaint.content}}</view>
+      </view>
+
+      <!-- 相关图片 -->
+      <view class="detail-section" wx:if="{{complaint.images && complaint.images.length > 0}}">
+        <view class="section-title">
+          <text class="title-text">相关图片</text>
+        </view>
+        <view class="images-grid">
+          <view 
+            class="image-item" 
+            wx:for="{{complaint.images}}" 
+            wx:key="index"
+            bindtap="previewImage"
+            data-index="{{index}}"
+          >
+            <image class="complaint-image" src="{{item}}" mode="aspectFill" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 处理进度 -->
+      <view class="detail-section">
+        <view class="section-title">
+          <text class="title-text">处理进度</text>
+        </view>
+        <view class="timeline">
+          <view class="timeline-item active">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">投诉提交</view>
+              <view class="timeline-time">{{complaint.submitTimeText}}</view>
+            </view>
+          </view>
+          <view class="timeline-item {{complaint.status === 'ASSIGNED' || complaint.status === 'PROCESSING' || complaint.status === 'RESOLVED' || complaint.status === 'CLOSED' ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">分配处理人</view>
+              <view class="timeline-time" wx:if="{{complaint.handlerName}}">已分配给{{complaint.handlerName}}</view>
+              <view class="timeline-pending" wx:else>等待分配</view>
+            </view>
+          </view>
+          <view class="timeline-item {{complaint.status === 'PROCESSING' || complaint.status === 'RESOLVED' || complaint.status === 'CLOSED' ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">开始处理</view>
+              <view class="timeline-time" wx:if="{{complaint.status === 'PROCESSING' || complaint.status === 'RESOLVED' || complaint.status === 'CLOSED'}}">处理中</view>
+              <view class="timeline-pending" wx:else>等待开始</view>
+            </view>
+          </view>
+          <view class="timeline-item {{complaint.status === 'RESOLVED' || complaint.status === 'CLOSED' ? 'active' : ''}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="timeline-title">处理完成</view>
+              <view class="timeline-time" wx:if="{{complaint.handleTimeText}}">{{complaint.handleTimeText}}</view>
+              <view class="timeline-pending" wx:else>等待完成</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 处理结果 -->
+      <view class="detail-section" wx:if="{{complaint.handleResult}}">
+        <view class="section-title">
+          <text class="title-text">处理结果</text>
+        </view>
+        <view class="result-content">
+          <view class="result-text">{{complaint.handleResult}}</view>
+          <view class="result-time" wx:if="{{complaint.handleTimeText}}">处理时间：{{complaint.handleTimeText}}</view>
+        </view>
+      </view>
+
+      <!-- 我的评价 -->
+      <view class="detail-section" wx:if="{{complaint.satisfactionRating}}">
+        <view class="section-title">
+          <text class="title-text">我的评价</text>
+        </view>
+        <view class="rating-display">
+          <view class="rating-stars">
+            <view 
+              class="star {{index < complaint.satisfactionRating ? 'filled' : ''}}"
+              wx:for="{{[1,2,3,4,5]}}" 
+              wx:key="index"
+            >
+              ★
+            </view>
+          </view>
+          <view class="rating-feedback" wx:if="{{complaint.feedback}}">
+            {{complaint.feedback}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 底部占位，确保能滚动到最底部 -->
+      <view class="scroll-bottom-placeholder"></view>
+    </scroll-view>
+
+    <!-- 底部操作区 -->
+    <view class="bottom-actions" wx:if="{{complaint.status === 'RESOLVED'}}">
+      <button 
+        class="action-btn primary" 
+        bindtap="showRating"
+      >
+        评价服务
+      </button>
+    </view>
+  </view>
+
+  <!-- 评价弹窗 -->
+  <view class="rating-modal" wx:if="{{showRatingModal}}">
+    <view class="modal-mask" bindtap="closeRatingModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">评价服务</text>
+        <view class="close-btn" bindtap="closeRatingModal">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="rating-section">
+          <text class="rating-label">服务评分</text>
+          <view class="rating-stars">
+            <view 
+              class="star {{index < rating ? 'filled' : ''}}"
+              wx:for="{{[1,2,3,4,5]}}" 
+              wx:key="index"
+              bindtap="selectRating"
+              data-rating="{{index + 1}}"
+            >
+              ★
+            </view>
+          </view>
+        </view>
+        <view class="feedback-section">
+          <text class="feedback-label">服务反馈（可选）</text>
+          <textarea 
+            class="feedback-input"
+            placeholder="请填写对本次服务的意见和建议"
+            value="{{feedback}}"
+            bindinput="onFeedbackInput"
+            maxlength="200"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button 
+          class="cancel-btn" 
+          bindtap="closeRatingModal"
+          disabled="{{ratingSubmitting}}"
+        >
+          取消
+        </button>
+        <button 
+          class="submit-btn" 
+          bindtap="submitRating"
+          disabled="{{ratingSubmitting}}"
+          loading="{{ratingSubmitting}}"
+        >
+          提交评价
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,535 @@
+/* pages/worker/profile.wxss */
+.profile-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部区域 */
+.profile-header {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  padding: calc(var(--status-bar-height, 20px) + 32rpx) 32rpx 32rpx;
+  position: relative;
+}
+
+/* 浮动状态切换按钮 */
+.floating-status-toggle {
+  position: absolute;
+  top: calc(var(--status-bar-height, 20px) + 40rpx);
+  right: 32rpx;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50rpx;
+  padding: 16rpx 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10rpx);
+  transition: all 0.3s ease;
+}
+
+.floating-status-toggle:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.floating-status-toggle .status-indicator {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.floating-status-toggle .status-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.avatar-section {
+  position: relative;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36rpx;
+  height: 36rpx;
+  background: #4299e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3rpx solid #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+}
+
+.camera-icon {
+  width: 20rpx;
+  height: 20rpx;
+  color: #ffffff;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 8rpx;
+  right: 8rpx;
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+}
+
+.status-indicator.available {
+  background: #38a169;
+}
+
+.status-indicator.busy {
+  background: #e53e3e;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.user-name-section {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.user-name {
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: 600;
+  flex: 1;
+}
+
+.edit-btn {
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.95);
+}
+
+.edit-icon {
+  width: 24rpx;
+  height: 24rpx;
+  color: #ffffff;
+}
+
+.user-details {
+  display: flex;
+  gap: 16rpx;
+}
+
+.detail-item {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24rpx;
+}
+
+.skill-tags-section {
+  margin-top: 16rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.section-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.refresh-btn {
+  width: 32rpx;
+  height: 32rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(180deg);
+}
+
+.refresh-icon {
+  width: 20rpx;
+  height: 20rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.skill-tags {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.skill-tag {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 12rpx;
+  padding: 8rpx 16rpx;
+  backdrop-filter: blur(10rpx);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.skill-tag.add-tag {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2rpx dashed rgba(255, 255, 255, 0.7);
+  min-width: 80rpx;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.skill-tag.add-tag:active {
+  background: rgba(0, 0, 0, 0.6);
+  transform: scale(0.95);
+}
+
+.skill-text {
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 500;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+
+.add-icon {
+  width: 16rpx;
+  height: 16rpx;
+  color: #ffffff;
+}
+
+.add-text {
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 500;
+}
+
+.skill-tags-info {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20rpx;
+}
+
+.hint-text {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 18rpx;
+}
+
+/* 已移除旧的profile-actions，使用新的编辑按钮设计 */
+
+/* 已移除工作状态卡片，使用浮动按钮替代 */
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  padding: 32rpx;
+  box-sizing: border-box;
+  padding-bottom: 140rpx;
+}
+
+/* 通用区域样式 */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  color: #2d3748;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.section-action {
+  color: #2d3748;
+  font-size: 28rpx;
+  opacity: 0.7;
+}
+
+.section-action:active {
+  opacity: 0.5;
+}
+
+/* 工作统计 */
+.stats-section {
+  margin-bottom: 40rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  background: #ffffff;
+  padding: 32rpx;
+  border-radius: 16rpx 16rpx 0 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+  border-bottom: none;
+}
+
+.stat-item {
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-item:active {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+.stat-number {
+  display: block;
+  color: #2d3748;
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  display: block;
+  color: #718096;
+  font-size: 24rpx;
+}
+
+/* 额外统计信息 */
+.extra-stats {
+  background: #ffffff;
+  padding: 24rpx 32rpx 32rpx;
+  border-radius: 0 0 16rpx 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+  border-top: 1rpx dashed #e2e8f0;
+  display: flex;
+  gap: 24rpx;
+  flex-wrap: wrap;
+}
+
+.extra-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  background: #f7fafc;
+  border-radius: 12rpx;
+}
+
+.extra-stat-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.6;
+}
+
+.extra-stat-text {
+  color: #4a5568;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+
+/* 功能菜单 */
+.menu-section {
+  margin-bottom: 40rpx;
+}
+
+.menu-list {
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: #f7fafc;
+}
+
+.menu-icon {
+  width: 64rpx;
+  height: 64rpx;
+  background: #f7fafc;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.menu-icon .icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.7;
+}
+
+.menu-name {
+  flex: 1;
+  color: #2d3748;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.menu-arrow {
+  width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.5;
+}
+
+/* 帮助与反馈 */
+.help-section {
+  margin-bottom: 40rpx;
+}
+
+.help-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+}
+
+.help-item:active {
+  background: #f7fafc;
+}
+
+.help-icon {
+  width: 64rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.help-icon .icon {
+  width: 32rpx;
+  height: 32rpx;
+  filter: invert(1);
+}
+
+.help-text {
+  flex: 1;
+  color: #2d3748;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.help-arrow {
+  width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 退出登录 */
+.logout-section {
+  margin-bottom: 40rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(229, 62, 62, 0.3);
+}
+
+.logout-btn:active {
+  background: linear-gradient(135deg, #c53030 0%, #9c2626 100%);
+  transform: translateY(1rpx);
+}
+
+.logout-icon {
+  width: 32rpx;
+  height: 32rpx;
+  filter: invert(1);
+}
+
+.logout-text {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.bottom-placeholder {
+  height: 40rpx;
+}

@@ -1,0 +1,119 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/forgot-password/forgot-password",
+    "pages/owner/home",
+    "pages/owner/repair",
+    "pages/owner/repair-list",
+    "pages/owner/payment-history",
+    "pages/owner/complaint-form",
+    "pages/owner/repair-form",
+    "pages/owner/repair-detail",
+    "pages/owner/payment",
+    "pages/owner/complaint",
+    "pages/owner/complaint-list",
+    "pages/owner/complaint-detail",
+    "pages/owner/visitor",
+    "pages/owner/visitor-invite",
+    "pages/owner/notices",
+    "pages/owner/notice-detail",
+    "pages/owner/messages",
+    "pages/owner/profile",
+    "pages/owner/edit-profile",
+    "pages/owner/house-info",
+    "pages/owner/rate-order",
+    "pages/worker/dashboard",
+    "pages/worker/orders",
+    "pages/worker/order-detail",
+    "pages/worker/profile",
+    "pages/worker/skill-tags-selector",
+    "pages/worker/work-history",
+    "pages/worker/income-stats",
+    "pages/worker/ratings",
+    "pages/worker/messages",
+    "pages/worker/settings",
+    "pages/guard/tasks",
+    "pages/guard/gate",
+    "pages/guard/report",
+    "pages/guard/log",
+    "pages/guard/profile",
+    "pages/guard/patrol-history",
+    "pages/guard/messages",
+    "pages/guard/schedule-detail",
+    "pages/guard/performance-detail",
+    "pages/guard/settings",
+    "pages/guard/edit-profile",
+    "pages/common/ai-chat",
+    "pages/common/activity-detail",
+    "pages/common/activity-list",
+    "pages/common/my-registrations"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "智慧物业",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7fafc",
+    "enablePullDownRefresh": true,
+    "onReachBottomDistance": 50
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#8e9297",
+    "selectedColor": "#2d3748",
+    "borderStyle": "white",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/owner/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/owner/repair",
+        "text": "报修"
+      },
+      {
+        "pagePath": "pages/owner/messages",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/owner/profile",
+        "text": "我的"
+      },
+      {
+        "pagePath": "pages/worker/dashboard",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/worker/orders",
+        "text": "工单"
+      },
+      {
+        "pagePath": "pages/worker/profile",
+        "text": "我的"
+      },
+      {
+        "pagePath": "pages/guard/tasks",
+        "text": "任务"
+      },
+      {
+        "pagePath": "pages/guard/gate",
+        "text": "门岗"
+      },
+      {
+        "pagePath": "pages/guard/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于巡检打卡等功能"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation"],
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

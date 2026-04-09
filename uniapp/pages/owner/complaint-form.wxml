@@ -1,0 +1,151 @@
+<!--pages/owner/complaint-form.wxml-->
+<view class="complaint-form-container">
+  <view class="page-header">
+    <text class="page-title">提交投诉</text>
+    <text class="page-subtitle">详细描述问题，我们会尽快处理</text>
+  </view>
+
+  <scroll-view scroll-y class="content">
+    <form bindsubmit="onSubmit">
+      <!-- 投诉类型 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">投诉类型</text>
+          <text class="required">*</text>
+        </view>
+        
+        <view class="type-grid">
+          <view 
+            class="type-item {{selectedType === item.key ? 'selected' : ''}}"
+            wx:for="{{complaintTypes}}"
+            wx:key="key"
+            bindtap="selectType"
+            data-type="{{item.key}}"
+          >
+            <view class="type-icon" style="background: {{item.gradient}}">
+              <image class="icon-svg" src="{{item.icon}}" mode="aspectFit"></image>
+            </view>
+            <text class="type-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 投诉标题 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">投诉标题</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input"
+          placeholder="请简要描述问题"
+          value="{{formData.title}}"
+          bindinput="onTitleInput"
+          maxlength="50"
+        />
+        <view class="input-counter">{{formData.title.length}}/50</view>
+      </view>
+
+      <!-- 详细描述 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">详细描述</text>
+          <text class="required">*</text>
+        </view>
+        <view class="textarea-hint">请详细描述遇到的问题，包括时间、地点、具体情况等</view>
+        <textarea 
+          class="form-textarea"
+          placeholder="点击此处输入详细描述..."
+          value="{{formData.content}}"
+          bindinput="onContentInput"
+          maxlength="500"
+          fixed="{{true}}"
+        />
+        <view class="input-counter">{{formData.content.length}}/500</view>
+      </view>
+
+      <!-- 紧急程度 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">紧急程度</text>
+        </view>
+        
+        <view class="urgency-list">
+          <view 
+            class="urgency-item {{selectedUrgency === item.key ? 'selected' : ''}}"
+            wx:for="{{urgencyLevels}}"
+            wx:key="key"
+            bindtap="selectUrgency"
+            data-urgency="{{item.key}}"
+          >
+            <view class="urgency-dot" style="background-color: {{item.color}}"></view>
+            <view class="urgency-info">
+              <text class="urgency-name">{{item.name}}</text>
+              <text class="urgency-desc">{{item.description}}</text>
+            </view>
+            <view class="urgency-radio {{selectedUrgency === item.key ? 'checked' : ''}}">
+              <view wx:if="{{selectedUrgency === item.key}}" class="radio-dot"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 上传图片 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">相关图片</text>
+          <text class="subtitle-text">（选填，最多3张）</text>
+        </view>
+        
+        <view class="image-upload">
+          <view 
+            class="image-item"
+            wx:for="{{formData.images}}"
+            wx:key="index"
+          >
+            <image class="uploaded-image" src="{{item}}" mode="aspectFill"></image>
+            <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
+          </view>
+          
+          <view 
+            wx:if="{{formData.images.length < 3}}"
+            class="image-add"
+            bindtap="chooseImage"
+          >
+            <image class="add-icon" src="/static/icons/plus.svg" mode="aspectFit"></image>
+            <text class="add-text">添加图片</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 联系信息 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">联系方式</text>
+        </view>
+        <input 
+          class="form-input"
+          placeholder="请输入您的联系电话（选填）"
+          value="{{formData.phone}}"
+          bindinput="onPhoneInput"
+          type="number"
+        />
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button 
+          class="submit-btn"
+          form-type="submit"
+          disabled="{{submitting}}"
+          loading="{{submitting}}"
+        >
+          {{submitting ? '提交中...' : '提交投诉'}}
+        </button>
+      </view>
+    </form>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

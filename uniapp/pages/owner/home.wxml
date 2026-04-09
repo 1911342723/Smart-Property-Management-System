@@ -1,0 +1,249 @@
+<!--pages/owner/home.wxml-->
+<view class="home-container">
+  <!-- 公告弹窗 -->
+  <notice-popup 
+    notices="{{notices}}" 
+    visible="{{showNoticePopup}}"
+    bind:close="closeNoticePopup"
+  ></notice-popup>
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+      <view class="user-text">
+        <text class="greeting">{{greeting}}</text>
+        <text class="username">{{userInfo.name}}</text>
+      </view>
+    </view>
+    <view class="navbar-actions">
+      <view class="action-btn" bindtap="openMessages">
+        <image class="action-icon" src="/static/icons/message.svg" mode="aspectFit"></image>
+        <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+      </view>
+      <view class="action-btn" bindtap="openAiChat">
+        <image class="action-icon" src="/static/icons/bot.svg" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页面内容 -->
+  <scroll-view scroll-y class="page-content" bindscrolltolower="loadMore" refresher-enabled bindrefresherrefresh="onRefresh" refresher-triggered="{{refreshing}}">
+    <!-- 快捷服务区域 -->
+    <view class="quick-services">
+      <view class="section-header">
+        <text class="section-title">快捷服务</text>
+        <text class="section-subtitle">一键直达</text>
+      </view>
+      <view class="services-grid">
+        <view 
+          class="service-item" 
+          wx:for="{{quickServices}}" 
+          wx:key="id"
+          bindtap="navigateToService"
+          data-service="{{item}}"
+        >
+          <view class="service-icon" style="background: {{item.gradient}}">
+            <image class="icon-svg" src="{{item.icon}}" mode="aspectFit"></image>
+          </view>
+          <text class="service-name">{{item.name}}</text>
+          <view class="service-badge" wx:if="{{item.badge}}">
+            <text class="badge-text">{{item.badge}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 房屋信息卡片 -->
+    <view class="house-info-card">
+      <view class="house-card-header">
+        <view class="house-icon">
+          <image class="house-icon-svg" src="/static/icons/house.svg" mode="aspectFit"></image>
+        </view>
+        <view class="house-info">
+          <text class="house-title">我的房屋</text>
+          <text class="house-address">{{houseInfo.building}}栋{{houseInfo.unit}}单元{{houseInfo.room}}室</text>
+        </view>
+        <view class="house-edit-btn" bindtap="editHouseInfo">
+          <image class="edit-icon" src="/static/icons/edit.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="house-details">
+        <view class="detail-row">
+          <view class="detail-item">
+            <text class="detail-label">建筑面积</text>
+            <text class="detail-value">{{houseInfo.area || '暂无'}}㎡</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">房屋类型</text>
+            <text class="detail-value">{{houseInfo.type || '暂无'}}</text>
+          </view>
+        </view>
+        <view class="detail-row">
+          <view class="detail-item">
+            <text class="detail-label">房屋状态</text>
+            <text class="detail-value">{{houseInfo.statusText || '暂无'}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">物业费</text>
+            <text class="detail-value">{{houseInfo.propertyFee || '暂无'}}元/月</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 公告通知 -->
+    <view class="notice-section" wx:if="{{recentNotices.length > 0}}">
+      <view class="section-header">
+        <view class="section-title-wrapper">
+          <text class="section-icon">📢</text>
+          <text class="section-title">公告通知</text>
+          <view class="notice-badge" wx:if="{{recentNotices.length > 0}}">{{recentNotices.length}}</view>
+        </view>
+        <text class="section-action" bindtap="viewAllNotices">全部 ></text>
+      </view>
+      <view class="notice-list">
+        <view 
+          class="notice-item card-hover {{item.priority === 'HIGH' ? 'priority-high' : ''}}"
+          wx:for="{{recentNotices}}"
+          wx:key="id"
+          bindtap="viewNoticeDetail"
+          data-notice="{{item}}"
+        >
+          <!-- 优先级指示条 -->
+          <view class="priority-indicator" wx:if="{{item.priority === 'HIGH'}}"></view>
+          
+          <view class="notice-header">
+            <view class="notice-type-badge {{item.priority === 'HIGH' ? 'urgent' : ''}}">
+              {{item.typeText}}
+            </view>
+            <text class="notice-time">{{item.dateText}}</text>
+          </view>
+          <text class="notice-title">
+            <text class="priority-icon" wx:if="{{item.priority === 'HIGH'}}">🔥</text>
+            {{item.title}}
+          </text>
+          <text class="notice-summary">{{item.summary}}</text>
+          <view class="notice-footer">
+            <view class="publisher-info">
+              <text class="publisher-icon">👤</text>
+              <text class="notice-publisher">{{item.publisherName}}</text>
+            </view>
+            <view class="notice-stats">
+              <view class="notice-views" wx:if="{{item.readCount > 0}}">
+                <text class="view-icon">👁</text>
+                <text class="stat-text">{{item.readCount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 待办事项 -->
+    <view class="todo-section" wx:if="{{todoList.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">待办事项</text>
+        <text class="section-action" bindtap="viewAllTodos">查看全部</text>
+      </view>
+      <view class="todo-list">
+        <view 
+          class="todo-item card-hover"
+          wx:for="{{todoList}}"
+          wx:for-index="index"
+          wx:key="id"
+          wx:if="{{index < 3}}"
+          bindtap="handleTodoClick"
+          data-todo="{{item}}"
+        >
+          <view class="todo-icon" style="background-color: {{item.statusColor}}">
+            <image class="icon-svg" src="{{item.iconUrl}}" mode="aspectFit"></image>
+          </view>
+          <view class="todo-content">
+            <text class="todo-title">{{item.title}}</text>
+            <text class="todo-desc">{{item.description}}</text>
+            <text class="todo-time">{{item.relativeTime}}</text>
+          </view>
+          <view class="todo-status">
+            <text class="status-text" style="color: {{item.statusColor}}">
+              {{item.statusText}}
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+
+    <!-- 社区活动 -->
+    <view class="activity-section">
+      <view class="section-header">
+        <text class="section-title">社区活动</text>
+        <text class="section-action" bindtap="viewAllActivities" wx:if="{{activities.length > 0}}">全部</text>
+      </view>
+      
+      <!-- 活动列表 -->
+      <scroll-view scroll-x class="activity-scroll" wx:if="{{activities.length > 0}}">
+        <view class="activity-list">
+          <view 
+            class="activity-item"
+            wx:for="{{activities}}"
+            wx:key="id"
+            bindtap="viewActivityDetail"
+            data-activity="{{item}}"
+          >
+            <view class="activity-image-container">
+              <image class="activity-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+              <view class="activity-overlay">
+                <view class="activity-status {{item.status}}">
+                  <text class="status-text">{{item.statusText}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="activity-info">
+              <text class="activity-title">{{item.title}}</text>
+              <text class="activity-time">{{item.timeText}}</text>
+              <text class="activity-desc">{{item.summary || item.description}}</text>
+              <view class="activity-meta" wx:if="{{item.location || item.currentParticipants}}">
+                <view class="meta-item" wx:if="{{item.location}}">
+                  <image class="meta-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+                  <text class="meta-text">{{item.location}}</text>
+                </view>
+                <view class="meta-item" wx:if="{{item.currentParticipants}}">
+                  <image class="meta-icon" src="/static/icons/users.svg" mode="aspectFit"></image>
+                  <text class="meta-text">{{item.currentParticipants}}/{{item.maxParticipants}}人</text>
+                </view>
+              </view>
+              <view class="activity-actions" wx:if="{{item.status === 'REGISTRATION'}}">
+                <button 
+                  class="register-btn" 
+                  size="mini" 
+                  bindtap="registerForActivity"
+                  data-activity="{{item}}"
+                  catchtap="true"
+                >
+                  立即报名
+                </button>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <!-- 活动加载错误状态 -->
+      <view class="activity-error" wx:if="{{activitiesError}}">
+        <view class="error-icon">⚠️</view>
+        <text class="error-message">{{activitiesError}}</text>
+        <button class="retry-btn" bindtap="retryLoadActivities" size="mini">重试</button>
+      </view>
+      
+      <!-- 无活动状态 -->
+      <view class="activity-empty" wx:if="{{!activitiesError && activities.length === 0}}">
+        <view class="empty-icon">📅</view>
+        <text class="empty-message">暂无活动信息</text>
+        <button class="retry-btn" bindtap="retryLoadActivities" size="mini">刷新</button>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

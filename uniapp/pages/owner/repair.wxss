@@ -1,0 +1,377 @@
+/* pages/owner/repair.wxss */
+.repair-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: calc(var(--status-bar-height, 20px) + 40rpx) 32rpx 40rpx;
+  border-bottom: 1rpx solid #dee2e6;
+}
+
+.page-title {
+  color: #333333;
+  font-size: 40rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  font-size: 26rpx;
+}
+
+.content {
+  height: calc(100vh - 220rpx);
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  color: #333333;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  color: #6c757d;
+  font-size: 24rpx;
+}
+
+.section-action {
+  color: #2d3748;
+  font-size: 28rpx;
+}
+
+.section-action:active {
+  opacity: 0.7;
+}
+
+/* 快速报修区域 */
+.quick-repair-section {
+  margin-bottom: 40rpx;
+}
+
+.repair-categories {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.category-item {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.category-item:active {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+}
+
+.category-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.category-item:active .category-icon {
+  transform: scale(0.95);
+}
+
+.icon-svg {
+  width: 40rpx;
+  height: 40rpx;
+  filter: invert(1);
+}
+
+.category-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.category-name {
+  color: #2d3748;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.category-desc {
+  color: #718096;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+/* 我的报修区域 */
+.my-repairs-section {
+  margin-bottom: 40rpx;
+}
+
+.repair-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.repair-item {
+  display: flex;
+  flex-direction: column;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+/* 删除重复的样式，使用下方统一的样式定义 */
+
+/* 报修统计区域 */
+.repair-stats {
+  margin-bottom: 40rpx;
+  padding-bottom: 40rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  background: #ffffff;
+  padding: 32rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e9ecef;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  color: #2d3748;
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  display: block;
+  color: #6c757d;
+  font-size: 24rpx;
+}
+
+.bottom-placeholder {
+  height: 40rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  color: #a0aec0;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.5;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  opacity: 0.8;
+}
+
+/* 报修卡片优化设计 */
+.repair-item:active {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+}
+
+.repair-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.repair-info {
+  flex: 1;
+  min-width: 0; /* 防止文字溢出 */
+}
+
+.repair-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+  line-height: 1.3;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repair-meta {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.repair-time {
+  font-size: 24rpx;
+  color: #a0aec0;
+  flex-shrink: 0;
+}
+
+.repair-no {
+  font-size: 22rpx;
+  color: #718096;
+  background: #f7fafc;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* 状态和评价按钮区域 */
+.repair-status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 10rpx 18rpx;
+  border-radius: 20rpx;
+  color: white;
+  font-size: 24rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 评价按钮 - 与状态标签平行 */
+.rate-btn-inline {
+  padding: 8rpx 16rpx !important;
+  border-radius: 16rpx !important;
+  font-size: 22rpx !important;
+  font-weight: 500 !important;
+  border: 1rpx solid #10b981 !important;
+  background: #ffffff !important;
+  color: #10b981 !important;
+  line-height: 1.2 !important;
+  min-width: 60rpx !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.rate-btn-inline:active {
+  background: #f0fdf4 !important;
+  transform: scale(0.95);
+}
+
+.repair-content {
+  margin-bottom: 20rpx;
+}
+
+.repair-desc {
+  font-size: 28rpx;
+  color: #4a5568;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.repair-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f1f3f4;
+}
+
+.repair-worker {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.worker-label {
+  font-size: 26rpx;
+  color: #718096;
+  flex-shrink: 0;
+}
+
+.worker-name {
+  font-size: 26rpx;
+  color: #2d3748;
+  font-weight: 500;
+  margin-left: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repair-priority {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.priority-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.priority-text {
+  font-size: 24rpx;
+  color: #718096;
+  white-space: nowrap;
+}
+
+/* 删除原来的 repair-actions 样式，使用新的内联按钮样式 */

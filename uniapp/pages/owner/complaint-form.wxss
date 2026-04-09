@@ -1,0 +1,363 @@
+/* pages/owner/complaint-form.wxss */
+page {
+  background-color: #f5f5f5;
+  height: 100vh;
+}
+
+.complaint-form-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  color: white;
+  padding: 60rpx 32rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.page-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 12rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 28rpx;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  padding: 20rpx;
+}
+
+/* 表单区块 */
+.form-section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #f7fafc;
+}
+
+.title-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.subtitle-text {
+  font-size: 24rpx;
+  color: #718096;
+  margin-left: 8rpx;
+}
+
+.required {
+  color: #e53e3e;
+  font-size: 32rpx;
+  margin-left: 8rpx;
+}
+
+/* 投诉类型 */
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.type-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.type-item.selected {
+  border-color: #38a169;
+  background-color: #f0fff4;
+}
+
+.type-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.icon-svg {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.type-name {
+  font-size: 24rpx;
+  color: #4a5568;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* 表单输入 */
+.form-input {
+  width: 100%;
+  padding: 24rpx;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background-color: #f7fafc;
+  box-sizing: border-box;
+  color: #2d3748;
+  line-height: 1.5;
+}
+
+.form-input:focus {
+  border-color: #38a169;
+  background-color: white;
+}
+
+.form-input::placeholder {
+  color: #a0aec0;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+/* 详细描述容器 */
+.description-container {
+  position: relative;
+}
+
+.description-textarea {
+  width: 100%;
+  height: 160rpx;
+  padding: 16rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  background: #fff;
+  color: #333;
+}
+
+.description-textarea::placeholder {
+  color: #999;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.char-count {
+  position: absolute;
+  bottom: 8rpx;
+  right: 12rpx;
+  font-size: 24rpx;
+  color: #999;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2rpx 6rpx;
+  border-radius: 4rpx;
+}
+
+.input-counter {
+  text-align: right;
+  font-size: 24rpx;
+  color: #a0aec0;
+  margin-top: 8rpx;
+}
+
+/* 紧急程度 */
+.urgency-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.urgency-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.urgency-item.selected {
+  border-color: #38a169;
+  background-color: #f0fff4;
+}
+
+.urgency-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.urgency-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.urgency-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.urgency-desc {
+  font-size: 24rpx;
+  color: #718096;
+  line-height: 1.4;
+}
+
+.urgency-radio {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.urgency-radio.checked {
+  border-color: #38a169;
+}
+
+.radio-dot {
+  width: 20rpx;
+  height: 20rpx;
+  background-color: #38a169;
+  border-radius: 50%;
+}
+
+/* 图片上传 */
+.image-upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.uploaded-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-delete {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.image-add {
+  width: 200rpx;
+  height: 200rpx;
+  border: 2rpx dashed #cbd5e0;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7fafc;
+  transition: all 0.3s ease;
+}
+
+.image-add:active {
+  background-color: #edf2f7;
+  border-color: #a0aec0;
+}
+
+.add-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 8rpx;
+  opacity: 0.6;
+}
+
+.add-text {
+  font-size: 24rpx;
+  color: #718096;
+}
+
+/* 提交按钮 */
+.form-actions {
+  padding: 20rpx 0 40rpx;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 32rpx !important;
+  background: linear-gradient(135deg, #38a169, #2f855a) !important;
+  color: white !important;
+  border-radius: 16rpx !important;
+  font-size: 32rpx !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 4rpx 12rpx rgba(56, 161, 105, 0.3);
+}
+
+.submit-btn[disabled] {
+  background: #cbd5e0 !important;
+  color: #a0aec0 !important;
+  box-shadow: none;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 40rpx;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 600rpx) {
+  .type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .image-item,
+  .image-add {
+    width: 160rpx;
+    height: 160rpx;
+  }
+}

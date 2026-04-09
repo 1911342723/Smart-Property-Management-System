@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +43,10 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
     
     @Autowired
     private RoomMapper roomMapper;
+
+    private List<String> getManagedBillTypes() {
+        return Arrays.asList("PROPERTY", "PARKING", "PROPERTY_FEE", "PARKING_FEE");
+    }
 
     @Override
     public PageResult<Bill> getBillPage(int pageNum, int pageSize, 
@@ -171,6 +176,7 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
     @Override
     public BillStats getBillStats(Long ownerId) {
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("bill_type", getManagedBillTypes());
         if (ownerId != null) {
             queryWrapper.eq("owner_id", ownerId);
         }
@@ -227,6 +233,7 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
     public BillSummary getBillSummary(Long ownerId) {
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("owner_id", ownerId)
+                   .in("bill_type", getManagedBillTypes())
                    .eq("status", "UNPAID")
                    .eq("deleted", 0);
         
@@ -285,6 +292,7 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
         // 查询符合条件的所有账单（不分页）
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("deleted", 0);
+        queryWrapper.in("bill_type", getManagedBillTypes());
         
         if (StringUtils.hasText(billType)) {
             queryWrapper.eq("bill_type", billType);
@@ -366,6 +374,7 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
         // 查询账单数据用于统计
         QueryWrapper<Bill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("deleted", 0);
+        queryWrapper.in("bill_type", getManagedBillTypes());
         
         // 根据时间范围过滤（简化处理，实际应该根据timeRange计算日期范围）
         if (StringUtils.hasText(building)) {
@@ -503,6 +512,7 @@ public class BillServiceImpl extends ServiceImpl<BillMapper, Bill> implements Bi
             // 查询该楼栋的账单数据
             QueryWrapper<Bill> billWrapper = new QueryWrapper<>();
             billWrapper.eq("deleted", 0);
+            billWrapper.in("bill_type", getManagedBillTypes());
             
             // 通过子查询关联room表筛选楼栋
             billWrapper.inSql("room_id", 

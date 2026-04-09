@@ -81,7 +81,7 @@
         </el-form>
         
         <div class="login-footer">
-          <p class="demo-tips">演示账号：admin / 123456</p>
+          <p class="demo-tips">演示账号：13800000001 / 123456</p>
         </div>
       </div>
     </div>

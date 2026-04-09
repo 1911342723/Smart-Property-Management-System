@@ -1,0 +1,192 @@
+<!--pages/owner/rate-order.wxml-->
+<view class="rate-container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+    <view class="top-bar">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-icon">←</text>
+      </view>
+      <text class="title">服务评价</text>
+      <view class="placeholder"></view>
+    </view>
+  </view>
+
+  <scroll-view class="content" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}" style="margin-top: calc(88rpx + {{statusBarHeight}}px);">
+    <!-- 工单信息 -->
+    <view class="order-info-card">
+      <view class="order-title">{{orderInfo.title}}</view>
+      <view class="order-meta">
+        <text class="order-no">工单编号: {{orderInfo.orderNo}}</text>
+        <text class="complete-time">完成时间: {{orderInfo.completeTime}}</text>
+      </view>
+    </view>
+
+    <!-- 维修工信息 -->
+    <view class="worker-card" wx:if="{{orderInfo.workerName}}">
+      <image class="worker-avatar" src="{{orderInfo.workerAvatar || '/static/icons/user.svg'}}" mode="aspectFill"></image>
+      <view class="worker-info">
+        <text class="worker-name">{{orderInfo.workerName}}</text>
+        <text class="worker-role">维修师傅</text>
+      </view>
+    </view>
+
+    <!-- 总体评分 -->
+    <view class="rating-section">
+      <view class="section-title">总体评价</view>
+      <view class="star-rating">
+        <view 
+          class="star {{index < ratings.overall ? 'active' : ''}}"
+          wx:for="{{5}}"
+          wx:key="index"
+          bindtap="setOverallRating"
+          data-rating="{{index + 1}}"
+        >
+          <text class="star-icon">★</text>
+        </view>
+      </view>
+      <text class="rating-text">{{ratingTexts[ratings.overall - 1] || '请评分'}}</text>
+    </view>
+
+    <!-- 详细评分 -->
+    <view class="detail-ratings">
+      <view class="section-title">详细评价</view>
+      
+      <view class="rating-item">
+        <text class="rating-label">服务态度</text>
+        <view class="star-group">
+          <view 
+            class="star-small {{index < ratings.serviceAttitude ? 'active' : ''}}"
+            wx:for="{{5}}"
+            wx:key="index"
+            bindtap="setDetailRating"
+            data-type="serviceAttitude"
+            data-rating="{{index + 1}}"
+          >
+            <text class="star-icon">★</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="rating-item">
+        <text class="rating-label">工作质量</text>
+        <view class="star-group">
+          <view 
+            class="star-small {{index < ratings.workQuality ? 'active' : ''}}"
+            wx:for="{{5}}"
+            wx:key="index"
+            bindtap="setDetailRating"
+            data-type="workQuality"
+            data-rating="{{index + 1}}"
+          >
+            <text class="star-icon">★</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="rating-item">
+        <text class="rating-label">响应速度</text>
+        <view class="star-group">
+          <view 
+            class="star-small {{index < ratings.responseSpeed ? 'active' : ''}}"
+            wx:for="{{5}}"
+            wx:key="index"
+            bindtap="setDetailRating"
+            data-type="responseSpeed"
+            data-rating="{{index + 1}}"
+          >
+            <text class="star-icon">★</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="rating-item">
+        <text class="rating-label">专业能力</text>
+        <view class="star-group">
+          <view 
+            class="star-small {{index < ratings.professionalism ? 'active' : ''}}"
+            wx:for="{{5}}"
+            wx:key="index"
+            bindtap="setDetailRating"
+            data-type="professionalism"
+            data-rating="{{index + 1}}"
+          >
+            <text class="star-icon">★</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价标签 -->
+    <view class="tags-section">
+      <view class="section-title">评价标签</view>
+      <view class="tags-grid">
+        <view 
+          class="tag-item {{tag.selected ? 'selected' : ''}}"
+          wx:for="{{availableTags}}"
+          wx:key="id"
+          wx:for-item="tag"
+          bindtap="toggleTag"
+          data-id="{{tag.id}}"
+        >
+          <text class="tag-text">{{tag.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价内容 -->
+    <view class="content-section">
+      <view class="section-title">评价内容</view>
+      <textarea 
+        class="content-input"
+        placeholder="请描述您对本次服务的感受..."
+        value="{{content}}"
+        bindinput="onContentInput"
+        maxlength="500"
+        auto-height
+      ></textarea>
+      <text class="char-count">{{content.length}}/500</text>
+    </view>
+
+    <!-- 上传图片 -->
+    <view class="images-section">
+      <view class="section-title">上传图片（选填）</view>
+      <view class="images-grid">
+        <view 
+          class="image-item"
+          wx:for="{{images}}"
+          wx:key="index"
+        >
+          <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
+          <view class="remove-btn" bindtap="removeImage" data-index="{{index}}">
+            <text class="remove-icon">×</text>
+          </view>
+        </view>
+        <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+          <text class="upload-icon">+</text>
+          <text class="upload-text">上传图片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 匿名评价 -->
+    <view class="anonymous-section">
+      <view class="anonymous-item" bindtap="toggleAnonymous">
+        <text class="anonymous-text">匿名评价</text>
+        <view class="checkbox {{isAnonymous ? 'checked' : ''}}">
+          <text class="check-icon" wx:if="{{isAnonymous}}">✓</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-bar">
+    <button class="submit-btn {{submitting ? 'disabled' : ''}}" bindtap="submitRating" disabled="{{submitting}}">
+      <text class="btn-text">{{submitting ? '提交中...' : '提交评价'}}</text>
+    </button>
+  </view>
+</view>

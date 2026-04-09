@@ -1,0 +1,70 @@
+<!--pages/worker/skill-tags-selector.wxml-->
+<view class="selector-container">
+  <!-- 顶部导航 -->
+  <view class="top-bar">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="title">选择技能标签</text>
+    <view class="save-btn" bindtap="saveSkillTags">
+      <text class="save-text">保存</text>
+    </view>
+  </view>
+
+  <!-- 已选择的标签 -->
+  <view class="selected-section" wx:if="{{selectedTags.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">已选择 ({{selectedTags.length}})</text>
+      <text class="clear-btn" bindtap="clearAll">清空</text>
+    </view>
+    <view class="selected-tags">
+      <view 
+        class="selected-tag"
+        wx:for="{{selectedTags}}"
+        wx:key="id"
+        bindtap="removeTag"
+        data-id="{{item.id}}"
+      >
+        <text class="tag-name">{{item.name}}</text>
+        <text class="remove-icon">×</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 可选择的标签 -->
+  <scroll-view class="tags-list" scroll-y>
+    <!-- 按分类展示 -->
+    <view 
+      class="category-section"
+      wx:for="{{categories}}"
+      wx:key="category"
+      wx:for-item="categoryData"
+    >
+      <view class="category-header">
+        <text class="category-name">{{categoryData.category}}</text>
+        <text class="category-count">{{categoryData.tags.length}}</text>
+      </view>
+      
+      <view class="category-tags">
+        <view 
+          class="tag-item {{isTagSelected(tag.id) ? 'selected' : ''}}"
+          wx:for="{{categoryData.tags}}"
+          wx:key="id"
+          wx:for-item="tag"
+          bindtap="toggleTag"
+          data-tag="{{tag}}"
+        >
+          <view class="tag-content">
+            <text class="tag-name">{{tag.name}}</text>
+            <view class="tag-check" wx:if="{{isTagSelected(tag.id)}}">
+              <text class="check-icon">✓</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

@@ -1,0 +1,31 @@
+<!--pages/worker/income-stats.wxml-->
+<view class="income-container">
+  <view class="income-header">
+    <view class="income-card">
+      <text class="income-label">累计收入</text>
+      <text class="income-value">¥{{totalIncome}}</text>
+    </view>
+    <view class="income-card">
+      <text class="income-label">本月收入</text>
+      <text class="income-value">¥{{monthIncome}}</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="income-list">
+    <view class="list-header">
+      <text class="list-title">收入明细</text>
+    </view>
+    
+    <view class="income-item" wx:for="{{incomeDetails}}" wx:key="id">
+      <view class="item-content">
+        <text class="item-title">{{item.title}}</text>
+        <text class="item-date">{{item.date}}</text>
+      </view>
+      <text class="item-amount">+¥{{item.cost}}</text>
+    </view>
+
+    <view class="empty-state" wx:if="{{incomeDetails.length === 0 && !loading}}">
+      <text class="empty-text">暂无收入记录</text>
+    </view>
+  </scroll-view>
+</view>

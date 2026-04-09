@@ -1,0 +1,107 @@
+<!--pages/owner/repair-list.wxml-->
+<view class="repair-list-container">
+  <view class="page-header">
+    <text class="page-title">我的报修</text>
+    <text class="page-subtitle">查看所有报修记录和状态</text>
+  </view>
+  
+  <scroll-view scroll-y class="content" refresher-enabled bindrefresherrefresh="onRefresh" refresher-triggered="{{refreshing}}" bindscrolltolower="loadMore">
+    <!-- 筛选标签 -->
+    <view class="filter-tabs">
+      <view 
+        class="filter-tab {{activeFilter === item.value ? 'active' : ''}}"
+        wx:for="{{filterTabs}}"
+        wx:key="value"
+        bindtap="switchFilter"
+        data-filter="{{item.value}}"
+      >
+        <text class="tab-text">{{item.label}}</text>
+        <view class="tab-count" wx:if="{{item.count > 0}}">{{item.count}}</view>
+      </view>
+    </view>
+
+    <!-- 报修列表 -->
+    <view class="repair-list">
+      <view 
+        class="repair-item"
+        wx:for="{{repairList}}"
+        wx:key="id"
+        bindtap="viewRepairDetail"
+        data-repair="{{item}}"
+      >
+        <view class="repair-header">
+          <view class="repair-info">
+            <text class="repair-title">{{item.title}}</text>
+            <view class="repair-meta">
+              <text class="repair-time">{{item.timeText}}</text>
+              <text class="repair-no" wx:if="{{item.sourceData.orderNo}}">{{item.sourceData.orderNo}}</text>
+            </view>
+          </view>
+          <view class="repair-status-wrapper">
+            <view class="status-badge" style="background-color: {{item.statusColor}}">
+              {{item.statusText}}
+            </view>
+            <!-- 评价按钮 - 与状态标签平行 -->
+            <button 
+              wx:if="{{item.status === 'completed' && !item.sourceData.rating}}"
+              class="rate-btn-inline" 
+              bindtap="rateRepair" 
+              data-repair="{{item}}" 
+              catchtap="true"
+            >
+              评价
+            </button>
+          </view>
+        </view>
+        
+        <view class="repair-content">
+          <text class="repair-desc">{{item.description}}</text>
+        </view>
+        
+        <view class="repair-footer" wx:if="{{item.sourceData.assigneeName || item.sourceData.priority}}">
+          <view class="repair-worker" wx:if="{{item.sourceData.assigneeName}}">
+            <text class="worker-label">维修师傅：</text>
+            <text class="worker-name">{{item.sourceData.assigneeName}}</text>
+          </view>
+          <view class="repair-priority" wx:if="{{item.sourceData.priority}}">
+            <view class="priority-dot" style="background-color: {{item.statusColor}}"></view>
+            <text class="priority-text">{{item.sourceData.priority === 'HIGH' || item.sourceData.priority === 'URGENT' ? '紧急' : '普通'}}</text>
+          </view>
+        </view>
+        
+        <!-- 费用信息 -->
+        <view class="repair-cost" wx:if="{{item.sourceData.cost}}">
+          <text class="cost-label">维修费用：</text>
+          <text class="cost-amount">¥{{item.sourceData.cost}}</text>
+        </view>
+        
+        <!-- 评价信息 -->
+        <view class="repair-rating" wx:if="{{item.sourceData.rating}}">
+          <view class="rating-stars">
+            <text class="star {{index < item.sourceData.rating ? 'filled' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="*this">★</text>
+          </view>
+          <text class="rating-feedback" wx:if="{{item.sourceData.feedback}}">{{item.sourceData.feedback}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{repairList.length === 0 && !loading}}" class="empty-state">
+      <image class="empty-icon" src="/static/icons/repair.svg" mode="aspectFit" />
+      <text class="empty-text">暂无报修记录</text>
+      <text class="empty-hint">去首页提交报修申请</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{loading}}" class="loading-more">
+      <text>加载中...</text>
+    </view>
+    
+    <view wx:if="{{!hasMore && repairList.length > 0}}" class="no-more">
+      <text>没有更多数据了</text>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

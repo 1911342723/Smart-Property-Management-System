@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "notice-popup": "/components/notice-popup/notice-popup"
+  },
+  "navigationBarTitleText": "智慧物业"
+}

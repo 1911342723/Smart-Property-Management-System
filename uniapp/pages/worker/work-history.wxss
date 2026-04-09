@@ -1,0 +1,282 @@
+/* pages/worker/work-history.wxss */
+.history-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 统计概览 */
+.stats-overview {
+  width: 100%;
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  padding: 32rpx;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  box-sizing: border-box;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-value {
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 22rpx;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  width: 100%;
+  background: #ffffff;
+  padding: 24rpx 32rpx;
+  display: flex;
+  gap: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.filter-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 16rpx;
+  background: #f7fafc;
+  border-radius: 12rpx;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:active {
+  background: #edf2f7;
+  transform: scale(0.95);
+}
+
+.filter-icon {
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.6;
+}
+
+.filter-text {
+  color: #2d3748;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+/* 工单列表 */
+.order-list {
+  flex: 1;
+  width: 100%;
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.order-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.12);
+}
+
+/* 工单头部 */
+.order-header {
+  margin-bottom: 20rpx;
+}
+
+.order-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.order-title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 120rpx);
+}
+
+.status-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.status-text {
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.order-time {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.time-text {
+  color: #a0aec0;
+  font-size: 24rpx;
+}
+
+/* 工单内容 */
+.order-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.content-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.content-icon {
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.5;
+}
+
+.content-text {
+  flex: 1;
+  color: #718096;
+  font-size: 26rpx;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 评价信息 */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #e2e8f0;
+}
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.stars {
+  display: flex;
+  gap: 4rpx;
+}
+
+.star {
+  color: #e2e8f0;
+  font-size: 28rpx;
+}
+
+.star.active {
+  color: #ffc107;
+}
+
+.rating-text {
+  color: #718096;
+  font-size: 24rpx;
+}
+
+.cost-section {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.cost-label {
+  color: #718096;
+  font-size: 24rpx;
+}
+
+.cost-value {
+  color: #e53e3e;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 用户反馈 */
+.feedback-section {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #e2e8f0;
+}
+
+.feedback-label {
+  color: #718096;
+  font-size: 24rpx;
+  margin-right: 12rpx;
+}
+
+.feedback-text {
+  color: #4a5568;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+/* 加载状态 */
+.loading-more,
+.no-more {
+  padding: 32rpx 0;
+  text-align: center;
+}
+
+.loading-text,
+.no-more-text {
+  color: #a0aec0;
+  font-size: 24rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 120rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  opacity: 0.3;
+}
+
+.empty-text {
+  color: #a0aec0;
+  font-size: 28rpx;
+}

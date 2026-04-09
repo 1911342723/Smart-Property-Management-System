@@ -1,0 +1,109 @@
+/* pages/worker/settings.wxss */
+.settings-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.content {
+  height: 100vh;
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+}
+
+/* 区块 */
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  padding: 16rpx 0;
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  color: #2d3748;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 设置列表 */
+.setting-list {
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item:active {
+  background: #f7fafc;
+}
+
+.setting-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.setting-icon {
+  width: 40rpx;
+  height: 40rpx;
+  opacity: 0.6;
+}
+
+.setting-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.setting-name {
+  color: #2d3748;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.setting-desc {
+  color: #a0aec0;
+  font-size: 24rpx;
+}
+
+.setting-switch {
+  transform: scale(0.9);
+}
+
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.4;
+}
+
+/* 版本信息 */
+.version-info {
+  padding: 48rpx 0;
+  text-align: center;
+}
+
+.version-text {
+  color: #a0aec0;
+  font-size: 24rpx;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 40rpx;
+}

@@ -1,0 +1,265 @@
+/* pages/test/network-test.wxss */
+page {
+  background-color: #f5f5f5;
+}
+
+.network-test-container {
+  padding: 20rpx;
+  min-height: 100vh;
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 30rpx;
+  padding: 30rpx;
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.test-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #2d3748;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.test-subtitle {
+  font-size: 26rpx;
+  color: #718096;
+}
+
+/* 配置卡片 */
+.config-card {
+  background: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 30rpx 0;
+}
+
+.config-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.config-btn {
+  background: #edf2f7 !important;
+  color: #4a5568 !important;
+  border: none !important;
+  border-radius: 8rpx !important;
+}
+
+.config-content {
+  padding: 20rpx 30rpx 30rpx;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.config-item:last-child {
+  margin-bottom: 0;
+}
+
+.config-label {
+  font-size: 28rpx;
+  color: #718096;
+}
+
+.config-value {
+  font-size: 28rpx;
+  color: #2d3748;
+  font-weight: 500;
+  max-width: 400rpx;
+  word-break: break-all;
+}
+
+/* 域名状态样式 */
+.status-valid {
+  color: #38a169 !important;
+}
+
+.status-warning {
+  color: #d69e2e !important;
+}
+
+.status-error {
+  color: #e53e3e !important;
+}
+
+/* 测试按钮 */
+.test-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.test-btn {
+  padding: 26rpx !important;
+  border-radius: 12rpx !important;
+  font-size: 28rpx !important;
+  font-weight: 500 !important;
+  border: none !important;
+  background: #edf2f7 !important;
+  color: #4a5568 !important;
+}
+
+.test-btn.primary {
+  background: linear-gradient(135deg, #2d3748, #1a202c) !important;
+  color: white !important;
+  grid-column: 1 / -1;
+}
+
+.test-btn.secondary {
+  background: linear-gradient(135deg, #3182ce, #2c5aa0) !important;
+  color: white !important;
+}
+
+.test-btn[disabled] {
+  background: #cbd5e0 !important;
+  color: #a0aec0 !important;
+}
+
+/* 测试结果 */
+.test-results {
+  background: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.results-title {
+  padding: 30rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 2rpx solid #f7fafc;
+}
+
+.empty-results {
+  padding: 60rpx 30rpx;
+  text-align: center;
+  color: #a0aec0;
+  font-size: 28rpx;
+}
+
+.result-item {
+  padding: 24rpx 30rpx;
+  border-bottom: 2rpx solid #f7fafc;
+  transition: background-color 0.2s;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-item:active {
+  background-color: #f7fafc;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.result-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.result-time {
+  font-size: 24rpx;
+  color: #a0aec0;
+}
+
+.result-status {
+  margin-top: 8rpx;
+}
+
+.status-text {
+  font-size: 26rpx;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+/* 解决方案卡片 */
+.solution-card {
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.solution-header {
+  padding: 30rpx 30rpx 0;
+}
+
+.solution-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.solution-content {
+  padding: 20rpx 30rpx 30rpx;
+}
+
+.solution-item {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.solution-item:last-child {
+  margin-bottom: 0;
+}
+
+.solution-number {
+  font-size: 28rpx;
+  color: #38a169;
+  font-weight: 600;
+  min-width: 40rpx;
+}
+
+.solution-text {
+  font-size: 28rpx;
+  color: #4a5568;
+  line-height: 1.5;
+  margin-left: 12rpx;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 600rpx) {
+  .test-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .test-btn.primary {
+    grid-column: 1;
+  }
+  
+  .config-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8rpx;
+  }
+  
+  .config-value {
+    max-width: 100%;
+  }
+}
+

@@ -509,7 +509,11 @@ export default {
           // 按费用类型分组统计
           const typeStats = {}
           bills.forEach(bill => {
-            const type = getTypeName(mapBillType(bill.billType))
+            const mappedType = mapBillType(bill.billType)
+            if (!mappedType) {
+              return
+            }
+            const type = getTypeName(mappedType)
             if (!typeStats[type]) {
               typeStats[type] = {
                 date: filters.timeRange === 'month' ? new Date().toISOString().slice(0, 7) : '本期',
@@ -539,22 +543,18 @@ export default {
     
     const mapBillType = (billType) => {
       const typeMap = {
+        'PROPERTY': 'property',
+        'PARKING': 'parking',
         'PROPERTY_FEE': 'property',
-        'PARKING_FEE': 'parking',
-        'WATER_FEE': 'water',
-        'ELECTRICITY_FEE': 'electricity',
-        'GAS_FEE': 'gas'
+        'PARKING_FEE': 'parking'
       }
-      return typeMap[billType] || 'property'
+      return typeMap[billType] || ''
     }
     
     const getTypeName = (type) => {
       const typeMap = {
         property: '物业费',
-        parking: '停车费',
-        water: '水费',
-        electricity: '电费',
-        gas: '燃气费'
+        parking: '停车费'
       }
       return typeMap[type] || type
     }
@@ -571,7 +571,11 @@ export default {
           let totalAmount = 0
           
           bills.forEach(bill => {
-            const type = getTypeName(mapBillType(bill.billType))
+            const mappedType = mapBillType(bill.billType)
+            if (!mappedType) {
+              return
+            }
+            const type = getTypeName(mappedType)
             const amount = Number(bill.amount || 0)
             const paidAmount = Number(bill.paidAmount || 0)
             
@@ -603,7 +607,7 @@ export default {
           }))
           
           // 更新饼图
-          const colors = ['#409eff', '#67c23a', '#5470c6', '#fac858', '#ee6666']
+          const colors = ['#409eff', '#67c23a']
           expenseTypeOption.value.series[0].data = expenseDetails.value.map((item, index) => ({
             value: item.totalAmount,
             name: item.type,
@@ -724,17 +728,21 @@ export default {
               distCount[3]++
             }
             
+            const mappedType = mapBillType(bill.billType)
+            if (!mappedType) {
+              return null
+            }
             return {
               billNo: bill.billNo,
               room: `${extractBuilding(bill.roomAddress)}栋${extractUnit(bill.roomAddress)}单元${extractRoom(bill.roomAddress)}室`,
               owner: bill.ownerName || '未知',
-              type: getTypeName(mapBillType(bill.billType)),
+              type: getTypeName(mappedType),
               amount: bill.amount,
               dueDate: formatDate(bill.dueDate),
               overdueDays: days,
               remindCount: Math.floor(Math.random() * 5)
             }
-          })
+          }).filter(Boolean)
           
           overdueData.avgDays = bills.length > 0 ? Math.floor(totalDays / bills.length) : 0
           
@@ -772,7 +780,7 @@ export default {
     })
 
     const getTypeTag = (type) => {
-      const map = { '物业费': 'primary', '停车费': 'success', '水费': 'info', '电费': 'warning', '燃气费': 'danger' }
+      const map = { '物业费': 'primary', '停车费': 'success' }
       return map[type] || ''
     }
 

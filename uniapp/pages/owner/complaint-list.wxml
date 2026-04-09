@@ -1,0 +1,166 @@
+<!--pages/owner/complaint-list.wxml-->
+<view class="complaint-list-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-content">
+      <text class="page-title">我的投诉</text>
+      <text class="page-subtitle">共{{total}}条投诉记录</text>
+    </view>
+    <view class="header-actions">
+      <view class="filter-btn" bindtap="showFilter">
+        <image class="filter-icon" src="/static/icons/filter.svg" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-tags" wx:if="{{selectedStatus !== 'ALL' || selectedType !== 'ALL'}}">
+    <view class="tag-item" wx:if="{{selectedStatus !== 'ALL'}}">
+      <text class="tag-text">{{selectedStatus}}</text>
+      <view class="tag-close" bindtap="selectStatus" data-status="ALL">×</view>
+    </view>
+    <view class="tag-item" wx:if="{{selectedType !== 'ALL'}}">
+      <text class="tag-text">{{selectedType}}</text>
+      <view class="tag-close" bindtap="selectType" data-type="ALL">×</view>
+    </view>
+  </view>
+
+  <!-- 投诉列表 -->
+  <scroll-view 
+    scroll-y 
+    class="content"
+    enable-back-to-top="{{true}}"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{loading}}"
+    bindrefresherrefresh="onPullDownRefresh"
+  >
+    <!-- 列表内容 -->
+    <view class="complaints-list" wx:if="{{complaints.length > 0}}">
+      <view 
+        class="complaint-card"
+        wx:for="{{complaints}}"
+        wx:key="id"
+        bindtap="viewComplaintDetail"
+        data-complaint="{{item}}"
+      >
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <view class="complaint-info">
+            <view class="complaint-icon" style="background-color: {{item.statusColor}}">
+              <image class="icon-svg" src="{{item.iconUrl}}" mode="aspectFit"></image>
+            </view>
+            <view class="complaint-meta">
+              <text class="complaint-title">{{item.title}}</text>
+              <text class="complaint-no">{{item.complaintNo || item.id}}</text>
+            </view>
+          </view>
+          <view class="status-badges">
+            <view class="status-badge" style="background-color: {{item.statusColor}}">
+              {{item.statusText}}
+            </view>
+            <view class="urgency-badge" style="color: {{item.urgencyColor}}">
+              {{item.urgencyText}}
+            </view>
+          </view>
+        </view>
+
+        <!-- 卡片内容 -->
+        <view class="card-content">
+          <text class="complaint-desc">{{item.content}}</text>
+        </view>
+
+        <!-- 卡片底部 -->
+        <view class="card-footer">
+          <view class="type-info">
+            <text class="type-text">{{item.typeText}}</text>
+          </view>
+          <text class="time-text">{{item.timeText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{complaints.length === 0 && !loading}}">
+      <image class="empty-icon" src="/static/icons/inbox.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无投诉记录</text>
+      <text class="empty-desc">您还没有提交过投诉</text>
+      <button class="empty-action" bindtap="newComplaint">立即投诉</button>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && complaints.length > 0}}">
+      <view class="loading-spinner" wx:if="{{loading}}"></view>
+      <text class="load-text">{{loading ? '加载中...' : '上拉加载更多'}}</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && complaints.length > 0}}">
+      <text class="no-more-text">没有更多数据了</text>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 浮动按钮 -->
+  <view class="fab" bindtap="newComplaint">
+    <image class="fab-icon" src="/static/icons/plus.svg" mode="aspectFit"></image>
+  </view>
+
+  <!-- 筛选弹窗 -->
+  <view class="filter-modal" wx:if="{{showFilterModal}}">
+    <view class="modal-mask" bindtap="closeFilter"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">筛选条件</text>
+        <view class="close-btn" bindtap="closeFilter">×</view>
+      </view>
+      
+      <view class="modal-body">
+        <!-- 状态筛选 -->
+        <view class="filter-section">
+          <text class="filter-title">投诉状态</text>
+          <view class="filter-options">
+            <view 
+              class="option-item {{selectedStatus === item.key ? 'selected' : ''}}"
+              wx:for="{{statusOptions}}"
+              wx:key="key"
+              bindtap="selectStatus"
+              data-status="{{item.key}}"
+            >
+              <view class="option-dot" style="background-color: {{item.color}}"></view>
+              <text class="option-text">{{item.name}}</text>
+              <view class="option-check" wx:if="{{selectedStatus === item.key}}">✓</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 类型筛选 -->
+        <view class="filter-section">
+          <text class="filter-title">投诉类型</text>
+          <view class="filter-options">
+            <view 
+              class="option-item {{selectedType === item.key ? 'selected' : ''}}"
+              wx:for="{{typeOptions}}"
+              wx:key="key"
+              bindtap="selectType"
+              data-type="{{item.key}}"
+            >
+              <text class="option-text">{{item.name}}</text>
+              <view class="option-check" wx:if="{{selectedType === item.key}}">✓</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="reset-btn" bindtap="resetFilter">重置</button>
+        <button class="apply-btn" bindtap="applyFilter">应用</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+

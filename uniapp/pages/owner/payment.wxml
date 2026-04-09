@@ -1,0 +1,96 @@
+<!--pages/owner/payment.wxml-->
+<view class="payment-container">
+  <view class="page-header">
+    <text class="page-title">费用缴纳</text>
+    <text class="page-subtitle">查看待缴费用，在线完成缴费</text>
+  </view>
+  
+  <scroll-view scroll-y class="content">
+    <!-- 费用概览 -->
+    <view class="overview-section">
+      <view class="overview-card">
+        <view class="overview-header">
+          <text class="overview-title">本月待缴费用</text>
+          <view class="overview-amount">
+            <text class="amount-symbol">¥</text>
+            <text class="amount-number">{{totalAmount}}</text>
+          </view>
+        </view>
+        <view class="overview-desc">
+          <text class="desc-text">共 {{unpaidCount}} 项待缴费用</text>
+          <text class="desc-time">截止日期：{{dueDate}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 费用列表 -->
+    <view class="bills-section">
+      <view class="section-header">
+        <text class="section-title">待缴费用</text>
+        <text class="section-action" bindtap="viewHistory">缴费记录</text>
+      </view>
+      
+      <view class="bills-list">
+        <view 
+          class="bill-item {{item.overdue ? 'overdue' : ''}} {{item.selected ? 'selected' : ''}}"
+          wx:for="{{bills}}"
+          wx:key="id"
+          bindtap="toggleBillSelection"
+          data-bill="{{item}}"
+        >
+          <view class="bill-icon" style="background: {{item.iconBg}}">
+            <image class="icon-svg" src="{{item.icon}}" mode="aspectFit"></image>
+          </view>
+          <view class="bill-content">
+            <view class="bill-header">
+              <text class="bill-title">{{item.title}}</text>
+              <view class="bill-status {{item.status}}">
+                <text class="status-text">{{item.statusText}}</text>
+              </view>
+            </view>
+            <text class="bill-desc">{{item.description}}</text>
+            <text class="bill-period">{{item.period}}</text>
+          </view>
+          <view class="bill-amount">
+            <text class="amount-text">¥{{item.amount}}</text>
+            <text class="due-date" wx:if="{{item.dueDate}}">{{item.dueDateText}}</text>
+          </view>
+          <view class="bill-selector">
+            <view class="selector-checkbox {{item.selected ? 'checked' : ''}}">
+              <image wx:if="{{item.selected}}" class="check-icon" src="/static/icons/check-circle.svg" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+
+    <!-- 缴费说明 -->
+    <view class="notice-section">
+      <view class="notice-card">
+        <view class="notice-header">
+          <image class="notice-icon" src="/static/icons/info.svg" mode="aspectFit"></image>
+          <text class="notice-title">缴费说明</text>
+        </view>
+        <view class="notice-content">
+          <text class="notice-text">• 每月5日前缴费可享受优惠</text>
+          <text class="notice-text">• 逾期缴费将产生滞纳金</text>
+          <text class="notice-text">• 缴费成功后24小时内到账</text>
+          <text class="notice-text">• 如有疑问请联系物业客服</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 浮动缴费按钮 -->
+  <view class="floating-pay-btn" wx:if="{{selectedBills.length > 0}}" bindtap="proceedToPay">
+    <view class="pay-info">
+      <text class="pay-count">{{selectedBills.length}}项</text>
+      <text class="pay-amount">¥{{selectedAmount}}</text>
+    </view>
+    <text class="pay-text">立即缴费</text>
+  </view>
+</view>

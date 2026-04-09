@@ -1,0 +1,190 @@
+<!--pages/owner/visitor-invite.wxml-->
+<view class="visitor-invite-container">
+  <view class="page-header">
+    <text class="page-title">邀请访客</text>
+    <text class="page-subtitle">填写访客信息，生成专属通行码</text>
+  </view>
+
+  <scroll-view scroll-y class="content">
+    <form bindsubmit="onSubmit">
+      <!-- 访客信息 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">访客信息</text>
+          <text class="required">*</text>
+        </view>
+        
+        <view class="form-item">
+          <text class="item-label">访客姓名</text>
+          <input 
+            class="form-input"
+            value="{{formData.visitorName}}"
+            bindinput="onNameInput"
+            maxlength="20"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="item-label">联系电话</text>
+          <input 
+            class="form-input"
+            value="{{formData.visitorPhone}}"
+            bindinput="onPhoneInput"
+            type="number"
+            maxlength="11"
+          />
+        </view>
+      </view>
+
+      <!-- 访问信息 -->
+      <view class="form-section">
+        <view class="section-title">
+          <text class="title-text">访问信息</text>
+        </view>
+        
+        <view class="form-item">
+          <text class="item-label">访问目的</text>
+          <input 
+            class="form-input"
+            value="{{formData.visitPurpose}}"
+            bindinput="onPurposeInput"
+            maxlength="100"
+          />
+        </view>
+        
+        <view class="form-item">
+          <text class="item-label">预计到达时间 <text class="required">*</text></text>
+          <view class="datetime-container">
+            <picker 
+              mode="date" 
+              value="{{formData.arrivalDate}}" 
+              start="{{minDate}}"
+              end="{{maxDate}}"
+              bindchange="onArrivalDateChange"
+              class="date-picker"
+            >
+              <view class="picker-view {{!formData.arrivalDate ? 'placeholder' : ''}}">
+                <text>{{formData.arrivalDate || '日期'}}</text>
+                <image class="picker-arrow" src="/static/icons/chevron-down.svg" mode="aspectFit"></image>
+              </view>
+            </picker>
+            <picker 
+              mode="time" 
+              value="{{formData.arrivalTime}}" 
+              bindchange="onArrivalTimeChange"
+              class="time-picker"
+            >
+              <view class="picker-view {{!formData.arrivalTime ? 'placeholder' : ''}}">
+                <text>{{formData.arrivalTime || '时间'}}</text>
+                <image class="picker-arrow" src="/static/icons/chevron-down.svg" mode="aspectFit"></image>
+              </view>
+            </picker>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="item-label">预计离开时间</text>
+          <view class="datetime-container">
+            <picker 
+              mode="date" 
+              value="{{formData.departureDate}}" 
+              start="{{formData.arrivalDate || minDate}}"
+              end="{{maxDate}}"
+              bindchange="onDepartureDateChange"
+              class="date-picker"
+            >
+              <view class="picker-view {{!formData.departureDate ? 'placeholder' : ''}}">
+                <text>{{formData.departureDate || '日期'}}</text>
+                <image class="picker-arrow" src="/static/icons/chevron-down.svg" mode="aspectFit"></image>
+              </view>
+            </picker>
+            <picker 
+              mode="time" 
+              value="{{formData.departureTime}}" 
+              bindchange="onDepartureTimeChange"
+              class="time-picker"
+            >
+              <view class="picker-view {{!formData.departureTime ? 'placeholder' : ''}}">
+                <text>{{formData.departureTime || '时间'}}</text>
+                <image class="picker-arrow" src="/static/icons/chevron-down.svg" mode="aspectFit"></image>
+              </view>
+            </picker>
+          </view>
+        </view>
+        
+      </view>
+
+
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button 
+          class="submit-btn"
+          form-type="submit"
+          disabled="{{submitting}}"
+          loading="{{submitting}}"
+        >
+          {{submitting ? '提交中...' : '生成通行码'}}
+        </button>
+      </view>
+    </form>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>
+
+<!-- 二维码弹窗 -->
+<view class="qr-modal" wx:if="{{showQRModal}}" bindtap="hideQRCode">
+  <view class="qr-content" catchtap="">
+    <view class="qr-header">
+      <text class="qr-title">访客通行码</text>
+      <view class="qr-close" bindtap="hideQRCode">
+        <image class="close-icon" src="/static/icons/close.svg" mode="aspectFit"></image>
+      </view>
+    </view>
+    
+    <view class="qr-visitor-info">
+      <text class="visitor-name">{{qrCodeData.visitorName}}</text>
+      <text class="visitor-phone">{{qrCodeData.visitorPhone}}</text>
+      <text class="visit-time">{{formatDateTime(qrCodeData.plannedArrival)}}</text>
+    </view>
+    
+    <view class="qr-code-container">
+      <canvas 
+        type="2d" 
+        id="qrCanvas"
+        class="qr-canvas"
+        style="width: 200rpx; height: 200rpx;"
+      ></canvas>
+      <image 
+        class="qr-image" 
+        src="{{qrCodeUrl}}" 
+        mode="aspectFit"
+        wx:if="{{qrCodeUrl}}"
+      ></image>
+      <view class="qr-placeholder" wx:if="{{!qrCodeUrl}}">
+        <image class="qr-icon" src="/static/icons/qr-code.svg" mode="aspectFit"></image>
+        <text class="qr-text">生成中...</text>
+      </view>
+    </view>
+    
+    <view class="qr-code-text">
+      <text class="code-label">通行码：</text>
+      <text class="code-value">{{qrCodeData.qrCode}}</text>
+    </view>
+    
+    <view class="qr-tips">
+      <text class="tip-text">请将此二维码发送给访客</text>
+      <text class="tip-text">访客到达时出示给门卫扫码验证</text>
+    </view>
+    
+    <view class="qr-actions">
+      <button class="action-btn secondary" bindtap="shareQRCode">复制信息</button>
+      <button class="action-btn primary" bindtap="saveQRCode">保存二维码</button>
+    </view>
+    
+    <view class="qr-footer">
+      <button class="back-btn" bindtap="goBackToVisitorList">返回列表</button>
+    </view>
+  </view>
+</view>

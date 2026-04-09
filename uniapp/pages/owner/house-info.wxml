@@ -1,0 +1,115 @@
+<!--pages/owner/house-info.wxml-->
+<view class="container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <text class="page-title">我的房屋</text>
+    <text class="page-subtitle">管理您的房产信息</text>
+  </view>
+
+  <!-- 房屋列表 -->
+  <view class="room-list">
+    <block wx:for="{{rooms}}" wx:key="id">
+      <view class="room-card">
+        <!-- 房屋基本信息 -->
+        <view class="room-header">
+          <view class="room-title">
+            <text class="room-address">{{item.fullAddress}}</text>
+            <view class="room-status status-{{item.status}}">
+              <text>{{item.statusText}}</text>
+            </view>
+          </view>
+          <view class="room-type">{{item.typeText}}</view>
+        </view>
+
+        <!-- 房屋详细信息 -->
+        <view class="room-details">
+          <view class="detail-row">
+            <view class="detail-item">
+              <text class="detail-label">楼层</text>
+              <text class="detail-value">{{item.floor}}楼</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">面积</text>
+              <text class="detail-value">{{item.areaText}}</text>
+            </view>
+          </view>
+          <view class="detail-row">
+            <view class="detail-item">
+              <text class="detail-label">物业费</text>
+              <text class="detail-value">{{item.propertyFeeText}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="room-actions">
+          <button class="action-btn detail-btn" bindtap="viewRoomDetail" data-room="{{item}}">
+            <image class="btn-icon" src="/static/icons/eye.svg" mode="aspectFit"></image>
+            <text>查看详情</text>
+          </button>
+          <button wx:if="{{item.relationType === 'OWNER'}}" class="action-btn edit-btn" bindtap="editRoom" data-room="{{item}}">
+            <image class="btn-icon" src="/static/icons/edit.svg" mode="aspectFit"></image>
+            <text>编辑面积</text>
+          </button>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view wx:if="{{rooms.length === 0}}" class="empty-state">
+      <image class="empty-icon" src="/static/icons/house.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无房屋信息</text>
+      <text class="empty-desc">请联系物业管理员添加您的房产信息</text>
+    </view>
+  </view>
+
+  <!-- 编辑房屋信息弹窗 -->
+  <view class="modal-overlay" wx:if="{{showEditModal}}" catchtap="closeEditModal">
+    <view class="modal-container" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">编辑房屋信息</text>
+        <view class="modal-close" catchtap="closeEditModal">×</view>
+      </view>
+      
+      <view class="modal-content">
+        <view class="edit-form">
+          <view class="form-item">
+            <text class="form-label">房屋地址</text>
+            <text class="form-value">{{editingRoom.fullAddress}}</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">当前状态</text>
+            <text class="form-value readonly">{{editingRoom.statusText}}</text>
+            <text class="form-note">*房屋状态由物业管理，业主不可修改</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">建筑面积（㎡）</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              value="{{editingRoom.area}}" 
+              placeholder="请输入房屋面积"
+              bindinput="onAreaInput" 
+              catchtap="stopPropagation" />
+            <text class="form-note">*请输入准确的建筑面积</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <view class="modal-actions">
+          <button class="modal-btn cancel-btn" catchtap="closeEditModal">取消</button>
+          <button class="modal-btn confirm-btn" catchtap="saveRoom">保存</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 下拉刷新状态 -->
+  <view wx:if="{{refreshing}}" class="refresh-indicator">
+    <text>刷新中...</text>
+  </view>
+</view>
+

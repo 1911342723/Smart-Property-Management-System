@@ -244,10 +244,7 @@ export default {
         radius: ['40%', '70%'],
         data: [
           { value: 45, name: '物业费', itemStyle: { color: '#409eff' } },
-          { value: 20, name: '停车费', itemStyle: { color: '#67c23a' } },
-          { value: 15, name: '水费', itemStyle: { color: '#5470c6' } },
-          { value: 12, name: '电费', itemStyle: { color: '#fac858' } },
-          { value: 8, name: '燃气费', itemStyle: { color: '#ee6666' } }
+          { value: 20, name: '停车费', itemStyle: { color: '#67c23a' } }
         ]
       }]
     })
@@ -322,6 +319,9 @@ export default {
           
           bills.forEach(bill => {
             const type = mapBillType(bill.billType)
+            if (!type) {
+              return
+            }
             const typeName = getTypeName(type)
             const amount = Number(bill.amount || 0)
             
@@ -332,7 +332,7 @@ export default {
           })
           
           // 更新饼图数据
-          const colors = ['#409eff', '#67c23a', '#5470c6', '#fac858', '#ee6666']
+          const colors = ['#409eff', '#67c23a']
           const typeNames = Object.keys(typeStats)
           
           typeOption.value.series[0].data = typeNames.map((name, index) => ({
@@ -394,7 +394,7 @@ export default {
             type: mapBillType(bill.billType),
             amount: bill.amount || 0,
             dueDate: formatDate(bill.dueDate)
-          }))
+          })).filter(bill => bill.type)
           total.value = res.data.total || 0
         }
       } catch (error) {
@@ -410,10 +410,12 @@ export default {
     
     const mapBillType = (type) => {
       const map = {
-        'PROPERTY_FEE': 'property', 'PARKING_FEE': 'parking',
-        'WATER_FEE': 'water', 'ELECTRICITY_FEE': 'electricity', 'GAS_FEE': 'gas'
+        'PROPERTY': 'property',
+        'PARKING': 'parking',
+        'PROPERTY_FEE': 'property',
+        'PARKING_FEE': 'parking'
       }
-      return map[type] || 'property'
+      return map[type] || ''
     }
 
     const formatDate = (date) => {
@@ -430,14 +432,12 @@ export default {
     })
 
     const getTypeName = (type) => {
-      const map = { property: '物业费', parking: '停车费', water: '水费', 
-                    electricity: '电费', gas: '燃气费' }
+      const map = { property: '物业费', parking: '停车费' }
       return map[type] || type
     }
 
     const getTypeTag = (type) => {
-      const map = { property: 'primary', parking: 'success', water: 'info',
-                    electricity: 'warning', gas: 'danger' }
+      const map = { property: 'primary', parking: 'success' }
       return map[type] || ''
     }
 

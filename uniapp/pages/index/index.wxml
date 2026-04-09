@@ -1,0 +1,33 @@
+<!--pages/index/index.wxml-->
+<view class="index-container">
+  <!-- 启动页内容 -->
+  <view class="splash-content">
+    <!-- Logo动画 -->
+    <view class="logo-animation">
+      <image class="app-logo" src="/static/images/logo.png" mode="aspectFit"></image>
+      <view class="logo-glow"></view>
+    </view>
+    
+    <!-- 应用信息 -->
+    <view class="app-info">
+      <text class="app-name">智慧物业</text>
+      <text class="app-slogan">让物业管理更智能</text>
+      <text class="app-version">v1.0.0</text>
+    </view>
+    
+    <!-- 加载动画 -->
+    <view class="loading-section">
+      <view class="loading-dots">
+        <view class="dot dot1"></view>
+        <view class="dot dot2"></view>
+        <view class="dot dot3"></view>
+      </view>
+      <text class="loading-text">{{loadingText}}</text>
+    </view>
+  </view>
+  
+  <!-- 背景装饰 -->
+  <view class="bg-particles">
+    <view class="particle" wx:for="{{particles}}" wx:key="index" style="{{item.style}}"></view>
+  </view>
+</view>

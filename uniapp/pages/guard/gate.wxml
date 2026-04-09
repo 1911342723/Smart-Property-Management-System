@@ -1,0 +1,231 @@
+<!--保安门岗管理页面-->
+<view class="page-container">
+  <!-- 功能选项卡 -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'visitor' ? 'active' : ''}}" bindtap="switchTab" data-tab="visitor">
+      <image src="/static/icons/qr-code.svg" class="tab-icon"></image>
+      <text>访客核实</text>
+    </view>
+    <view class="tab-item {{activeTab === 'vehicle' ? 'active' : ''}}" bindtap="switchTab" data-tab="vehicle">
+      <image src="/static/icons/door.svg" class="tab-icon"></image>
+      <text>车辆登记</text>
+    </view>
+  </view>
+
+  <!-- 访客核实 -->
+  <view class="tab-content" wx:if="{{activeTab === 'visitor'}}">
+    <!-- 扫码区域 -->
+    <view class="scan-section card">
+      <view class="scan-header">
+        <view class="scan-title">访客二维码扫描</view>
+        <view class="scan-desc">扫描业主生成的访客二维码进行核实</view>
+      </view>
+      
+      <view class="scan-area">
+        <view class="scan-box" bindtap="scanQRCode">
+          <image src="/static/icons/qr-code.svg" class="scan-icon"></image>
+          <text class="scan-text">点击扫描二维码</text>
+        </view>
+      </view>
+      
+      <view class="scan-tips">
+        <text class="tip-text">• 请确保二维码清晰可见</text>
+        <text class="tip-text">• 有效期内的访客码才能通行</text>
+        <text class="tip-text">• 如有问题请联系业主确认</text>
+      </view>
+    </view>
+
+    <!-- 访客信息显示 -->
+    <view class="visitor-info card" wx:if="{{scannedVisitor}}">
+      <view class="info-header">
+        <view class="info-title">访客信息</view>
+        <view class="status-badge {{scannedVisitor.status === 'valid' ? 'status-valid' : 'status-invalid'}}">
+          {{scannedVisitor.status === 'valid' ? '有效' : '已失效'}}
+        </view>
+      </view>
+      
+      <view class="info-content">
+        <view class="info-row">
+          <text class="info-label">访客姓名：</text>
+          <text class="info-value">{{scannedVisitor.visitorName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">联系电话：</text>
+          <text class="info-value">{{scannedVisitor.phone}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">访问业主：</text>
+          <text class="info-value">{{scannedVisitor.ownerName}} ({{scannedVisitor.roomNumber}})</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">有效期：</text>
+          <text class="info-value">{{scannedVisitor.startTime}} - {{scannedVisitor.endTime}}</text>
+        </view>
+        <view class="info-row" wx:if="{{scannedVisitor.purpose}}">
+          <text class="info-label">访问事由：</text>
+          <text class="info-value">{{scannedVisitor.purpose}}</text>
+        </view>
+      </view>
+      
+      <view class="action-buttons">
+        <button class="btn btn-success" wx:if="{{scannedVisitor.status === 'valid'}}" bindtap="allowEntry">
+          允许通行
+        </button>
+        <button class="btn btn-error" wx:if="{{scannedVisitor.status !== 'valid'}}" bindtap="denyEntry">
+          拒绝通行
+        </button>
+        <button class="btn btn-outline" bindtap="contactOwner">联系业主</button>
+      </view>
+    </view>
+
+    <!-- 今日访客记录 -->
+    <view class="visitor-records">
+      <view class="section-title">今日访客记录</view>
+      <view class="record-list">
+        <block wx:for="{{todayVisitorRecords}}" wx:key="id">
+          <view class="record-item card-hover">
+            <view class="record-header">
+              <view class="visitor-name">{{item.visitorName}}</view>
+              <view class="record-time">{{item.entryTime}}</view>
+            </view>
+            <view class="record-content">
+              <view class="record-info">
+                <text class="info-text">访问：{{item.ownerName}} ({{item.roomNumber}})</text>
+                <text class="info-text">电话：{{item.phone}}</text>
+              </view>
+              <view class="record-status">
+                <view class="status-badge {{item.status === 'entered' ? 'status-entered' : item.status === 'denied' ? 'status-denied' : 'status-left'}}">
+                  {{item.status === 'entered' ? '已入园' : item.status === 'denied' ? '已拒绝' : '已离园'}}
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+        
+        <view class="empty-state" wx:if="{{todayVisitorRecords.length === 0}}">
+          <image src="/static/icons/users.svg" class="empty-icon"></image>
+          <text class="empty-text">今日暂无访客记录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 车辆登记 -->
+  <view class="tab-content" wx:if="{{activeTab === 'vehicle'}}">
+    <!-- 车辆登记表单 -->
+    <view class="vehicle-form card">
+      <view class="form-header">
+        <view class="form-title">临时车辆登记</view>
+        <view class="form-desc">请完整填写车辆信息</view>
+      </view>
+      
+      <view class="form-body">
+        <view class="form-item">
+          <text class="form-label">车牌号码 *</text>
+          <input class="form-input" placeholder="请输入车牌号码" value="{{vehicleForm.plateNumber}}" bindinput="onVehicleInput" data-field="plateNumber" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">车主姓名 *</text>
+          <input class="form-input" placeholder="请输入车主姓名" value="{{vehicleForm.ownerName}}" bindinput="onVehicleInput" data-field="ownerName" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">联系电话 *</text>
+          <input class="form-input" placeholder="请输入联系电话" value="{{vehicleForm.phone}}" bindinput="onVehicleInput" data-field="phone" type="number" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">访问业主</text>
+          <input class="form-input" placeholder="请输入访问业主姓名" value="{{vehicleForm.visitingOwner}}" bindinput="onVehicleInput" data-field="visitingOwner" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">访问事由</text>
+          <textarea class="form-textarea" placeholder="请简述访问事由..." value="{{vehicleForm.purpose}}" bindinput="onVehicleInput" data-field="purpose"></textarea>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">预计停留时间</text>
+          <picker mode="selector" range="{{stayDurations}}" range-key="label" value="{{vehicleForm.stayDurationIndex}}" bindchange="onStayDurationChange">
+            <view class="picker">{{stayDurations[vehicleForm.stayDurationIndex].label}}</view>
+          </picker>
+        </view>
+      </view>
+      
+      <view class="form-actions">
+        <button class="btn btn-success form-btn" bindtap="submitVehicleForm" disabled="{{submittingVehicle}}">
+          {{submittingVehicle ? '登记中...' : '确认登记'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- 今日车辆记录 -->
+    <view class="vehicle-records">
+      <view class="section-title">今日车辆记录</view>
+      <view class="record-list">
+        <block wx:for="{{todayVehicleRecords}}" wx:key="id">
+          <view class="record-item card-hover">
+            <view class="record-header">
+              <view class="plate-number">{{item.plateNumber}}</view>
+              <view class="record-time">{{item.entryTime}}</view>
+            </view>
+            <view class="record-content">
+              <view class="record-info">
+                <text class="info-text">车主：{{item.ownerName}}</text>
+                <text class="info-text">电话：{{item.phone}}</text>
+                <text class="info-text" wx:if="{{item.visitingOwner}}">访问：{{item.visitingOwner}}</text>
+              </view>
+              <view class="record-status">
+                <view class="status-badge {{item.status === 'parked' ? 'status-parked' : 'status-left'}}">
+                  {{item.status === 'parked' ? '在场' : '已离场'}}
+                </view>
+              </view>
+            </view>
+            <view class="record-actions" wx:if="{{item.status === 'parked'}}">
+              <button class="btn-small btn-outline" bindtap="markVehicleLeft" data-id="{{item.id}}">标记离场</button>
+            </view>
+          </view>
+        </block>
+        
+        <view class="empty-state" wx:if="{{todayVehicleRecords.length === 0}}">
+          <image src="/static/icons/door.svg" class="empty-icon"></image>
+          <text class="empty-text">今日暂无车辆记录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 联系业主弹窗 -->
+<view class="modal-overlay {{showContactModal ? 'show' : ''}}" bindtap="closeContactModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">联系业主</view>
+      <view class="modal-close" bindtap="closeContactModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{contactOwner}}">
+      <view class="contact-info">
+        <view class="contact-row">
+          <text class="contact-label">业主姓名：</text>
+          <text class="contact-value">{{contactOwner.name}}</text>
+        </view>
+        <view class="contact-row">
+          <text class="contact-label">房间号：</text>
+          <text class="contact-value">{{contactOwner.roomNumber}}</text>
+        </view>
+        <view class="contact-row">
+          <text class="contact-label">联系电话：</text>
+          <text class="contact-value">{{contactOwner.phone}}</text>
+        </view>
+      </view>
+      
+      <view class="contact-actions">
+        <button class="btn btn-success" bindtap="callOwner">拨打电话</button>
+      </view>
+    </view>
+  </view>
+</view>

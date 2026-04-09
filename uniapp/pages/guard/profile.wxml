@@ -1,0 +1,141 @@
+<!--保安个人中心页面-->
+<view class="page-container">
+  <!-- 用户信息头部 -->
+  <view class="user-header">
+    <view class="avatar-section">
+      <image src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" class="user-avatar"></image>
+      <view class="user-info">
+        <view class="user-name">{{userInfo.name}}</view>
+        <view class="user-id">工号：{{userInfo.workNumber}}</view>
+        <view class="user-signature" wx:if="{{userInfo.signature}}">{{userInfo.signature}}</view>
+        <view class="user-signature placeholder" wx:else>还没有设置个性签名</view>
+      </view>
+    </view>
+    <view class="work-status" wx:if="{{userInfo.workStatus === 'on-duty'}}">
+      <view class="status-badge status-on">在岗</view>
+    </view>
+  </view>
+
+  <!-- 个人业绩统计 -->
+  <view class="performance-stats">
+    <view class="stats-title">本月业绩</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <view class="stat-number">{{performance.patrolRate}}%</view>
+        <view class="stat-label">巡检完成率</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number">{{performance.reportCount}}</view>
+        <view class="stat-label">上报事件数</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number">{{performance.workDays}}</view>
+        <view class="stat-label">出勤天数</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number">{{performance.rating}}</view>
+        <view class="stat-label">综合评分</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 排班信息 -->
+  <view class="schedule-info card">
+    <view class="card-header">
+      <view class="card-title">我的排班</view>
+      <view class="view-more" bindtap="viewSchedule">查看更多</view>
+    </view>
+    <view class="schedule-list">
+      <block wx:for="{{weekSchedule}}" wx:key="date">
+        <view class="schedule-item {{item.isToday ? 'today' : ''}}">
+          <view class="schedule-date">
+            <view class="date-day">{{item.day}}</view>
+            <view class="date-text">{{item.dateText}}</view>
+          </view>
+          <view class="schedule-shift">
+            <view class="shift-type">{{item.shiftType}}</view>
+            <view class="shift-time">{{item.shiftTime}}</view>
+          </view>
+          <view class="schedule-status">
+            <view class="status-dot {{item.status}}"></view>
+            <text class="status-text">{{item.statusText}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToMessages">
+        <view class="menu-icon">
+          <image src="/static/icons/message.svg" class="icon"></image>
+          <view class="badge" wx:if="{{unreadMessages > 0}}">{{unreadMessages}}</view>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">消息通知</view>
+          <view class="menu-desc">查看系统通知和消息</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+      
+      <view class="menu-item" bindtap="goToScheduleDetail">
+        <view class="menu-icon">
+          <image src="/static/icons/calendar.svg" class="icon"></image>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">排班详情</view>
+          <view class="menu-desc">查看完整排班表</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+      
+      <view class="menu-item" bindtap="goToPerformance">
+        <view class="menu-icon">
+          <image src="/static/icons/stats.svg" class="icon"></image>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">业绩统计</view>
+          <view class="menu-desc">查看详细业绩数据</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+    </view>
+    
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToSettings">
+        <view class="menu-icon">
+          <image src="/static/icons/settings.svg" class="icon"></image>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">设置</view>
+          <view class="menu-desc">个人信息和应用设置</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+      
+      <view class="menu-item" bindtap="goToHelp">
+        <view class="menu-icon">
+          <image src="/static/icons/info.svg" class="icon"></image>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title">帮助与反馈</view>
+          <view class="menu-desc">使用帮助和意见反馈</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+      
+      <view class="menu-item" bindtap="logout">
+        <view class="menu-icon">
+          <image src="/static/icons/logout.svg" class="icon logout-icon"></image>
+        </view>
+        <view class="menu-content">
+          <view class="menu-title logout-text">退出登录</view>
+          <view class="menu-desc">切换用户或退出应用</view>
+        </view>
+        <image src="/static/icons/arrow-right.svg" class="menu-arrow"></image>
+      </view>
+    </view>
+  </view>
+</view>

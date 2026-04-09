@@ -1,0 +1,131 @@
+<!--pages/test/network-test.wxml-->
+<view class="network-test-container">
+  <view class="test-header">
+    <text class="test-title">网络连接诊断</text>
+    <text class="test-subtitle">诊断报修详情页面网络问题</text>
+  </view>
+
+  <!-- 配置信息 -->
+  <view class="config-card">
+    <view class="config-header">
+      <text class="config-title">当前配置</text>
+      <button class="config-btn" size="mini" bindtap="showConfig">详情</button>
+    </view>
+    <view class="config-content">
+      <view class="config-item">
+        <text class="config-label">API地址:</text>
+        <text class="config-value" bindtap="copyAPIUrl">{{apiBaseURL}}</text>
+      </view>
+      <view class="config-item">
+        <text class="config-label">域名状态:</text>
+        <text class="config-value {{domainStatus.isValid ? 'status-valid' : (domainStatus.canBypass ? 'status-warning' : 'status-error')}}">
+          {{domainStatus.isValid ? '✅ 合法' : (domainStatus.canBypass ? '⚠️ 开发可用' : '❌ 不合法')}}
+        </text>
+      </view>
+      <view class="config-item">
+        <text class="config-label">网络类型:</text>
+        <text class="config-value">{{networkType || '检测中...'}}</text>
+      </view>
+      <view class="config-item">
+        <text class="config-label">登录状态:</text>
+        <text class="config-value">{{userInfo.hasToken ? '已登录' : '未登录'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 测试按钮 -->
+  <view class="test-actions">
+    <button 
+      class="test-btn primary" 
+      bindtap="runAllTests" 
+      disabled="{{testing}}"
+    >
+      {{testing ? '诊断中...' : '开始诊断'}}
+    </button>
+    
+    <button 
+      class="test-btn" 
+      bindtap="testWorkOrderDetail" 
+      disabled="{{testing}}"
+    >
+      测试工单详情
+    </button>
+    
+    <button 
+      class="test-btn" 
+      bindtap="fixNetworkIssues" 
+      disabled="{{testing}}"
+    >
+      尝试修复
+    </button>
+    
+    <button 
+      class="test-btn" 
+      bindtap="clearResults" 
+      disabled="{{testing}}"
+    >
+      清除结果
+    </button>
+    
+    <button 
+      class="test-btn secondary" 
+      bindtap="showEnvironmentOptions" 
+      disabled="{{testing}}"
+    >
+      环境配置
+    </button>
+    
+    <button 
+      class="test-btn" 
+      bindtap="testSpecificLogin" 
+      disabled="{{testing}}"
+    >
+      测试登录
+    </button>
+  </view>
+
+  <!-- 测试结果 -->
+  <view class="test-results">
+    <view class="results-title">诊断结果 ({{testResults.length}})</view>
+    
+    <view wx:if="{{testResults.length === 0}}" class="empty-results">
+      暂无诊断结果，点击上方按钮开始诊断
+    </view>
+    
+    <view wx:for="{{testResults}}" wx:key="id" class="result-item" bindtap="viewTestDetail" data-test="{{item}}">
+      <view class="result-header">
+        <text class="result-name">{{item.name}}</text>
+        <text class="result-time">{{item.timestamp}}</text>
+      </view>
+      <view class="result-status">
+        <text class="status-text">{{item.status}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 解决方案 -->
+  <view class="solution-card">
+    <view class="solution-header">
+      <text class="solution-title">域名问题解决方案</text>
+    </view>
+    <view class="solution-content">
+      <view class="solution-item">
+        <text class="solution-number">开发阶段:</text>
+        <text class="solution-text">在微信开发者工具中勾选"不校验合法域名"选项</text>
+      </view>
+      <view class="solution-item">
+        <text class="solution-number">真机调试:</text>
+        <text class="solution-text">使用ngrok等工具将localhost映射为HTTPS域名</text>
+      </view>
+      <view class="solution-item">
+        <text class="solution-number">生产环境:</text>
+        <text class="solution-text">在小程序管理后台配置合法的HTTPS域名</text>
+      </view>
+      <view class="solution-item">
+        <text class="solution-number">临时方案:</text>
+        <text class="solution-text">修改config/index.js中的CURRENT_ENV切换环境</text>
+      </view>
+    </view>
+  </view>
+</view>
+

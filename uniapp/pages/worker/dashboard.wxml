@@ -1,0 +1,182 @@
+<!--pages/worker/dashboard.wxml-->
+<view class="dashboard-container">
+  <!-- 页面头部 -->
+  <view class="header-section">
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+      <view class="user-details">
+        <text class="user-name">{{userInfo.name}}</text>
+        <text class="user-role">工号：{{userInfo.workerId}} | {{userInfo.department}}</text>
+      </view>
+    </view>
+    <view class="header-actions">
+      <view class="action-item" bindtap="viewAllNotifications">
+        <image class="action-icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+        <view class="badge" wx:if="{{notifications.length > 0}}">{{notifications.length}}</view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="content" refresher-enabled="{{true}}" bindrefresherrefresh="onPullDownRefresh">
+    <!-- 工作统计 -->
+    <view class="stats-section">
+      <view class="section-header">
+        <text class="section-title">今日工作</text>
+      </view>
+      
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-number">{{workStats.availableOrders}}</text>
+          <text class="stat-label">可接单</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{workStats.processingOrders}}</text>
+          <text class="stat-label">处理中</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{workStats.completedOrders}}</text>
+          <text class="stat-label">已完成</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{workStats.todayOrders}}</text>
+          <text class="stat-label">今日工单</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-actions-section">
+      <view class="section-header">
+        <text class="section-title">快捷操作</text>
+      </view>
+      
+      <view class="actions-single">
+        <view 
+          class="action-card-single"
+          wx:for="{{quickActions}}"
+          wx:key="id"
+          bindtap="onQuickActionTap"
+          data-action="{{item}}"
+        >
+          <view class="action-icon-wrapper" style="background: {{item.color}}">
+            <image class="action-icon" src="{{item.icon}}" mode="aspectFit"></image>
+          </view>
+          <text class="action-name">{{item.name}}</text>
+          <view class="action-arrow">
+            <image class="arrow-icon" src="/static/icons/arrow-right.svg" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近工单 -->
+    <view class="recent-orders-section">
+      <view class="section-header">
+        <text class="section-title">最近工单</text>
+        <text class="section-action" bindtap="viewAllOrders">查看全部</text>
+      </view>
+      
+      <view class="orders-list" wx:if="{{recentOrders.length > 0}}">
+        <view 
+          class="order-card"
+          wx:for="{{recentOrders}}"
+          wx:key="id"
+          bindtap="viewOrderDetail"
+          data-order="{{item}}"
+        >
+          <view class="order-header">
+            <text class="order-title">{{item.title}}</text>
+            <view class="urgent-badge" wx:if="{{item.urgentLevel === 'high'}}">
+              <text class="urgent-text">紧急</text>
+            </view>
+          </view>
+          
+          <view class="order-info">
+            <view class="info-item">
+              <image class="info-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+              <text class="info-text">{{item.address}}</text>
+            </view>
+            <view class="info-item">
+              <image class="info-icon" src="/static/icons/users.svg" mode="aspectFit"></image>
+              <text class="info-text">{{item.ownerName}}</text>
+            </view>
+          </view>
+          
+          <view class="order-actions">
+            <button 
+              class="action-btn contact"
+              catchtap="contactOwner"
+              data-order="{{item}}"
+            >
+              联系业主
+            </button>
+            <!-- 只有待处理状态才显示"开始处理"按钮 -->
+            <button 
+              wx:if="{{item.status === 'pending'}}"
+              class="action-btn start"
+              catchtap="startOrder"
+              data-order="{{item}}"
+            >
+              开始处理
+            </button>
+            <!-- 处理中状态显示"查看详情"按钮 -->
+            <button 
+              wx:elif="{{item.status === 'processing'}}"
+              class="action-btn detail"
+              catchtap="viewOrderDetail"
+              data-order="{{item}}"
+            >
+              查看详情
+            </button>
+            <!-- 已完成状态显示"已完成"标签 -->
+            <view wx:elif="{{item.status === 'completed'}}" class="status-tag completed">
+              已完成
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="empty-state" wx:else>
+        <image class="empty-icon" src="/static/icons/repair.svg" mode="aspectFit"></image>
+        <text class="empty-text">暂无最近工单</text>
+      </view>
+    </view>
+
+    <!-- 系统通知 -->
+    <view class="notifications-section">
+      <view class="section-header">
+        <text class="section-title">系统通知</text>
+        <text class="section-action" bindtap="viewAllNotifications">查看全部</text>
+      </view>
+      
+      <view class="notifications-list" wx:if="{{notifications.length > 0}}">
+        <view 
+          class="notification-item"
+          wx:for="{{notifications}}"
+          wx:key="id"
+        >
+          <view class="notification-icon" wx:if="{{item.type === 'order'}}">
+            <image class="icon" src="/static/icons/repair.svg" mode="aspectFit"></image>
+          </view>
+          <view class="notification-icon" wx:elif="{{item.type === 'system'}}">
+            <image class="icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+          </view>
+          
+          <view class="notification-content">
+            <text class="notification-title">{{item.title}}</text>
+            <text class="notification-text">{{item.content}}</text>
+            <text class="notification-time">{{item.timeText}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="empty-state" wx:else>
+        <image class="empty-icon" src="/static/icons/bell.svg" mode="aspectFit"></image>
+        <text class="empty-text">暂无系统通知</text>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

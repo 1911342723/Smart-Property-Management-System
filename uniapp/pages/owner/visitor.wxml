@@ -1,0 +1,173 @@
+<!--pages/owner/visitor.wxml-->
+<view class="visitor-container">
+  <view class="page-header">
+    <text class="page-title">访客通行</text>
+    <text class="page-subtitle">邀请访客，生成通行码，便捷通行</text>
+  </view>
+  
+  <scroll-view scroll-y class="content">
+    <!-- 快速邀请 -->
+    <view class="invite-section">
+      <view class="invite-card">
+        <view class="invite-header">
+          <view class="invite-icon">
+            <image class="icon-svg" src="/static/icons/users.svg" mode="aspectFit"></image>
+          </view>
+          <view class="invite-info">
+            <text class="invite-title">邀请访客</text>
+            <text class="invite-desc">生成专属通行码，让访客轻松进入</text>
+          </view>
+        </view>
+        <button class="invite-btn" bindtap="inviteVisitor">
+          <image class="btn-icon" src="/static/icons/edit.svg" mode="aspectFit"></image>
+          <text class="btn-text">立即邀请</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 今日访客 -->
+    <view class="today-visitors-section">
+      <view class="section-header">
+        <text class="section-title">今日访客</text>
+        <text class="section-count">{{todayVisitors.length}}人</text>
+      </view>
+      
+      <view class="visitors-list" wx:if="{{todayVisitors.length > 0}}">
+        <view 
+          class="visitor-item"
+          wx:for="{{todayVisitors}}"
+          wx:key="id"
+          bindtap="viewVisitorDetail"
+          data-visitor="{{item}}"
+        >
+          <view class="visitor-avatar">
+            <text class="avatar-text">{{item.nameInitial}}</text>
+          </view>
+          <view class="visitor-content">
+            <view class="visitor-header">
+              <text class="visitor-name">{{item.name}}</text>
+              <view class="visitor-status {{item.status}}">
+                <view class="status-dot"></view>
+                <text class="status-text">{{item.statusText}}</text>
+              </view>
+            </view>
+            <text class="visitor-phone">{{item.phone}}</text>
+            <text class="visitor-time">{{item.visitTime}}</text>
+          </view>
+          <view class="visitor-actions">
+            <view class="qr-code-btn" bindtap="showQRCode" data-visitor="{{item}}">
+              <image class="action-icon" src="/static/icons/qr-code.svg" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <image class="empty-icon" src="/static/icons/users.svg" mode="aspectFit"></image>
+        <text class="empty-text">今日暂无访客</text>
+        <button class="empty-btn" bindtap="inviteVisitor">邀请访客</button>
+      </view>
+    </view>
+
+    <!-- 访客统计 -->
+    <view class="stats-section">
+      <view class="section-header">
+        <text class="section-title">访客统计</text>
+      </view>
+      
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-number">{{visitorStats.total}}</text>
+          <text class="stat-label">总访客</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{visitorStats.today}}</text>
+          <text class="stat-label">今日</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{visitorStats.thisWeek}}</text>
+          <text class="stat-label">本周</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{visitorStats.thisMonth}}</text>
+          <text class="stat-label">本月</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 历史记录 -->
+    <view class="history-section">
+      <view class="section-header">
+        <text class="section-title">访问记录</text>
+        <text class="section-action" bindtap="viewAllHistory">查看全部</text>
+      </view>
+      
+      <view class="history-list">
+        <view 
+          class="history-item"
+          wx:for="{{recentHistory}}"
+          wx:key="id"
+        >
+          <view class="history-icon" style="background-color: {{item.statusColor}}">
+            <image class="icon-svg" src="{{item.iconUrl}}" mode="aspectFit"></image>
+          </view>
+          <view class="history-content">
+            <text class="history-title">{{item.visitorName}}</text>
+            <text class="history-desc">{{item.description}}</text>
+            <text class="history-time">{{item.timeText}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 使用说明 -->
+    <view class="guide-section">
+      <view class="guide-card">
+        <view class="guide-header">
+          <image class="guide-icon" src="/static/icons/info.svg" mode="aspectFit"></image>
+          <text class="guide-title">使用说明</text>
+        </view>
+        <view class="guide-content">
+          <text class="guide-text">• 访客通行码有效期为24小时</text>
+          <text class="guide-text">• 每个通行码仅限单次使用</text>
+          <text class="guide-text">• 访客需在有效时间内到达</text>
+          <text class="guide-text">• 可提前取消或修改访客信息</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>
+
+<!-- 二维码弹窗 -->
+<view class="qr-modal" wx:if="{{showQRModal}}" bindtap="hideQRCode">
+  <view class="qr-content" catchtap="">
+    <view class="qr-header">
+      <text class="qr-title">访客通行码</text>
+      <view class="qr-close" bindtap="hideQRCode">
+        <image class="close-icon" src="/static/icons/close.svg" mode="aspectFit"></image>
+      </view>
+    </view>
+    <view class="qr-info">
+      <text class="visitor-name">{{currentVisitor.name}}</text>
+      <text class="visit-time">{{currentVisitor.visitTime}}</text>
+    </view>
+    <view class="qr-code-container">
+      <!-- 这里应该显示真实的二维码 -->
+      <view class="qr-placeholder">
+        <image class="qr-icon" src="/static/icons/qr-code.svg" mode="aspectFit"></image>
+        <text class="qr-text">通行二维码</text>
+      </view>
+    </view>
+    <view class="qr-tips">
+      <text class="tip-text">请将此二维码发送给访客</text>
+      <text class="tip-text">有效期：{{currentVisitor.expireTime}}</text>
+    </view>
+    <view class="qr-actions">
+      <button class="share-btn" bindtap="shareQRCode">分享给访客</button>
+    </view>
+  </view>
+</view>

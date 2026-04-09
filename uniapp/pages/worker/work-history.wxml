@@ -1,0 +1,110 @@
+<!--pages/worker/work-history.wxml-->
+<view class="history-container">
+  <!-- 统计概览 -->
+  <view class="stats-overview">
+    <view class="stat-card">
+      <text class="stat-value">{{stats.total}}</text>
+      <text class="stat-label">总工单</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.completed}}</text>
+      <text class="stat-label">已完成</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{stats.avgRating}}</text>
+      <text class="stat-label">平均评分</text>
+    </view>
+    <view class="stat-card" wx:if="{{stats.totalIncome > 0}}">
+      <text class="stat-value">¥{{stats.totalIncome}}</text>
+      <text class="stat-label">总收入</text>
+    </view>
+  </view>
+
+  <!-- 筛选和排序 -->
+  <view class="filter-bar">
+    <view class="filter-btn" bindtap="showFilterMenu">
+      <image class="filter-icon" src="/static/icons/filter.svg" mode="aspectFit"></image>
+      <text class="filter-text">筛选</text>
+    </view>
+    <view class="filter-btn" bindtap="showSortMenu">
+      <image class="filter-icon" src="/static/icons/settings.svg" mode="aspectFit"></image>
+      <text class="filter-text">排序</text>
+    </view>
+  </view>
+
+  <!-- 工单列表 -->
+  <scroll-view scroll-y class="order-list" enable-flex>
+    <view 
+      class="order-card"
+      wx:for="{{filteredOrders}}"
+      wx:key="id"
+      bindtap="viewOrderDetail"
+      data-order="{{item}}"
+    >
+      <!-- 工单头部 -->
+      <view class="order-header">
+        <view class="order-title-section">
+          <text class="order-title">{{item.title}}</text>
+          <view class="status-badge" style="background-color: {{item.statusColor}};">
+            <text class="status-text">{{item.statusText}}</text>
+          </view>
+        </view>
+        <view class="order-time">
+          <text class="time-text">{{item.createTime}}</text>
+        </view>
+      </view>
+
+      <!-- 工单内容 -->
+      <view class="order-content">
+        <view class="content-row">
+          <image class="content-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+          <text class="content-text">{{item.address}}</text>
+        </view>
+        <view class="content-row">
+          <image class="content-icon" src="/static/icons/user.svg" mode="aspectFit"></image>
+          <text class="content-text">{{item.ownerName}}</text>
+        </view>
+        <view class="content-row" wx:if="{{item.completeTime}}">
+          <image class="content-icon" src="/static/icons/check-circle.svg" mode="aspectFit"></image>
+          <text class="content-text">完成时间：{{item.completeTime}}</text>
+        </view>
+      </view>
+
+      <!-- 评价信息 -->
+      <view class="order-footer" wx:if="{{item.rating > 0 || item.cost > 0}}">
+        <view class="rating-section" wx:if="{{item.rating > 0}}">
+          <view class="stars">
+            <text class="star {{index < item.rating ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+          </view>
+          <text class="rating-text">{{item.rating}}分</text>
+        </view>
+        <view class="cost-section" wx:if="{{item.cost > 0}}">
+          <text class="cost-label">费用：</text>
+          <text class="cost-value">¥{{item.cost}}</text>
+        </view>
+      </view>
+
+      <!-- 用户反馈 -->
+      <view class="feedback-section" wx:if="{{item.feedback}}">
+        <text class="feedback-label">用户评价：</text>
+        <text class="feedback-text">{{item.feedback}}</text>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && filteredOrders.length > 0}}">
+      <text class="no-more-text">没有更多了</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && filteredOrders.length === 0}}">
+      <image class="empty-icon" src="/static/icons/history.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无工单记录</text>
+    </view>
+  </scroll-view>
+</view>

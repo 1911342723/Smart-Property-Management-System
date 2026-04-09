@@ -1,0 +1,57 @@
+<!--pages/owner/messages.wxml-->
+<view class="messages-container">
+  <view class="page-header">
+    <text class="page-title">消息中心</text>
+    <text class="page-subtitle">查看所有通知和消息</text>
+  </view>
+  
+  <scroll-view scroll-y class="content">
+    <!-- 消息分类 -->
+    <view class="message-tabs">
+      <view 
+        class="tab-item {{activeTab === item.value ? 'active' : ''}}"
+        wx:for="{{messageTabs}}"
+        wx:key="value"
+        bindtap="switchTab"
+        data-tab="{{item.value}}"
+      >
+        <text class="tab-text">{{item.label}}</text>
+        <view class="tab-badge" wx:if="{{item.count > 0}}">{{item.count}}</view>
+      </view>
+    </view>
+
+    <!-- 消息列表 -->
+    <view class="message-list">
+      <view 
+        class="message-item {{item.read ? '' : 'unread'}}"
+        wx:for="{{currentMessages}}"
+        wx:key="id"
+        bindtap="readMessage"
+        data-message="{{item}}"
+      >
+        <view class="message-icon" style="background: {{item.iconBg}}">
+          <image class="icon-svg" src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
+        <view class="message-content">
+          <view class="message-header">
+            <text class="message-title">{{item.title}}</text>
+            <text class="message-time">{{item.timeText}}</text>
+          </view>
+          <text class="message-desc">{{item.content}}</text>
+        </view>
+        <view class="message-status" wx:if="{{!item.read}}">
+          <view class="unread-dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{currentMessages.length === 0}}">
+      <image class="empty-icon" src="/static/icons/message.svg" mode="aspectFit"></image>
+      <text class="empty-text">暂无消息</text>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

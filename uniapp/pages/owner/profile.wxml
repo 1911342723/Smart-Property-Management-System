@@ -1,0 +1,141 @@
+<!--pages/owner/profile.wxml-->
+<scroll-view class="profile-container" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+  <view class="page-header">
+    <text class="page-title">个人中心</text>
+  </view>
+  
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" lazy-load="{{false}}"></image>
+    <text class="username">{{userInfo.name}}</text>
+    <view class="user-role">{{userInfo.roleText}}</view>
+  </view>
+  
+  <view class="content">
+    <!-- 统计卡片 -->
+    <view class="stats-cards">
+      <view class="stat-card">
+        <text class="stat-number">{{userStats.repairs}}</text>
+        <text class="stat-label">报修次数</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-number">{{userStats.payments}}</text>
+        <text class="stat-label">缴费次数</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-number">{{userStats.complaints}}</text>
+        <text class="stat-label">投诉建议</text>
+      </view>
+    </view>
+
+    <!-- 个人信息 -->
+    <view class="menu-section">
+      <text class="section-title">个人信息</text>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="editProfile">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/edit.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">编辑资料</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+        <view class="menu-item" bindtap="houseInfo">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/house.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">房屋信息</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 服务记录 -->
+    <view class="menu-section">
+      <text class="section-title">服务记录</text>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="repairHistory">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/repair.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">报修记录</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+        <view class="menu-item" bindtap="paymentHistory">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/payment.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">缴费记录</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+        <view class="menu-item" bindtap="complaintHistory">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/complaint.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">投诉记录</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 应用设置 -->
+    <view class="menu-section">
+      <text class="section-title">应用设置</text>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="settings">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/settings.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">通用设置</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+        <view class="menu-item" bindtap="feedback">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/feedback.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">意见反馈</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+        <view class="menu-item" bindtap="about">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/about.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">关于我们</text>
+          </view>
+          <text class="menu-arrow">></text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="menu-section">
+      <view class="menu-list">
+        <view class="menu-item logout" bindtap="logout">
+          <view class="menu-left">
+            <view class="menu-icon">
+              <image class="menu-icon-svg" src="/static/icons/logout.svg" mode="aspectFit"></image>
+            </view>
+            <text class="menu-text">退出登录</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </view>
+</scroll-view>

@@ -1,0 +1,571 @@
+/* 排班详情页面样式 */
+
+/* 月份切换 */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  background: #ffffff;
+  border-bottom: 1rpx solid #e9ecef;
+}
+
+.month-arrow {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 50%;
+}
+
+.arrow-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.7;
+}
+
+.month-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+/* 排班统计 */
+.schedule-stats {
+  margin: 24rpx 32rpx;
+  display: flex;
+  align-items: center;
+  padding: 32rpx 24rpx;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #2d3748;
+  line-height: 1.2;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #6c757d;
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 60rpx;
+  background: #e9ecef;
+  margin: 0 24rpx;
+}
+
+/* 日历容器 */
+.calendar-container {
+  margin: 24rpx 32rpx;
+  padding: 32rpx 24rpx;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.weekday-item {
+  text-align: center;
+  font-size: 24rpx;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 16rpx 0;
+}
+
+.calendar-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8rpx;
+}
+
+.day-item {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.day-item.current-month {
+  background: #ffffff;
+  border: 1rpx solid #e9ecef;
+}
+
+.day-item.today {
+  background: rgba(45, 55, 72, 0.1);
+  border-color: #2d3748;
+}
+
+.day-item.selected {
+  background: #2d3748;
+  color: #ffffff;
+}
+
+.day-item.other-month {
+  opacity: 0.3;
+}
+
+.day-number {
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+
+.day-shift {
+  position: absolute;
+  bottom: 4rpx;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.shift-badge {
+  padding: 2rpx 8rpx;
+  border-radius: 8rpx;
+  font-size: 16rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.shift-morning {
+  background: rgba(56, 161, 105, 0.1);
+  color: #38a169;
+}
+
+.shift-evening {
+  background: rgba(214, 158, 46, 0.1);
+  color: #d69e2e;
+}
+
+.shift-night {
+  background: rgba(45, 55, 72, 0.1);
+  color: #2d3748;
+}
+
+.shift-rest {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.day-status {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+}
+
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+}
+
+.status-completed {
+  background: #38a169;
+}
+
+.status-absent {
+  background: #e53e3e;
+}
+
+.status-leave {
+  background: #d69e2e;
+}
+
+/* 班次说明 */
+.shift-legend {
+  margin: 24rpx 32rpx;
+  padding: 32rpx 24rpx;
+}
+
+.legend-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 20rpx;
+}
+
+.legend-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex: 1;
+  min-width: 140rpx;
+}
+
+.legend-text {
+  font-size: 22rpx;
+  color: #6c757d;
+}
+
+/* 快速操作 */
+.quick-actions {
+  display: flex;
+  gap: 16rpx;
+  padding: 32rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 80rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: none;
+  position: relative;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.btn-primary {
+  background: #2d3748;
+  color: #ffffff;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #2d3748;
+  border: 1rpx solid #2d3748;
+}
+
+.btn-outline:active {
+  background: rgba(45, 55, 72, 0.1);
+}
+
+.btn-primary:active {
+  background: #1a202c;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 20rpx;
+  margin: 32rpx;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20rpx 40rpx 0 rgba(0, 0, 0, 0.15);
+  transform: scale(0.9) translateY(40rpx);
+  transition: all 0.3s ease;
+  width: calc(100% - 64rpx);
+}
+
+.modal-overlay.show .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 32rpx 0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.modal-close {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.6;
+}
+
+.modal-body {
+  padding: 32rpx;
+}
+
+/* 日期详情样式 */
+.day-detail-info {
+  margin-bottom: 32rpx;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.detail-label {
+  font-size: 26rpx;
+  color: #6c757d;
+  font-weight: 500;
+  margin-right: 16rpx;
+  white-space: nowrap;
+  min-width: 100rpx;
+}
+
+.detail-value {
+  font-size: 26rpx;
+  color: #2d3748;
+  flex: 1;
+}
+
+.day-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+
+.day-action-btn {
+  flex: 1;
+  height: 72rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: 12rpx;
+}
+
+.day-action-btn::after {
+  border: none;
+}
+
+/* 请假申请弹窗样式 */
+.leave-form {
+  padding: 32rpx;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 16rpx;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 24rpx;
+  background: #f8f9fa;
+  border: 1rpx solid #dee2e6;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #495057;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.form-input {
+  display: flex;
+  align-items: center;
+  min-height: 40rpx;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  line-height: 1.5;
+  vertical-align: middle;
+  color: #a0aec0;
+}
+
+.form-textarea {
+  min-height: 160rpx;
+  resize: none;
+}
+
+.picker {
+  background: #f8f9fa;
+  border: 1rpx solid #dee2e6;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  color: #495057;
+  font-size: 28rpx;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 48rpx;
+}
+
+.form-btn {
+  flex: 1;
+  height: 88rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: 12rpx;
+  border: none;
+}
+
+.form-btn::after {
+  border: none;
+}
+
+.btn-cancel {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1rpx solid #dee2e6;
+}
+
+.btn-submit {
+  background: #2d3748;
+  color: #ffffff;
+}
+
+.btn-submit:active {
+  background: #1a202c;
+}
+
+.btn-cancel:active {
+  background: #e9ecef;
+}
+
+/* 上传组件样式 */
+.upload-section {
+  margin-top: 16rpx;
+}
+
+.upload-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.upload-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.upload-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-delete {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 32rpx;
+  height: 32rpx;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  width: 16rpx;
+  height: 16rpx;
+  filter: brightness(0) invert(1);
+}
+
+.upload-add {
+  width: 160rpx;
+  height: 160rpx;
+  border: 2rpx dashed #dee2e6;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.add-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+  margin-bottom: 8rpx;
+}
+
+.add-text {
+  font-size: 22rpx;
+  color: #6c757d;
+}
+
+/* 班次信息展示样式 */
+.shift-info {
+  background: #f8f9fa;
+  border: 1rpx solid #dee2e6;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.shift-date {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.shift-time {
+  font-size: 24rpx;
+  color: #6c757d;
+}

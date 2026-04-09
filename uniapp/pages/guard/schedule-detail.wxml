@@ -1,0 +1,265 @@
+<!--排班详情页面-->
+<view class="page-container">
+  <!-- 月份切换 -->
+  <view class="month-selector">
+    <view class="month-arrow" bindtap="changeMonth" data-direction="prev">
+      <image src="/static/icons/arrow-left.svg" class="arrow-icon"></image>
+    </view>
+    <view class="month-display">
+      <text class="month-text">{{currentYear}}年{{currentMonth}}月</text>
+    </view>
+    <view class="month-arrow" bindtap="changeMonth" data-direction="next">
+      <image src="/static/icons/arrow-right.svg" class="arrow-icon"></image>
+    </view>
+  </view>
+
+  <!-- 排班统计 -->
+  <view class="schedule-stats card">
+    <view class="stat-item">
+      <view class="stat-number">{{monthStats.totalDays}}</view>
+      <view class="stat-label">总天数</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{monthStats.workDays}}</view>
+      <view class="stat-label">工作日</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{monthStats.restDays}}</view>
+      <view class="stat-label">休息日</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{monthStats.overtimeHours}}</view>
+      <view class="stat-label">加班时数</view>
+    </view>
+  </view>
+
+  <!-- 日历视图 -->
+  <view class="calendar-container card">
+    <view class="calendar-header">
+      <view class="weekday-item">一</view>
+      <view class="weekday-item">二</view>
+      <view class="weekday-item">三</view>
+      <view class="weekday-item">四</view>
+      <view class="weekday-item">五</view>
+      <view class="weekday-item">六</view>
+      <view class="weekday-item">日</view>
+    </view>
+    
+    <view class="calendar-body">
+      <block wx:for="{{calendarDays}}" wx:key="date">
+        <view class="day-item {{item.isCurrentMonth ? 'current-month' : 'other-month'}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}" 
+              bindtap="selectDay" data-day="{{item}}">
+          <view class="day-number">{{item.day}}</view>
+          <view class="day-shift" wx:if="{{item.shift}}">
+            <view class="shift-badge shift-{{item.shift.type}}">{{item.shift.name}}</view>
+          </view>
+          <view class="day-status" wx:if="{{item.status}}">
+            <view class="status-dot status-{{item.status}}"></view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 班次说明 -->
+  <view class="shift-legend card">
+    <view class="legend-title">班次说明</view>
+    <view class="legend-list">
+      <view class="legend-item">
+        <view class="shift-badge shift-morning">早班</view>
+        <text class="legend-text">08:00-16:00</text>
+      </view>
+      <view class="legend-item">
+        <view class="shift-badge shift-evening">晚班</view>
+        <text class="legend-text">16:00-24:00</text>
+      </view>
+      <view class="legend-item">
+        <view class="shift-badge shift-night">夜班</view>
+        <text class="legend-text">00:00-08:00</text>
+      </view>
+      <view class="legend-item">
+        <view class="shift-badge shift-rest">休息</view>
+        <text class="legend-text">全天休息</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速操作 -->
+  <view class="quick-actions">
+    <button class="action-btn btn-outline" bindtap="requestLeave">申请请假</button>
+    <button class="action-btn btn-outline" bindtap="swapShift">申请换班</button>
+    <button class="action-btn btn-primary" bindtap="viewShiftDetail">查看详情</button>
+  </view>
+</view>
+
+<!-- 选中日期详情弹窗 -->
+<view class="modal-overlay {{showDayDetail ? 'show' : ''}}" bindtap="closeDayDetail">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">{{selectedDay ? selectedDay.date : ''}} 排班详情</view>
+      <view class="modal-close" bindtap="closeDayDetail">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedDay}}">
+      <view class="day-detail-info">
+        <view class="detail-row">
+          <text class="detail-label">日期：</text>
+          <text class="detail-value">{{selectedDay.fullDate}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">星期：</text>
+          <text class="detail-value">{{selectedDay.weekday}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{selectedDay.shift}}">
+          <text class="detail-label">班次：</text>
+          <view class="shift-badge shift-{{selectedDay.shift.type}}">{{selectedDay.shift.name}}</view>
+        </view>
+        <view class="detail-row" wx:if="{{selectedDay.shift}}">
+          <text class="detail-label">时间：</text>
+          <text class="detail-value">{{selectedDay.shift.time}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{selectedDay.location}}">
+          <text class="detail-label">岗位：</text>
+          <text class="detail-value">{{selectedDay.location}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{selectedDay.status}}">
+          <text class="detail-label">状态：</text>
+          <text class="detail-value">{{getStatusText(selectedDay.status)}}</text>
+        </view>
+      </view>
+      
+      <view class="day-actions" wx:if="{{selectedDay.canModify}}">
+        <button class="btn btn-outline day-action-btn" bindtap="requestDayOff">申请请假</button>
+        <button class="btn btn-outline day-action-btn" bindtap="requestSwap">申请换班</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 请假申请弹窗 -->
+<view class="modal-overlay {{showLeaveModal ? 'show' : ''}}" bindtap="closeLeaveModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">申请请假</view>
+      <view class="modal-close" bindtap="closeLeaveModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="leave-form">
+      <view class="form-item">
+        <label class="form-label">请假类型</label>
+        <picker bindchange="onLeaveTypeChange" value="{{leaveForm.typeIndex}}" range="{{leaveTypes}}" range-key="name">
+          <view class="picker">{{leaveForm.typeIndex >= 0 ? leaveTypes[leaveForm.typeIndex].name : '请选择请假类型'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <label class="form-label">开始时间</label>
+        <picker mode="multiSelector" bindchange="onStartTimeChange" value="{{leaveForm.startTimeIndex}}" range="{{dateTimeRange}}" range-key="name">
+          <view class="picker">{{leaveForm.startTime || '请选择开始时间'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <label class="form-label">结束时间</label>
+        <picker mode="multiSelector" bindchange="onEndTimeChange" value="{{leaveForm.endTimeIndex}}" range="{{dateTimeRange}}" range-key="name">
+          <view class="picker">{{leaveForm.endTime || '请选择结束时间'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <label class="form-label">请假原因</label>
+        <textarea class="form-textarea" placeholder="请详细说明请假原因" value="{{leaveForm.reason}}" bindinput="onLeaveReasonInput" maxlength="200"></textarea>
+      </view>
+      
+      <view class="form-item" wx:if="{{leaveForm.typeIndex >= 0 && leaveTypes[leaveForm.typeIndex].needProof}}">
+        <label class="form-label">证明材料</label>
+        <view class="upload-section">
+          <view class="upload-grid">
+            <block wx:for="{{leaveForm.attachments}}" wx:key="*this">
+              <view class="upload-item">
+                <image src="{{item}}" class="upload-image" bindtap="previewImage" data-url="{{item}}"></image>
+                <view class="upload-delete" bindtap="deleteAttachment" data-index="{{index}}">
+                  <image src="/static/icons/close.svg" class="delete-icon"></image>
+                </view>
+              </view>
+            </block>
+            <view class="upload-add" wx:if="{{leaveForm.attachments.length < 3}}" bindtap="uploadAttachment">
+              <image src="/static/icons/plus.svg" class="add-icon"></image>
+              <text class="add-text">上传证明</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-actions">
+        <button class="form-btn btn-cancel" bindtap="closeLeaveModal">取消</button>
+        <button class="form-btn btn-submit" bindtap="submitLeaveRequest" disabled="{{submittingLeave}}">
+          {{submittingLeave ? '提交中...' : '提交申请'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 换班申请弹窗 -->
+<view class="modal-overlay {{showSwapModal ? 'show' : ''}}" bindtap="closeSwapModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">申请换班</view>
+      <view class="modal-close" bindtap="closeSwapModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="leave-form">
+      <view class="form-item">
+        <label class="form-label">换班对象</label>
+        <picker bindchange="onSwapTargetChange" value="{{swapForm.targetIndex}}" range="{{swapTargets}}" range-key="name">
+          <view class="picker">{{swapForm.targetIndex >= 0 ? swapTargets[swapForm.targetIndex].name : '请选择换班同事'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <label class="form-label">我的班次</label>
+        <view class="shift-info">
+          <view class="shift-date">{{selectedDay ? selectedDay.fullDate : ''}}</view>
+          <view class="shift-badge shift-{{selectedDay ? selectedDay.shift.type : ''}}">
+            {{selectedDay ? selectedDay.shift.name : ''}}
+          </view>
+          <view class="shift-time">{{selectedDay ? selectedDay.shift.time : ''}}</view>
+        </view>
+      </view>
+      
+      <view class="form-item" wx:if="{{swapForm.targetIndex >= 0}}">
+        <label class="form-label">对方班次</label>
+        <picker bindchange="onTargetShiftChange" value="{{swapForm.shiftIndex}}" range="{{targetShifts}}" range-key="display">
+          <view class="picker">{{swapForm.shiftIndex >= 0 ? targetShifts[swapForm.shiftIndex].display : '请选择对方班次'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <label class="form-label">换班原因</label>
+        <textarea class="form-textarea" placeholder="请说明换班原因" value="{{swapForm.reason}}" bindinput="onSwapReasonInput" maxlength="200"></textarea>
+      </view>
+      
+      <view class="form-actions">
+        <button class="form-btn btn-cancel" bindtap="closeSwapModal">取消</button>
+        <button class="form-btn btn-submit" bindtap="submitSwapRequest" disabled="{{submittingSwap}}">
+          {{submittingSwap ? '提交中...' : '提交申请'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+
+

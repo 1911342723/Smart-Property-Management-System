@@ -40,6 +40,7 @@ public interface BillMapper extends BaseMapper<Bill> {
         "LEFT JOIN unit un ON r.unit_id = un.id ",
         "LEFT JOIN building bd ON r.building_id = bd.id ",
         "WHERE b.deleted = 0 ",
+        "AND b.bill_type IN ('PROPERTY', 'PARKING', 'PROPERTY_FEE', 'PARKING_FEE') ",
         "<if test='billType != null and billType != \"\"'>",
         "AND b.bill_type = #{billType} ",
         "</if>",

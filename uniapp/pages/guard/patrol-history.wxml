@@ -1,0 +1,209 @@
+<!--历史巡检记录页面-->
+<view class="page-container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item">
+      <picker mode="date" value="{{filters.startDate}}" bindchange="onStartDateChange">
+        <view class="date-picker">
+          <image src="/static/icons/calendar.svg" class="picker-icon"></image>
+          <text>{{filters.startDate || '开始日期'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <view class="filter-item">
+      <picker mode="date" value="{{filters.endDate}}" bindchange="onEndDateChange">
+        <view class="date-picker">
+          <image src="/static/icons/calendar.svg" class="picker-icon"></image>
+          <text>{{filters.endDate || '结束日期'}}</text>
+        </view>
+      </picker>
+    </view>
+    
+    <view class="filter-item">
+      <picker mode="selector" range="{{statusOptions}}" range-key="label" value="{{filters.statusIndex}}" bindchange="onStatusChange">
+        <view class="status-picker">
+          <text>{{statusOptions[filters.statusIndex].label}}</text>
+          <image src="/static/icons/arrow-right.svg" class="picker-arrow"></image>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-summary card">
+    <view class="summary-item">
+      <view class="summary-number">{{statistics.totalCount}}</view>
+      <view class="summary-label">总巡检次数</view>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <view class="summary-number">{{statistics.normalCount}}</view>
+      <view class="summary-label">正常次数</view>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <view class="summary-number">{{statistics.abnormalCount}}</view>
+      <view class="summary-label">异常次数</view>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <view class="summary-number">{{statistics.completionRate}}%</view>
+      <view class="summary-label">完成率</view>
+    </view>
+  </view>
+
+  <!-- 巡检记录列表 -->
+  <view class="patrol-list">
+    <block wx:for="{{patrolRecords}}" wx:key="id">
+      <view class="patrol-item card-hover" bindtap="viewDetail" data-record="{{item}}">
+        <view class="patrol-header">
+          <view class="patrol-point">{{item.patrolPoint}}</view>
+          <view class="patrol-date">{{item.createDate}}</view>
+        </view>
+        
+        <view class="patrol-content">
+          <view class="patrol-info">
+            <view class="info-row">
+              <text class="info-label">时间：</text>
+              <text class="info-value">{{item.createTime}}</text>
+            </view>
+            <view class="info-row">
+              <text class="info-label">位置：</text>
+              <text class="info-value">{{item.location}}</text>
+            </view>
+            <view class="info-row" wx:if="{{item.weather}}">
+              <text class="info-label">天气：</text>
+              <text class="info-value">{{item.weather}}</text>
+            </view>
+          </view>
+          
+          <view class="patrol-status">
+            <view class="status-badge {{item.status === 'normal' ? 'status-normal' : 'status-abnormal'}}">
+              {{item.status === 'normal' ? '正常' : '异常'}}
+            </view>
+          </view>
+        </view>
+        
+        <view class="patrol-desc" wx:if="{{item.description}}">{{item.description}}</view>
+        
+        <view class="patrol-photos" wx:if="{{item.photos && item.photos.length > 0}}">
+          <block wx:for="{{item.photos}}" wx:for-item="photo" wx:key="*this">
+            <image src="{{photo}}" mode="aspectFill" class="photo-thumb" bindtap="previewImage" data-src="{{photo}}" data-urls="{{item.photos}}"></image>
+          </block>
+        </view>
+        
+        <view class="patrol-footer">
+          <view class="patrol-guard">巡检人：{{item.guardName}}</view>
+          <view class="patrol-duration" wx:if="{{item.duration}}">用时：{{item.duration}}分钟</view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 加载状态 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 没有更多数据 */
+    <view class="no-more" wx:if="{{noMore && patrolRecords.length > 0}}">
+      <text class="no-more-text">没有更多记录了</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{patrolRecords.length === 0 && !loading}}">
+      <image src="/static/icons/calendar.svg" class="empty-icon"></image>
+      <text class="empty-text">暂无巡检记录</text>
+      <text class="empty-desc">请调整筛选条件或稍后再试</text>
+    </view>
+  </view>
+</view>
+
+<!-- 详情弹窗 -->
+<view class="modal-overlay {{showDetailModal ? 'show' : ''}}" bindtap="closeDetailModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">巡检详情</view>
+      <view class="modal-close" bindtap="closeDetailModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedRecord}}">
+      <view class="detail-section">
+        <view class="section-title">基本信息</view>
+        <view class="detail-grid">
+          <view class="detail-item">
+            <text class="detail-label">巡检点：</text>
+            <text class="detail-value">{{selectedRecord.patrolPoint}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">巡检时间：</text>
+            <text class="detail-value">{{selectedRecord.createDate}} {{selectedRecord.createTime}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">巡检位置：</text>
+            <text class="detail-value">{{selectedRecord.location}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">巡检人员：</text>
+            <text class="detail-value">{{selectedRecord.guardName}}</text>
+          </view>
+          <view class="detail-item" wx:if="{{selectedRecord.weather}}">
+            <text class="detail-label">天气情况：</text>
+            <text class="detail-value">{{selectedRecord.weather}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">巡检状态：</text>
+            <view class="status-badge {{selectedRecord.status === 'normal' ? 'status-normal' : 'status-abnormal'}}">
+              {{selectedRecord.status === 'normal' ? '正常' : '异常'}}
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="detail-section" wx:if="{{selectedRecord.description}}">
+        <view class="section-title">异常描述</view>
+        <view class="detail-desc">{{selectedRecord.description}}</view>
+      </view>
+      
+      <view class="detail-section" wx:if="{{selectedRecord.photos && selectedRecord.photos.length > 0}}">
+        <view class="section-title">现场照片</view>
+        <view class="detail-photos">
+          <block wx:for="{{selectedRecord.photos}}" wx:for-item="photo" wx:key="*this">
+            <image src="{{photo}}" mode="aspectFill" class="detail-photo" bindtap="previewImage" data-src="{{photo}}" data-urls="{{selectedRecord.photos}}"></image>
+          </block>
+        </view>
+      </view>
+      
+      <view class="detail-section" wx:if="{{selectedRecord.gpsInfo}}">
+        <view class="section-title">位置信息</view>
+        <view class="detail-gps">
+          <view class="gps-item">
+            <text class="gps-label">经度：</text>
+            <text class="gps-value">{{selectedRecord.gpsInfo.longitude}}</text>
+          </view>
+          <view class="gps-item">
+            <text class="gps-label">纬度：</text>
+            <text class="gps-value">{{selectedRecord.gpsInfo.latitude}}</text>
+          </view>
+          <view class="gps-item">
+            <text class="gps-label">精度：</text>
+            <text class="gps-value">{{selectedRecord.gpsInfo.accuracy}}米</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+
+
+
+
+
+
+

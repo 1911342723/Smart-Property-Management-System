@@ -1,0 +1,112 @@
+<!--pages/common/activity-list.wxml-->
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item">
+      <picker 
+        mode="selector" 
+        range="{{statusOptions}}" 
+        range-key="text"
+        value="{{statusFilterIndex}}"
+        bindchange="onStatusChange">
+        <view class="filter-picker">{{currentStatusText}}</view>
+      </picker>
+    </view>
+    <view class="filter-item">
+      <picker 
+        mode="selector" 
+        range="{{typeOptions}}" 
+        range-key="text"
+        value="{{typeFilterIndex}}"
+        bindchange="onTypeChange">
+        <view class="filter-picker">{{currentTypeText}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="activity-list">
+    <block wx:if="{{!error}}">
+      <view 
+        class="activity-item" 
+        wx:for="{{activities}}" 
+        wx:key="id"
+        bindtap="viewActivityDetail"
+        data-activity="{{item}}">
+        <image 
+          class="activity-image" 
+          src="{{item.imageUrl}}" 
+          mode="aspectFill"
+          lazy-load
+          binderror="onImageError" />
+        
+        <view class="activity-content">
+          <view class="activity-header">
+            <text class="activity-title">{{item.title}}</text>
+            <text class="activity-status status-{{item.status.toLowerCase()}}">{{item.statusText}}</text>
+          </view>
+          
+          <view class="activity-info">
+            <view class="info-item">
+              <text class="info-label">时间：</text>
+              <text>{{item.timeText}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">地点：</text>
+              <text>{{item.location}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">类型：</text>
+              <text>{{item.typeText}}</text>
+            </view>
+          </view>
+          
+          <text class="activity-summary">{{item.summary}}</text>
+          
+          <view class="activity-footer">
+            <text class="participant-info">已报名 {{item.participantCount}}/{{item.maxParticipants}} 人</text>
+            <view class="action-buttons">
+              <button 
+                class="btn btn-outline"
+                catchtap="viewActivityDetail"
+                data-activity="{{item}}">
+                查看详情
+              </button>
+              <button 
+                class="btn btn-success"
+                wx:if="{{item.isRegistered}}"
+                disabled>
+                已报名
+              </button>
+              <button 
+                class="btn btn-danger"
+                catchtap="cancelRegistration"
+                data-activity="{{item}}"
+                wx:if="{{item.isRegistered && item.status === 'REGISTRATION'}}">
+                取消报名
+              </button>
+              <button 
+                class="btn btn-primary"
+                catchtap="registerActivity"
+                data-activity="{{item}}"
+                wx:if="{{!item.isRegistered && item.status === 'REGISTRATION'}}">
+                立即报名
+              </button>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载状态 -->
+      <view class="loading" wx:if="{{loading}}">加载中...</view>
+      <view class="no-more" wx:if="{{!loading && !hasMore && activities.length > 0}}">没有更多活动了</view>
+      <view class="no-more" wx:if="{{!loading && !hasMore && activities.length === 0}}">暂无活动</view>
+    </block>
+
+    <!-- 错误状态 -->
+    <view class="error" wx:if="{{error}}">
+      <view>{{error}}</view>
+      <view class="retry-btn" bindtap="retryLoad">点击重试</view>
+    </view>
+  </view>
+</view>

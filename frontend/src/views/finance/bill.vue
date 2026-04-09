@@ -81,10 +81,6 @@
           <el-select v-model="filters.type" placeholder="全部类型" clearable style="width: 140px">
             <el-option label="物业费" value="property" />
             <el-option label="停车费" value="parking" />
-            <el-option label="水费" value="water" />
-            <el-option label="电费" value="electricity" />
-            <el-option label="燃气费" value="gas" />
-            <el-option label="维修基金" value="maintenance" />
           </el-select>
         </el-form-item>
         <el-form-item label="缴费状态">
@@ -394,9 +390,6 @@
           <el-select v-model="batchBillForm.type" placeholder="请选择费用类型">
             <el-option label="物业费" value="property" />
             <el-option label="停车费" value="parking" />
-            <el-option label="水费" value="water" />
-            <el-option label="电费" value="electricity" />
-            <el-option label="燃气费" value="gas" />
           </el-select>
         </el-form-item>
         <el-form-item label="缴费周期" required>
@@ -579,8 +572,8 @@ export default {
       loading.value = true
       try {
         const params = {
-          pageNum: pagination.page,
-          pageSize: pagination.pageSize,
+          pageNum: pagination.current,
+          pageSize: pagination.size,
           billType: mapFilterType(filters.type),
           status: mapFilterStatus(filters.status),
           billingPeriod: filters.period
@@ -615,9 +608,9 @@ export default {
             paymentMethod: bill.paymentMethod || null,
             paymentHistory: [],
             selected: false
-          }))
+          })).filter(bill => ['property', 'parking'].includes(bill.type))
           
-          pagination.total = result.total || 0
+          pagination.total = result.total || bills.value.length
           console.log('账单列表加载完成:', bills.value)
         }
       } catch (error) {
@@ -634,12 +627,8 @@ export default {
     // 类型映射函数
     const mapFilterType = (type) => {
       const typeMap = {
-        'property': 'PROPERTY_FEE',
-        'parking': 'PARKING_FEE',
-        'water': 'WATER_FEE',
-        'electricity': 'ELECTRICITY_FEE',
-        'gas': 'GAS_FEE',
-        'maintenance': 'MAINTENANCE_FUND'
+        'property': 'PROPERTY',
+        'parking': 'PARKING'
       }
       return typeMap[type] || ''
     }
@@ -656,14 +645,12 @@ export default {
     
     const mapBillType = (billType) => {
       const typeMap = {
+        'PROPERTY': 'property',
+        'PARKING': 'parking',
         'PROPERTY_FEE': 'property',
-        'PARKING_FEE': 'parking',
-        'WATER_FEE': 'water',
-        'ELECTRICITY_FEE': 'electricity',
-        'GAS_FEE': 'gas',
-        'MAINTENANCE_FUND': 'maintenance'
+        'PARKING_FEE': 'parking'
       }
-      return typeMap[billType] || 'property'
+      return typeMap[billType] || ''
     }
     
     const mapBillStatus = (status) => {
@@ -756,8 +743,8 @@ export default {
         ElMessage.info('正在导出账单数据，请稍候...')
         
         const params = {
-          billType: filters.type,
-          status: filters.status,
+          billType: mapFilterType(filters.type),
+          status: mapFilterStatus(filters.status),
           billingPeriod: filters.period
         }
         
@@ -806,8 +793,8 @@ export default {
         
         // 使用当前筛选条件导出（实际应该支持按选中ID导出，这里简化处理）
         const params = {
-          billType: filters.type,
-          status: filters.status,
+          billType: mapFilterType(filters.type),
+          status: mapFilterStatus(filters.status),
           billingPeriod: filters.period
         }
         
@@ -878,11 +865,7 @@ export default {
     const getTypeName = (type) => {
       const typeMap = {
         property: '物业费',
-        parking: '停车费',
-        water: '水费',
-        electricity: '电费',
-        gas: '燃气费',
-        maintenance: '维修基金'
+        parking: '停车费'
       }
       return typeMap[type] || type
     }
@@ -890,11 +873,7 @@ export default {
     const getTypeTagType = (type) => {
       const typeMap = {
         property: 'primary',
-        parking: 'success',
-        water: 'info',
-        electricity: 'warning',
-        gas: 'danger',
-        maintenance: ''
+        parking: 'success'
       }
       return typeMap[type] || ''
     }

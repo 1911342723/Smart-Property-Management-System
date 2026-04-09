@@ -99,9 +99,6 @@ public class SysConfigService {
         Map<String, Object> config = new HashMap<>();
         config.put("propertyFeePerSqm", getConfigValue("property.fee.per.sqm"));
         config.put("parkingFeeMonthly", getConfigValue("parking.fee.monthly"));
-        config.put("waterFeePerTon", getConfigValue("water.fee.per.ton"));
-        config.put("electricFeePerKwh", getConfigValue("electric.fee.per.kwh"));
-        config.put("gasFeePerCubic", getConfigValue("gas.fee.per.cubic"));
         return config;
     }
 
@@ -115,15 +112,6 @@ public class SysConfigService {
         }
         if (feeConfig.containsKey("parkingFeeMonthly")) {
             configMap.put("parking.fee.monthly", feeConfig.get("parkingFeeMonthly"));
-        }
-        if (feeConfig.containsKey("waterFeePerTon")) {
-            configMap.put("water.fee.per.ton", feeConfig.get("waterFeePerTon"));
-        }
-        if (feeConfig.containsKey("electricFeePerKwh")) {
-            configMap.put("electric.fee.per.kwh", feeConfig.get("electricFeePerKwh"));
-        }
-        if (feeConfig.containsKey("gasFeePerCubic")) {
-            configMap.put("gas.fee.per.cubic", feeConfig.get("gasFeePerCubic"));
         }
         return batchUpdateConfig(configMap);
     }
@@ -176,9 +164,6 @@ public class SysConfigService {
         Map<String, String> defaults = new HashMap<>();
         defaults.put("property.fee.per.sqm", "2.5");
         defaults.put("parking.fee.monthly", "200");
-        defaults.put("water.fee.per.ton", "3.5");
-        defaults.put("electric.fee.per.kwh", "0.6");
-        defaults.put("gas.fee.per.cubic", "2.8");
         defaults.put("email.port", "587");
         defaults.put("email.ssl", "true");
         return defaults.getOrDefault(key, "");
@@ -197,12 +182,6 @@ public class SysConfigService {
                               "DECIMAL", "PROPERTY_FEE", 1, 1);
             insertDefaultConfig("parking.fee.monthly", "200", "停车费", "停车费月租(元)", 
                               "DECIMAL", "PROPERTY_FEE", 1, 2);
-            insertDefaultConfig("water.fee.per.ton", "3.5", "水费单价", "水费每吨单价(元)", 
-                              "DECIMAL", "PROPERTY_FEE", 1, 3);
-            insertDefaultConfig("electric.fee.per.kwh", "0.6", "电费单价", "电费每度单价(元)", 
-                              "DECIMAL", "PROPERTY_FEE", 1, 4);
-            insertDefaultConfig("gas.fee.per.cubic", "2.8", "燃气费单价", "燃气费每立方单价(元)", 
-                              "DECIMAL", "PROPERTY_FEE", 1, 5);
             
             insertDefaultConfig("email.host", "smtp.example.com", "邮件服务器", "SMTP服务器地址", 
                               "STRING", "EMAIL", 1, 1);

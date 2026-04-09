@@ -1,0 +1,69 @@
+<!--pages/owner/notice-detail.wxml-->
+<view class="page-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="navbar-left">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-icon">‹</text>
+      </view>
+      <text class="navbar-title">公告详情</text>
+    </view>
+  </view>
+
+  <!-- 公告内容 -->
+  <scroll-view scroll-y class="content-container">
+    <view class="notice-detail" wx:if="{{notice}}">
+      <!-- 公告卡片 -->
+      <view class="notice-card">
+        <!-- 标题和徽章 -->
+        <view class="card-header">
+          <view class="notice-type-badge {{notice.priority === 'HIGH' ? 'urgent' : ''}}">
+            {{notice.typeText}}
+          </view>
+        </view>
+        
+        <text class="notice-title">
+          <text class="priority-icon" wx:if="{{notice.priority === 'HIGH'}}">🔥</text>
+          {{notice.title}}
+        </text>
+        
+        <!-- 元信息 -->
+        <view class="notice-meta">
+          <view class="meta-item">
+            <text class="meta-icon">📅</text>
+            <text class="meta-text">{{notice.publishTimeText}}</text>
+          </view>
+          <view class="meta-item" wx:if="{{notice.publisherName}}">
+            <text class="meta-icon">👤</text>
+            <text class="meta-text">{{notice.publisherName}}</text>
+          </view>
+          <view class="meta-item" wx:if="{{notice.readCount > 0}}">
+            <text class="meta-icon">👁</text>
+            <text class="meta-text">{{notice.readCount}}</text>
+          </view>
+        </view>
+        
+        <!-- 公告内容 -->
+        <view class="notice-content">
+          <rich-text nodes="{{notice.content}}" class="content-rich-text"></rich-text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 错误状态 -->
+    <view class="error-container" wx:if="{{error}}">
+      <image class="error-icon" src="/static/images/error.png" mode="aspectFit"></image>
+      <text class="error-text">{{errorMessage}}</text>
+      <button class="retry-btn" bindtap="loadNoticeDetail">重试</button>
+    </view>
+  </scroll-view>
+</view>
+
+
+

@@ -1,0 +1,181 @@
+<!--保安值班日志页面-->
+<view class="page-container">
+  <!-- 当前班次信息 -->
+  <view class="shift-info card">
+    <view class="shift-header">
+      <view class="shift-title">当前班次</view>
+      <view class="shift-time">{{currentShift.startTime}} - {{currentShift.endTime}}</view>
+    </view>
+    <view class="shift-details">
+      <view class="detail-row">
+        <text class="detail-label">班次类型：</text>
+        <text class="detail-value">{{currentShift.type}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">岗位区域：</text>
+        <text class="detail-value">{{currentShift.area}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">上班时间：</text>
+        <text class="detail-value">{{currentShift.actualStartTime || '未打卡'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 交班记录表单 -->
+  <view class="handover-form card">
+    <view class="form-header">
+      <view class="form-title">交班记录</view>
+      <view class="form-desc">请详细记录值班情况</view>
+    </view>
+    
+    <view class="form-body">
+      <view class="form-item">
+        <text class="form-label">工作概况 *</text>
+        <textarea class="form-textarea" placeholder="请描述本班次工作概况、巡检情况等..." value="{{logForm.workSummary}}" bindinput="onFormInput" data-field="workSummary" maxlength="500"></textarea>
+        <view class="char-count">{{logForm.workSummary.length}}/500</view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">异常情况</text>
+        <textarea class="form-textarea" placeholder="请记录本班次发生的异常情况，无异常可不填..." value="{{logForm.abnormalEvents}}" bindinput="onFormInput" data-field="abnormalEvents" maxlength="300"></textarea>
+        <view class="char-count">{{logForm.abnormalEvents.length}}/300</view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">设备检查</text>
+        <view class="equipment-checks">
+          <block wx:for="{{equipmentList}}" wx:key="id">
+            <view class="equipment-item">
+              <view class="equipment-info">
+                <text class="equipment-name">{{item.name}}</text>
+                <text class="equipment-location">{{item.location}}</text>
+              </view>
+              <view class="equipment-status">
+                <view class="status-option {{item.status === 'normal' ? 'active' : ''}}" bindtap="setEquipmentStatus" data-id="{{item.id}}" data-status="normal">
+                  <image src="/static/icons/check-circle.svg" class="status-icon"></image>
+                  <text>正常</text>
+                </view>
+                <view class="status-option {{item.status === 'abnormal' ? 'active' : ''}}" bindtap="setEquipmentStatus" data-id="{{item.id}}" data-status="abnormal">
+                  <image src="/static/icons/alert-circle.svg" class="status-icon"></image>
+                  <text>异常</text>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">待办事项</text>
+        <textarea class="form-textarea" placeholder="请记录需要下班次处理的事项..." value="{{logForm.pendingTasks}}" bindinput="onFormInput" data-field="pendingTasks" maxlength="300"></textarea>
+        <view class="char-count">{{logForm.pendingTasks.length}}/300</view>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">备注信息</text>
+        <textarea class="form-textarea" placeholder="其他需要说明的信息..." value="{{logForm.remarks}}" bindinput="onFormInput" data-field="remarks" maxlength="200"></textarea>
+        <view class="char-count">{{logForm.remarks.length}}/200</view>
+      </view>
+    </view>
+    
+    <view class="form-actions">
+      <button class="btn btn-success form-btn" bindtap="submitLog" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交交班记录'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 最近交班记录 -->
+  <view class="recent-logs">
+    <view class="section-title">最近交班记录</view>
+    <view class="log-list">
+      <block wx:for="{{recentLogs}}" wx:key="id">
+        <view class="log-item card-hover" bindtap="viewLog" data-log="{{item}}">
+          <view class="log-header">
+            <view class="log-date">{{item.date}}</view>
+            <view class="log-shift">{{item.shiftType}}</view>
+          </view>
+          <view class="log-content">
+            <view class="log-guard">{{item.guardName}}</view>
+            <view class="log-time">{{item.shiftTime}}</view>
+          </view>
+          <view class="log-summary">{{item.workSummary}}</view>
+          <view class="log-status">
+            <view class="status-badge status-{{item.status}}">
+              {{item.status === 'completed' ? '已交班' : '值班中'}}
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <view class="empty-state" wx:if="{{recentLogs.length === 0}}">
+        <image src="/static/icons/calendar.svg" class="empty-icon"></image>
+        <text class="empty-text">暂无交班记录</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 历史记录入口 -->
+  <view class="history-entry">
+    <view class="entry-card card-hover" bindtap="goToHistory">
+      <view class="entry-icon">
+        <image src="/static/icons/history.svg" class="icon"></image>
+      </view>
+      <view class="entry-content">
+        <view class="entry-title">历史交班记录</view>
+        <view class="entry-desc">查看更多交班记录</view>
+      </view>
+      <view class="entry-arrow">
+        <image src="/static/icons/arrow-right.svg" class="arrow-icon"></image>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 交班详情弹窗 -->
+<view class="modal-overlay {{showLogModal ? 'show' : ''}}" bindtap="closeLogModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">交班详情</view>
+      <view class="modal-close" bindtap="closeLogModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="modal-body" wx:if="{{selectedLog}}">
+      <view class="detail-item">
+        <text class="detail-label">日期：</text>
+        <text class="detail-value">{{selectedLog.date}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">班次：</text>
+        <text class="detail-value">{{selectedLog.shiftType}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">值班人：</text>
+        <text class="detail-value">{{selectedLog.guardName}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">值班时间：</text>
+        <text class="detail-value">{{selectedLog.shiftTime}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">工作概况：</text>
+        <text class="detail-value">{{selectedLog.workSummary}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{selectedLog.abnormalEvents}}">
+        <text class="detail-label">异常情况：</text>
+        <text class="detail-value">{{selectedLog.abnormalEvents}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{selectedLog.pendingTasks}}">
+        <text class="detail-label">待办事项：</text>
+        <text class="detail-value">{{selectedLog.pendingTasks}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{selectedLog.remarks}}">
+        <text class="detail-label">备注：</text>
+        <text class="detail-value">{{selectedLog.remarks}}</text>
+      </view>
+    </view>
+  </view>
+</view>

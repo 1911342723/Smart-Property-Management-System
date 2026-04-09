@@ -1,0 +1,98 @@
+<!--pages/common/my-registrations.wxml-->
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item">
+      <picker 
+        mode="selector" 
+        range="{{statusOptions}}" 
+        range-key="text"
+        value="{{statusFilterIndex}}"
+        bindchange="onStatusChange">
+        <view class="filter-picker">{{currentStatusText}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 报名列表 -->
+  <view class="registration-list">
+    <block wx:if="{{!error}}">
+      <view 
+        class="registration-item" 
+        wx:for="{{registrations}}" 
+        wx:key="id"
+        bindtap="viewActivityDetail"
+        data-activity-id="{{item.activityId}}">
+        <image 
+          class="activity-image" 
+          src="{{item.activityImageUrl}}" 
+          mode="aspectFill"
+          lazy-load />
+        
+        <view class="registration-content">
+          <view class="registration-header">
+            <text class="activity-title">{{item.activityTitle}}</text>
+            <text class="registration-status status-{{item.status.toLowerCase()}}">{{item.statusText}}</text>
+          </view>
+          
+          <view class="registration-info">
+            <view class="info-item">
+              <text class="info-label">报名时间：</text>
+              <text>{{item.registrationTimeText}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">活动时间：</text>
+              <text>{{item.activityTimeText}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">活动地点：</text>
+              <text>{{item.location}}</text>
+            </view>
+            <view class="info-item" wx:if="{{item.participants > 1}}">
+              <text class="info-label">报名人数：</text>
+              <text>{{item.participants}}人</text>
+            </view>
+          </view>
+          
+          <view class="registration-footer">
+            <view class="action-buttons">
+              <button 
+                class="btn btn-outline"
+                catchtap="viewActivityDetail"
+                data-activity-id="{{item.activityId}}">
+                查看详情
+              </button>
+              <button 
+                class="btn btn-danger"
+                catchtap="cancelRegistration"
+                data-activity-id="{{item.activityId}}"
+                data-registration="{{item}}"
+                wx:if="{{item.status === 'REGISTERED' && item.canCancel}}">
+                取消报名
+              </button>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载状态 -->
+      <view class="loading" wx:if="{{loading}}">加载中...</view>
+      <view class="no-more" wx:if="{{!loading && !hasMore && registrations.length > 0}}">没有更多记录了</view>
+      <view class="empty" wx:if="{{!loading && !hasMore && registrations.length === 0}}">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无报名记录</text>
+      </view>
+    </block>
+
+    <!-- 错误状态 -->
+    <view class="error" wx:if="{{error}}">
+      <view>{{error}}</view>
+      <view class="retry-btn" bindtap="retryLoad">点击重试</view>
+    </view>
+  </view>
+</view>
+
+
+
+
+

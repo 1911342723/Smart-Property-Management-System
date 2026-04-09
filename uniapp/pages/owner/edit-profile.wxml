@@ -1,0 +1,124 @@
+<!--pages/owner/edit-profile.wxml-->
+<view class="page-container">
+  <!-- 头像编辑 -->
+  <view class="avatar-section">
+    <view class="avatar-container" bindtap="editAvatar">
+      <image src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" class="user-avatar"></image>
+      <view class="avatar-edit-overlay">
+        <image src="/static/icons/camera.svg" class="camera-icon"></image>
+        <text class="edit-text">更换头像</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 个人信息表单 -->
+  <view class="form-section">
+    <view class="section-title">基本信息</view>
+    
+    <view class="form-item">
+      <view class="form-label">真实姓名 <text class="required">*</text></view>
+      <input class="form-input" placeholder="请输入真实姓名" value="{{profileForm.realName}}" bindinput="onRealNameInput" maxlength="10"></input>
+      <view class="form-error" wx:if="{{errors.realName}}">{{errors.realName}}</view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">联系电话</view>
+      <input class="form-input" type="number" placeholder="请输入联系电话" value="{{profileForm.phone}}" bindinput="onPhoneInput" maxlength="11"></input>
+      <view class="form-error" wx:if="{{errors.phone}}">{{errors.phone}}</view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">邮箱地址</view>
+      <input class="form-input" type="text" placeholder="请输入邮箱地址" value="{{profileForm.email}}" bindinput="onEmailInput"></input>
+      <view class="form-error" wx:if="{{errors.email}}">{{errors.email}}</view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">性别</view>
+      <view class="gender-options">
+        <view class="gender-option {{profileForm.gender === 'MALE' ? 'active' : ''}}" bindtap="selectGender" data-gender="MALE">
+          <text>男</text>
+        </view>
+        <view class="gender-option {{profileForm.gender === 'FEMALE' ? 'active' : ''}}" bindtap="selectGender" data-gender="FEMALE">
+          <text>女</text>
+        </view>
+        <view class="gender-option {{profileForm.gender === 'OTHER' ? 'active' : ''}}" bindtap="selectGender" data-gender="OTHER">
+          <text>其他</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">生日</view>
+      <picker mode="date" value="{{profileForm.birthday}}" bindchange="onBirthdayChange">
+        <view class="picker-display">
+          {{profileForm.birthday || '请选择生日'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+  
+  <!-- 其他信息 -->
+  <view class="form-section">
+    <view class="section-title">其他信息</view>
+    
+    <view class="form-item">
+      <view class="form-label">个人简介</view>
+      <textarea class="form-textarea" placeholder="请输入个人简介..." value="{{profileForm.signature}}" bindinput="onSignatureInput" maxlength="200"></textarea>
+      <view class="char-count">{{profileForm.signature.length}}/200</view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">紧急联系人</view>
+      <input class="form-input" placeholder="请输入紧急联系人姓名" value="{{profileForm.emergencyContact}}" bindinput="onEmergencyContactInput" maxlength="10"></input>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">紧急联系电话</view>
+      <input class="form-input" type="number" placeholder="请输入紧急联系电话" value="{{profileForm.emergencyPhone}}" bindinput="onEmergencyPhoneInput" maxlength="11"></input>
+      <view class="form-error" wx:if="{{errors.emergencyPhone}}">{{errors.emergencyPhone}}</view>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-section">
+    <button class="save-btn" bindtap="saveProfile" disabled="{{savingProfile}}">
+      {{savingProfile ? '保存中...' : '保存'}}
+    </button>
+  </view>
+</view>
+
+<!-- 头像选择弹窗 -->
+<view class="modal-overlay {{showAvatarModal ? 'show' : ''}}" bindtap="closeAvatarModal">
+  <view class="modal-content avatar-modal" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">更换头像</view>
+      <view class="modal-close" bindtap="closeAvatarModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="avatar-options">
+      <view class="avatar-option" bindtap="selectAvatarFromAlbum">
+        <view class="option-icon">
+          <text class="icon-text">📷</text>
+        </view>
+        <view class="option-text">从相册选择</view>
+      </view>
+      
+      <view class="avatar-option" bindtap="takePhoto">
+        <view class="option-icon">
+          <text class="icon-text">📸</text>
+        </view>
+        <view class="option-text">拍照</view>
+      </view>
+      
+      <view class="avatar-option" wx:if="{{userInfo.avatar !== '/static/images/default-avatar.png'}}" bindtap="removeAvatar">
+        <view class="option-icon">
+          <text class="icon-text delete-icon">🗑️</text>
+        </view>
+        <view class="option-text delete-text">移除头像</view>
+      </view>
+    </view>
+  </view>
+</view>

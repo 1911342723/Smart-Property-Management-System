@@ -1,0 +1,88 @@
+<!--个人资料编辑页面-->
+<view class="page-container">
+  <!-- 头像编辑 -->
+  <view class="avatar-section">
+    <view class="avatar-container" bindtap="editAvatar">
+      <image src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" class="user-avatar"></image>
+      <view class="avatar-edit-overlay">
+        <image src="/static/icons/camera.svg" class="camera-icon"></image>
+        <text class="edit-text">更换头像</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 个人信息表单 -->
+  <view class="form-section">
+    <view class="form-item">
+      <view class="form-label">姓名</view>
+      <input class="form-input" placeholder="请输入姓名" value="{{profileForm.name}}" bindinput="onNameInput" maxlength="10"></input>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">个性签名</view>
+      <textarea class="form-textarea" placeholder="写点什么介绍一下自己吧..." value="{{profileForm.signature}}" bindinput="onSignatureInput" maxlength="100"></textarea>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">联系电话</view>
+      <input class="form-input" type="number" placeholder="请输入联系电话" value="{{profileForm.phone}}" bindinput="onPhoneInput" maxlength="11"></input>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">紧急联系人</view>
+      <input class="form-input" placeholder="请输入紧急联系人" value="{{profileForm.emergencyContact}}" bindinput="onEmergencyContactInput" maxlength="10"></input>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">紧急联系电话</view>
+      <input class="form-input" type="number" placeholder="请输入紧急联系电话" value="{{profileForm.emergencyPhone}}" bindinput="onEmergencyPhoneInput" maxlength="11"></input>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-section">
+    <button class="save-btn" bindtap="saveProfile" disabled="{{savingProfile}}">
+      {{savingProfile ? '保存中...' : '保存'}}
+    </button>
+  </view>
+</view>
+
+<!-- 头像选择弹窗 -->
+<view class="modal-overlay {{showAvatarModal ? 'show' : ''}}" bindtap="closeAvatarModal">
+  <view class="modal-content avatar-modal" catchtap="">
+    <view class="modal-header">
+      <view class="modal-title">更换头像</view>
+      <view class="modal-close" bindtap="closeAvatarModal">
+        <image src="/static/icons/close.svg" class="close-icon"></image>
+      </view>
+    </view>
+    
+    <view class="avatar-options">
+      <view class="avatar-option" bindtap="selectAvatarFromAlbum">
+        <view class="option-icon">
+          <image src="/static/icons/image.svg" class="icon"></image>
+        </view>
+        <view class="option-text">从相册选择</view>
+      </view>
+      
+      <view class="avatar-option" bindtap="takePhoto">
+        <view class="option-icon">
+          <image src="/static/icons/camera.svg" class="icon"></image>
+        </view>
+        <view class="option-text">拍照</view>
+      </view>
+      
+      <view class="avatar-option" wx:if="{{userInfo.avatar !== '/static/images/default-avatar.png'}}" bindtap="removeAvatar">
+        <view class="option-icon">
+          <image src="/static/icons/trash.svg" class="icon delete-icon"></image>
+        </view>
+        <view class="option-text delete-text">移除头像</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+
+
+

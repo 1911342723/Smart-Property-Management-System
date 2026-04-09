@@ -145,7 +145,7 @@ CREATE TABLE `bill`  (
   `bill_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '账单编号',
   `room_id` bigint NOT NULL COMMENT '房屋ID',
   `owner_id` bigint NOT NULL COMMENT '业主ID',
-  `bill_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '账单类型：PROPERTY-物业费，UTILITY-水电费，PARKING-停车费，MAINTENANCE-维修费',
+  `bill_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '账单类型：PROPERTY-物业费，PARKING-停车费',
   `billing_period` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '计费周期，如：2024年1月',
   `amount` decimal(10, 2) NOT NULL COMMENT '应缴金额',
   `paid_amount` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '已缴金额',
@@ -385,6 +385,38 @@ INSERT INTO `room` VALUES (7, 2, 7, '1205', 12, 'RESIDENTIAL', 88.80, 'OCCUPIED'
 INSERT INTO `room` VALUES (8, 3, 10, '601', 6, 'RESIDENTIAL', 96.00, 'OCCUPIED', 165.00, '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
 
 -- ----------------------------
+-- Table structure for parking_space
+-- ----------------------------
+DROP TABLE IF EXISTS `parking_space`;
+CREATE TABLE `parking_space`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '车位ID',
+  `space_no` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '车位编号',
+  `area_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '所属区域',
+  `space_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'FIXED' COMMENT '车位类型：FIXED-固定车位，TEMPORARY-临停车位，CHARGING-充电车位，VISITOR-访客车位',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'AVAILABLE' COMMENT '状态：AVAILABLE-空闲，OCCUPIED-已出租，RESERVED-预留，DISABLED-停用',
+  `owner_id` bigint NULL DEFAULT NULL COMMENT '绑定业主ID',
+  `vehicle_no` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '车牌号',
+  `monthly_fee` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '月租费用',
+  `expire_date` date NULL DEFAULT NULL COMMENT '到期日期',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_space_no`(`space_no` ASC) USING BTREE,
+  INDEX `idx_parking_owner_id`(`owner_id` ASC) USING BTREE,
+  INDEX `idx_parking_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '车位表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of parking_space
+-- ----------------------------
+INSERT INTO `parking_space` VALUES (1, 'B1-001', '地下B1', 'FIXED', 'OCCUPIED', 1002, '粤B12345', 200.00, '2026-12-31', '固定月租车位', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+INSERT INTO `parking_space` VALUES (2, 'B1-002', '地下B1', 'FIXED', 'AVAILABLE', NULL, NULL, 200.00, NULL, '待分配', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+INSERT INTO `parking_space` VALUES (3, 'B2-018', '地下B2', 'CHARGING', 'OCCUPIED', 1003, '粤B88990', 260.00, '2026-06-30', '新能源专用车位', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+INSERT INTO `parking_space` VALUES (4, 'V-006', '地面访客区', 'VISITOR', 'RESERVED', NULL, NULL, 0.00, NULL, '访客临停区', '2025-09-29 18:34:09', '2025-09-29 18:34:09', 0);
+
+-- ----------------------------
 -- Table structure for sys_config
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_config`;
@@ -414,9 +446,6 @@ CREATE TABLE `sys_config`  (
 -- ----------------------------
 INSERT INTO `sys_config` VALUES (1, 'property.fee.per.sqm', '2.5', '物业费单价', '物业费每平米单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 1, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
 INSERT INTO `sys_config` VALUES (2, 'parking.fee.monthly', '200', '停车费', '停车费月租(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 2, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
-INSERT INTO `sys_config` VALUES (3, 'water.fee.per.ton', '3.5', '水费单价', '水费每吨单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 3, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
-INSERT INTO `sys_config` VALUES (4, 'electric.fee.per.kwh', '0.6', '电费单价', '电费每度单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 4, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
-INSERT INTO `sys_config` VALUES (5, 'gas.fee.per.cubic', '2.8', '燃气费单价', '燃气费每立方单价(元)', 'DECIMAL', 'PROPERTY_FEE', 1, 1, 5, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
 INSERT INTO `sys_config` VALUES (6, 'email.host', 'smtp.example.com', 'SMTP服务器', 'SMTP服务器地址', 'STRING', 'EMAIL', 1, 1, 1, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
 INSERT INTO `sys_config` VALUES (7, 'email.port', '587', 'SMTP端口', 'SMTP服务器端口', 'INTEGER', 'EMAIL', 1, 1, 2, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);
 INSERT INTO `sys_config` VALUES (8, 'email.username', '', '发件人邮箱', '发件人邮箱账号', 'STRING', 'EMAIL', 0, 1, 3, NULL, '2025-09-30 15:33:20', '2025-09-30 15:33:20', 0);

@@ -1,0 +1,230 @@
+/* pages/owner/notice-detail.wxss */
+.page-container {
+  width: 100%;
+  height: 100vh;
+  background: #f7fafc;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 自定义导航栏 */
+.custom-navbar {
+  width: 100%;
+  background: #ffffff;
+  padding: 20rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.back-btn {
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  background: #f7fafc;
+  transition: all 0.2s ease;
+}
+
+.back-btn:active {
+  background: #e2e8f0;
+  transform: scale(0.95);
+}
+
+.back-icon {
+  font-size: 48rpx;
+  line-height: 1;
+  color: #2d3748;
+  font-weight: 300;
+}
+
+.navbar-title {
+  color: #1a202c;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+/* 内容容器 */
+.content-container {
+  flex: 1;
+  width: 100%;
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* 公告详情 */
+.notice-detail {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 公告卡片 */
+.notice-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+/* 卡片头部 */
+.card-header {
+  margin-bottom: 16rpx;
+}
+
+/* 类型徽章 */
+.notice-type-badge {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  background: #e6f7ff;
+  color: #1890ff;
+  font-size: 22rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.notice-type-badge.urgent {
+  background: linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%);
+  color: #ff4d4f;
+  font-weight: 600;
+  box-shadow: 0 2rpx 4rpx rgba(255, 77, 79, 0.2);
+}
+
+/* 标题 */
+.notice-title {
+  display: block;
+  color: #2d3748;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 16rpx;
+}
+
+.priority-icon {
+  margin-right: 6rpx;
+  font-size: 28rpx;
+}
+
+/* 元信息 */
+.notice-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 24rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.meta-icon {
+  font-size: 24rpx;
+  opacity: 0.6;
+}
+
+.meta-text {
+  color: #8c8c8c;
+  font-size: 24rpx;
+}
+
+/* 公告内容 */
+.notice-content {
+  color: #4a5568;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.content-rich-text {
+  color: #4a5568;
+  font-size: 28rpx;
+  line-height: 1.8;
+  word-break: break-all;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 32rpx;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 4rpx solid #e2e8f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  color: #718096;
+  font-size: 28rpx;
+}
+
+/* 错误状态 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 32rpx;
+}
+
+.error-icon {
+  width: 200rpx;
+  height: 200rpx;
+  opacity: 0.5;
+}
+
+.error-text {
+  margin-top: 24rpx;
+  color: #718096;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.retry-btn {
+  margin-top: 32rpx;
+  padding: 16rpx 48rpx;
+  background: #667eea;
+  color: #ffffff;
+  font-size: 28rpx;
+  border-radius: 48rpx;
+  border: none;
+}
+
+.retry-btn::after {
+  border: none;
+}

@@ -1,0 +1,131 @@
+<!--pages/common/ai-chat.wxml-->
+<view class="ai-chat-container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+    <view class="top-bar">
+      <view class="back-btn" bindtap="goBack">
+        <view class="icon-back"></view>
+      </view>
+      <view class="title">AI智能报修助手</view>
+      <view class="placeholder"></view>
+    </view>
+  </view>
+
+  <!-- 主要内容区域 -->
+  <scroll-view class="content-area" scroll-y="true">
+    <!-- 欢迎卡片 -->
+    <view class="welcome-card">
+      <view class="ai-avatar">
+        <view class="ai-icon">AI</view>
+      </view>
+      <view class="welcome-text">
+        <view class="welcome-title">您好！我是AI报修助手</view>
+        <view class="welcome-desc">
+          只需拍照上传问题图片，我会自动识别问题并为您生成报修单，让报修更简单！
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能说明 -->
+    <view class="feature-section">
+      <view class="section-title">功能特点</view>
+      <view class="feature-list">
+        <view class="feature-item">
+          <view class="feature-icon">
+            <view class="icon-camera"></view>
+          </view>
+          <view class="feature-content">
+            <view class="feature-name">智能识别</view>
+            <view class="feature-desc">拍照即可识别问题类型</view>
+          </view>
+        </view>
+        <view class="feature-item">
+          <view class="feature-icon">
+            <view class="icon-edit"></view>
+          </view>
+          <view class="feature-content">
+            <view class="feature-name">自动生成</view>
+            <view class="feature-desc">AI自动生成工单标题和描述</view>
+          </view>
+        </view>
+        <view class="feature-item">
+          <view class="feature-icon">
+            <view class="icon-send"></view>
+          </view>
+          <view class="feature-content">
+            <view class="feature-name">快速提交</view>
+            <view class="feature-desc">一键提交，省时省力</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 房屋选择 -->
+    <view class="room-section" wx:if="{{rooms.length > 0}}">
+      <view class="section-title">选择报修房屋</view>
+      <picker mode="selector" range="{{roomNames}}" value="{{selectedRoomIndex}}" bindchange="onRoomChange">
+        <view class="room-picker">
+          <text class="room-text">{{selectedRoomName || '请选择房屋'}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- AI分析结果 -->
+    <view class="result-section" wx:if="{{analysisResult}}">
+      <view class="section-title">AI分析结果</view>
+      <view class="result-card">
+        <view class="result-image" wx:if="{{uploadedImageUrl}}">
+          <image src="{{uploadedImageUrl}}" mode="aspectFill"></image>
+        </view>
+        <view class="result-item">
+          <view class="result-label">工单标题</view>
+          <view class="result-value">{{analysisResult.title}}</view>
+        </view>
+        <view class="result-item">
+          <view class="result-label">问题描述</view>
+          <view class="result-value desc">{{analysisResult.description}}</view>
+        </view>
+        <view class="result-item">
+          <view class="result-label">建议类别</view>
+          <view class="result-value">
+            <text class="category-tag">{{categoryMap[analysisResult.suggestedCategory]}}</text>
+          </view>
+        </view>
+        <view class="result-item">
+          <view class="result-label">优先级</view>
+          <view class="result-value">
+            <text class="priority-tag priority-{{analysisResult.suggestedPriority}}">
+              {{priorityMap[analysisResult.suggestedPriority]}}
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <button class="upload-btn" bindtap="chooseImage" disabled="{{analyzing}}">
+      <view class="btn-icon icon-camera-btn"></view>
+      <text class="btn-text">{{analyzing ? '分析中...' : '拍照/选择图片'}}</text>
+    </button>
+    
+    <button class="submit-btn" bindtap="submitWorkOrder" 
+            disabled="{{!analysisResult || submitting}}" 
+            wx:if="{{analysisResult}}">
+      <view class="btn-icon icon-check-btn"></view>
+      <text class="btn-text">{{submitting ? '提交中...' : '确认提交工单'}}</text>
+    </button>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-mask" wx:if="{{analyzing}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <view class="loading-text">AI正在分析图片...</view>
+      <view class="loading-desc">请稍候，这可能需要几秒钟</view>
+    </view>
+  </view>
+</view>

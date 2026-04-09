@@ -1,0 +1,267 @@
+<!--pages/worker/order-detail.wxml-->
+<view class="order-detail-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="navbar-content">
+      <view class="back-button" bindtap="goBack">
+        <image class="back-icon" src="/static/icons/arrow-left.svg" mode="aspectFit"></image>
+        <text class="back-text">返回</text>
+      </view>
+      <text class="navbar-title">工单详情</text>
+      <view class="navbar-placeholder"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <scroll-view wx:else scroll-y class="content">
+    <!-- 工单基本信息 -->
+    <view class="detail-card">
+      <view class="card-header">
+        <view class="status-badge" style="background-color: {{orderDetail.status === 'processing' ? '#2d3748' : '#38a169'}}">
+          <text class="status-text">{{orderDetail.statusText}}</text>
+        </view>
+        <view class="urgent-badge" wx:if="{{orderDetail.urgentLevel === 'high'}}">
+          <text class="urgent-text">{{orderDetail.urgentText}}</text>
+        </view>
+      </view>
+      
+      <view class="order-title">
+        <text class="title-text">{{orderDetail.title}}</text>
+      </view>
+      
+      <view class="order-meta">
+        <view class="meta-item">
+          <image class="meta-icon" src="/static/icons/calendar.svg" mode="aspectFit"></image>
+          <text class="meta-text">创建时间：{{orderDetail.createTimeText}}</text>
+        </view>
+        <view class="meta-item">
+          <image class="meta-icon" src="/static/icons/location.svg" mode="aspectFit"></image>
+          <text class="meta-text">地址：{{orderDetail.address}}</text>
+        </view>
+        <view class="meta-item">
+          <image class="meta-icon" src="/static/icons/repair.svg" mode="aspectFit"></image>
+          <text class="meta-text">类别：{{orderDetail.categoryName}}</text>
+        </view>
+        <view class="meta-item" wx:if="{{orderDetail.estimatedDuration}}">
+          <image class="meta-icon" src="/static/icons/clock.svg" mode="aspectFit"></image>
+          <text class="meta-text">预计用时：{{orderDetail.estimatedDuration}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 业主信息 -->
+    <view class="detail-card">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/users.svg" mode="aspectFit"></image>
+        <text class="title-text">业主信息</text>
+      </view>
+      
+      <view class="owner-info">
+        <image class="owner-avatar" src="{{orderDetail.ownerAvatar}}" mode="aspectFill"></image>
+        <view class="owner-details">
+          <text class="owner-name">{{orderDetail.ownerName}}</text>
+          <text class="owner-phone">{{orderDetail.contactPhone}}</text>
+        </view>
+        <button class="contact-btn" bindtap="contactOwner">联系</button>
+      </view>
+    </view>
+
+    <!-- 问题描述 -->
+    <view class="detail-card">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/edit.svg" mode="aspectFit"></image>
+        <text class="title-text">问题描述</text>
+      </view>
+      <view class="description-content">
+        <text class="description-text">{{orderDetail.description}}</text>
+      </view>
+    </view>
+
+    <!-- 现场图片 -->
+    <view class="detail-card" wx:if="{{orderDetail.images && orderDetail.images.length > 0}}">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/camera.svg" mode="aspectFit"></image>
+        <text class="title-text">现场图片</text>
+      </view>
+      <view class="images-grid">
+        <view 
+          class="image-item"
+          wx:for="{{orderDetail.images}}"
+          wx:key="index"
+          bindtap="previewPhoto"
+          data-index="{{index}}"
+          data-type="problem"
+        >
+          <image class="problem-image" src="{{item}}" mode="aspectFill"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 技能要求 -->
+    <view class="detail-card" wx:if="{{orderDetail.requiredSkills && orderDetail.requiredSkills.length > 0}}">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/stats.svg" mode="aspectFit"></image>
+        <text class="title-text">技能要求</text>
+      </view>
+      
+      <view class="skills-list">
+        <view 
+          class="skill-tag"
+          wx:for="{{orderDetail.requiredSkills}}"
+          wx:key="index"
+        >
+          <text class="skill-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 建议工具 -->
+    <view class="detail-card" wx:if="{{orderDetail.tools && orderDetail.tools.length > 0}}">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/wrench.svg" mode="aspectFit"></image>
+        <text class="title-text">建议工具</text>
+      </view>
+      
+      <view class="tools-list">
+        <view 
+          class="tool-item"
+          wx:for="{{orderDetail.tools}}"
+          wx:key="index"
+        >
+          <view class="tool-dot"></view>
+          <text class="tool-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 工作记录 -->
+    <view class="detail-card">
+      <view class="card-title">
+        <image class="title-icon" src="/static/icons/history.svg" mode="aspectFit"></image>
+        <text class="title-text">工作记录</text>
+      </view>
+      
+      <!-- 工作照片 -->
+      <view class="work-section">
+        <view class="section-header">
+          <text class="section-title">工作照片</text>
+          <button class="add-btn" bindtap="uploadWorkPhoto">添加照片</button>
+        </view>
+        
+        <view class="work-photos" wx:if="{{workPhotos.length > 0}}">
+          <view 
+            class="work-photo-item"
+            wx:for="{{workPhotos}}"
+            wx:key="index"
+          >
+            <image 
+              class="work-photo"
+              src="{{item.url}}"
+              mode="aspectFill"
+              bindtap="previewPhoto"
+              data-index="{{index}}"
+              data-type="work"
+            />
+            <view 
+              class="delete-photo-btn"
+              bindtap="deleteWorkPhoto"
+              data-index="{{index}}"
+            >
+              <image class="delete-icon" src="/static/icons/close.svg" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+        
+        <view class="empty-photos" wx:else>
+          <image class="empty-icon" src="/static/icons/camera.svg" mode="aspectFit"></image>
+          <text class="empty-text">暂无工作照片</text>
+        </view>
+      </view>
+      
+      <!-- 工作备注 -->
+      <view class="work-section">
+        <view class="section-header">
+          <text class="section-title">工作备注</text>
+        </view>
+        <textarea 
+          class="work-notes"
+          placeholder="记录工作过程、遇到的问题、解决方案等"
+          value="{{workNotes}}"
+          bindinput="onWorkNotesInput"
+          maxlength="500"
+          auto-height
+        />
+      </view>
+      
+      <!-- 使用材料 -->
+      <view class="work-section">
+        <view class="section-header">
+          <text class="section-title">使用材料</text>
+          <button class="add-btn" bindtap="addMaterial">添加材料</button>
+        </view>
+        
+        <view class="materials-list" wx:if="{{materialsUsed.length > 0}}">
+          <view 
+            class="material-item"
+            wx:for="{{materialsUsed}}"
+            wx:key="index"
+          >
+            <text class="material-name">{{item.name}}</text>
+            <text class="material-quantity">×{{item.quantity}}</text>
+            <view 
+              class="delete-material-btn"
+              bindtap="deleteMaterial"
+              data-index="{{index}}"
+            >
+              <image class="delete-icon" src="/static/icons/close.svg" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+        
+        <view class="empty-materials" wx:else>
+          <image class="empty-icon" src="/static/icons/wrench.svg" mode="aspectFit"></image>
+          <text class="empty-text">暂无使用材料</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar" wx:if="{{!loading}}">
+    <button 
+      class="action-btn secondary" 
+      bindtap="pauseOrder"
+      wx:if="{{orderDetail.status === 'processing'}}"
+    >
+      暂停
+    </button>
+    <button 
+      class="action-btn secondary" 
+      bindtap="requestHelp"
+      wx:if="{{orderDetail.status === 'processing'}}"
+    >
+      协助
+    </button>
+    <button 
+      class="action-btn primary" 
+      bindtap="startOrder"
+      wx:if="{{orderDetail.status !== 'processing' && orderDetail.status !== 'completed'}}"
+    >
+      开始处理
+    </button>
+    <button 
+      class="action-btn primary" 
+      bindtap="completeOrder"
+      wx:if="{{orderDetail.status === 'processing'}}"
+    >
+      完成工单
+    </button>
+  </view>
+</view>
